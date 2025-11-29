@@ -1,7 +1,7 @@
-const CACHE_NAME = 'epopee-v1';
+const CACHE_NAME = 'epopee-price-calc-v1';
 const ASSETS = [
   '/',
-  'jewellery_calculator.html',
+  'Jewellery Price Calc.html',
   'manifest.json',
   'https://cdn.tailwindcss.com',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
@@ -18,4 +18,5 @@ self.addEventListener('fetch', (e) => {
   e.respondWith(
     caches.match(e.request).then((response) => response || fetch(e.request))
   );
+
 });
