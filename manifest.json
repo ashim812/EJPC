@@ -1,7 +1,7 @@
 {
-  "name": "Epopee Jewels Calculator",
-  "short_name": "EpopeeCalc",
-  "start_url": "jewellery_calculator.html",
+  "name": "Epopee Jewels Price Calculator",
+  "short_name": "EJPC",
+  "start_url": "Jewellery Price Calc.html",
   "display": "standalone",
   "background_color": "#0f0f0f",
   "theme_color": "#0f0f0f",
@@ -17,4 +17,5 @@
       "type": "image/svg+xml"
     }
   ]
+
 }
