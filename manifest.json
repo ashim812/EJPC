@@ -1,0 +1,15 @@
+{
+    "name": "Epopee Jewels Price Calculator",
+    "short_name": "EJPC",
+    "start_url": "index.html",
+    "display": "standalone",
+    "background_color": "#0f0f0f",
+    "theme_color": "#0f0f0f",
+    "icons": [
+        {
+            "src": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/svgs/solid/gem.svg",
+            "type": "image/svg+xml",
+            "sizes": "512x512"
+        }
+    ]
+}
