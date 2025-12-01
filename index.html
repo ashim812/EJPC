@@ -1318,6 +1318,33 @@
             items.forEach(item => renderRow(item));
         }
 
+        // New Helper function to format input on blur
+        function formatRowInput(id, input) {
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+            
+            const isMetal = item.type === 'metal';
+            const precision = isMetal ? 3 : 2;
+            
+            let val = parseFloat(input.value);
+            if(isNaN(val)) val = 0;
+            
+            // Round logic
+            const rounded = parseFloat(val.toFixed(precision));
+            item.weight = rounded;
+            
+            // Update UI if value > 0
+            if(rounded > 0) {
+                input.value = rounded.toFixed(precision);
+            } else {
+                // Keep empty or placeholder visible if 0
+                input.value = ''; 
+            }
+            
+            updateRowDisplay(item);
+            calculateTotals();
+        }
+
         function renderRow(item) {
             const container = document.getElementById(item.type === 'metal' ? 'metal-list' : 'stone-list');
             const rate = rates.find(r => r.id === item.rateId);
@@ -1325,17 +1352,27 @@
             
             const div = document.createElement('div');
             div.id = item.id;
-            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
+            // Reduced vertical padding from py-1 to py-1, actually user asked to reduce padding, previous was p-3 (12px), now using px-3 py-1 (4px vertical)
+            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
             
             const unitLabel = item.type === 'metal' ? 'g' : 'ct';
+            
+            // Logic for decimals
+            const isMetal = item.type === 'metal';
+            const precision = isMetal ? 3 : 2;
+            const stepVal = isMetal ? '0.001' : '0.01';
+            // Only force format if value exists, otherwise empty string lets placeholder show
+            const displayVal = item.weight > 0 ? item.weight.toFixed(precision) : '';
+            const placeholderVal = isMetal ? '0.000' : '0.00';
 
             div.innerHTML = `
                 <div class="flex-grow w-full md:w-auto pl-2">
                     <div class="text-gray-200 font-medium text-lg">${label}</div>
                 </div>
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
-                    <input type="number" step="0.01" min="0" value="${item.weight || ''}" placeholder="0.00" 
+                    <input type="number" step="${stepVal}" min="0" value="${displayVal}" placeholder="${placeholderVal}" 
                            oninput="updateItem('${item.id}', 'weight', this.value)" 
+                           onblur="formatRowInput('${item.id}', this)"
                            class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none">
                     <span class="text-gray-500 text-sm w-6">${unitLabel}</span>
                 </div>
@@ -1590,4 +1627,3 @@
     </script>
 </body>
 </html>
-
