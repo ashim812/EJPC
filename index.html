@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>EJPC</title>
+    <title>Epopee Jewels Price Calculator</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0f0f0f">
@@ -633,7 +633,7 @@
                     <div class="flex flex-wrap gap-2">
                         <span id="conv-rate-2" class="conv-pill hidden md:inline-flex">1 USD = ...</span>
                         <span id="conv-rate-1" class="conv-pill">1 INR = ...</span>
-                        <span class="conv-pill hidden md:inline-flex">Source: ECB (via Frankfurter API)</span>
+                        <span class="conv-pill hidden md:inline-flex">Source: Frankfurter API</span>
                     </div>
                     
                     <button id="conv-refresh" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
@@ -751,6 +751,13 @@
                     setTheme('dark');
                 } else {
                     setTheme('light');
+                }
+            });
+
+            // 4. Listen for System Changes
+            mediaQuery.addEventListener('change', (e) => {
+                if (!localStorage.getItem('theme')) {
+                    setTheme(e.matches ? 'light' : 'dark');
                 }
             });
         }
@@ -906,8 +913,21 @@
                         rateINRtoTarget = rate;
                         const symbol = currencySymbols[targetCurrency] || targetCurrency;
                         
-                        rateLabel1.textContent = `1 INR = ${rate.toFixed(4)} ${symbol}`;
-                        rateLabel2.textContent = `1 ${symbol} = ${(1/rate).toFixed(2)} INR`;
+                        rateLabel1.textContent = `1 USD = ${rate.toFixed(4)} ${symbol}`;
+                        rateLabel2.textContent = `1 INR = ${rate.toFixed(4)} ${symbol}`;
+
+                        // Fix logic for display
+                        rateLabel1.textContent = `1 USD = ...`; // Placeholder, actually irrelevant for direct API unless calc
+                        
+                        // Correct display logic based on 1 INR base or reverse
+                        // Frankfurter free API base is EUR. We need cross rate.
+                        // Actually the fetch url used is `latest?from=INR`. So `data.rates[TARGET]` is `1 INR = X TARGET`
+                        
+                        const oneInrToTarget = rate;
+                        const oneTargetToInr = 1 / rate;
+
+                        rateLabel2.textContent = `1 ${symbol} = ${oneTargetToInr.toFixed(2)} INR`;
+                        rateLabel1.textContent = `1 INR = ${oneInrToTarget.toFixed(4)} ${symbol}`;
                         
                         updatedEl.textContent = 'Updated: ' + new Date().toLocaleTimeString();
                         statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
