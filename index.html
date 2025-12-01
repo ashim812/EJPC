@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Epopee Jewels Price Calculator</title>
+    <title>EJPC</title>
     
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0f0f0f">
@@ -21,6 +21,30 @@
             --gold-light: #F4C430;
             --dark-bg: #1a1a1a;
             --panel-bg: rgba(30, 30, 30, 0.95);
+            --text-main: #e0e0e0;
+            --text-muted: #9ca3af;
+            --input-bg: #2a2a2a;
+            --border-color: rgba(212, 175, 55, 0.2);
+            --accent-blue: #64b5f6;
+            --bg-gradient-1: #1f1f1f;
+            --bg-gradient-2: #000000;
+            --icon-color: #d1d5db; /* gray-300 default */
+        }
+
+        /* Light Mode Overrides */
+        body.light {
+            --gold-primary: #b8860b;
+            --gold-light: #d4af37;
+            --dark-bg: #f0f4f8;
+            --panel-bg: rgba(255, 255, 255, 0.85); /* Slightly translucent for glass effect */
+            --text-main: #1f2937;
+            --text-muted: #4b5563;
+            --input-bg: #ffffff;
+            --border-color: rgba(0, 0, 0, 0.1);
+            --accent-blue: #0284c7;
+            --bg-gradient-1: #e2e8f0;
+            --bg-gradient-2: #f8fafc;
+            --icon-color: #374151; /* gray-700 for light mode */
         }
 
         /* Full Screen Lock */
@@ -29,15 +53,16 @@
             overflow: hidden; /* Prevent body scroll */
             margin: 0;
             padding: 0;
-            background-color: #0f0f0f; /* Match PWA background */
+            background-color: var(--dark-bg);
         }
 
         body {
             font-family: 'Lato', sans-serif;
-            background-image: radial-gradient(circle at 50% 50%, #1f1f1f 0%, #000000 100%);
-            color: #e0e0e0;
+            background-image: radial-gradient(circle at 50% 50%, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
+            color: var(--text-main);
             display: flex;
             flex-direction: column;
+            transition: background 0.3s ease, color 0.3s ease;
         }
 
         h1, h2, .brand-font {
@@ -48,53 +73,49 @@
         .glass-panel {
             background: var(--panel-bg);
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            transition: background 0.3s ease, border 0.3s ease;
         }
 
-        /* Custom Scrollbar - Refined for internal lists */
-        .custom-scroll::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scroll::-webkit-scrollbar-track {
-            background: rgba(0,0,0,0.2);
-        }
-        .custom-scroll::-webkit-scrollbar-thumb {
-            background: #444;
-            border-radius: 3px;
-        }
-        .custom-scroll::-webkit-scrollbar-thumb:hover {
-            background: var(--gold-primary);
-        }
+        /* Custom Scrollbar */
+        .custom-scroll::-webkit-scrollbar { width: 6px; }
+        .custom-scroll::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #666; border-radius: 3px; }
+        .custom-scroll::-webkit-scrollbar-thumb:hover { background: var(--gold-primary); }
 
         /* Animations */
         @keyframes slideIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
-        .item-row {
-            animation: slideIn 0.3s ease-out forwards;
-        }
+        .item-row { animation: slideIn 0.3s ease-out forwards; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
 
         .btn-gold {
             background: linear-gradient(45deg, #B8860B, #D4AF37, #FFD700);
             background-size: 200% auto;
             color: #000;
-            transition: 0.5s;
+            transition: 0.1s; /* Faster transition for touch */
             border: none;
             font-weight: bold;
         }
-        .btn-gold:hover {
-            background-position: right center;
-            box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
-            transform: scale(1.02);
+        /* Hover only on devices that support hover */
+        @media (hover: hover) {
+            .btn-gold:hover {
+                background-position: right center;
+                box-shadow: 0 0 15px rgba(212, 175, 55, 0.6);
+                transform: scale(1.02);
+            }
         }
+        .btn-gold:active { transform: scale(0.98); opacity: 0.9; }
 
+        /* Inputs */
+        input { color: var(--text-main) !important; }
         .input-dark {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            color: #fff;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
             transition: border-color 0.3s, box-shadow 0.3s;
         }
         .input-dark:focus {
@@ -124,29 +145,26 @@
         }
 
         /* Dropdown Styling */
-        select option {
-            background-color: #1a1a1a;
-            color: #e0e0e0;
-            padding: 10px;
-        }
-        select {
-            color-scheme: dark;
-        }
+        select option { background-color: var(--dark-bg); color: var(--text-main); padding: 10px; }
+        select { color-scheme: dark; }
+        body.light select { color-scheme: light; }
 
         /* Invoice Style */
         .invoice-card {
-            background-color: #0d1117;
-            border: 1px solid #64b5f6;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--accent-blue);
             border-radius: 1rem;
             box-shadow: 0 10px 25px rgba(0,0,0,0.5);
             font-family: 'Lato', sans-serif;
+            backdrop-filter: blur(5px);
         }
+        
         .invoice-pill {
-            border: 1px solid #64b5f6;
+            border: 1px solid var(--accent-blue);
             border-radius: 9999px;
             padding: 0.5rem 2rem;
-            background-color: rgba(13, 17, 23, 0.95);
-            color: #b0b8c4;
+            background-color: var(--panel-bg);
+            color: var(--text-muted);
             font-family: 'Lato', sans-serif;
             text-transform: uppercase;
             font-size: 0.9rem;
@@ -157,46 +175,39 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             position: relative;
             z-index: 10;
+            backdrop-filter: blur(5px);
         }
         .invoice-row {
             display: flex;
             justify-content: space-between;
             padding: 0.75rem 0;
             font-size: 1.1rem;
-            color: #b0b8c4;
+            color: var(--text-muted);
         }
-        .invoice-val {
-            color: #ffffff;
-            font-weight: 500;
-        }
-        .invoice-total {
-            font-size: 1.5rem;
-            color: #ffffff;
-            font-weight: 700;
-        }
-        .invoice-divider {
-            border-top: 1px solid #30363d;
-            margin: 1rem 0;
-        }
+        .invoice-val { color: var(--text-main); font-weight: 500; }
+        .invoice-total { font-size: 1.5rem; color: var(--text-main); font-weight: 700; }
+        .invoice-divider { border-top: 1px solid var(--border-color); margin: 1rem 0; }
 
         /* Rate Cube Style */
         .rate-cube {
-            background: linear-gradient(145deg, #2a2a2a, #222);
-            border: 1px solid #333;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
             transition: all 0.3s ease;
             position: relative;
             flex: 1 1 140px;
             min-width: 140px;
             max-width: 100%;
         }
-        .rate-cube:hover {
-            transform: translateY(-2px);
-            border-color: var(--gold-primary);
-            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 10;
+        @media (hover: hover) {
+            .rate-cube:hover {
+                transform: translateY(-2px);
+                border-color: var(--gold-primary);
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                z-index: 10;
+            }
         }
         .rate-cube.metal { border-left: 3px solid var(--gold-primary); }
-        .rate-cube.stone { border-left: 3px solid #64b5f6; }
+        .rate-cube.stone { border-left: 3px solid var(--accent-blue); }
         
         .rate-input {
             background: transparent;
@@ -204,84 +215,217 @@
             border-bottom: 1px solid transparent;
             width: 100%;
             transition: border-color 0.3s;
+            color: var(--text-main);
         }
-        .rate-input:focus {
-            outline: none;
-            border-color: #666;
-        }
+        .rate-input:focus { outline: none; border-color: #666; }
         .metal .rate-input:focus { border-color: var(--gold-primary); }
-        .stone .rate-input:focus { border-color: #64b5f6; }
+        .stone .rate-input:focus { border-color: var(--accent-blue); }
 
         /* Dynamic Flex Layout */
-        .auto-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 1rem;
-            align-content: flex-start;
-        }
+        .auto-grid { display: flex; flex-wrap: wrap; gap: 1rem; align-content: flex-start; }
 
         /* Add Item Menu Chips */
         .add-chip {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: #aaa;
+            background: rgba(125, 125, 125, 0.1);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
             padding: 0.5rem 0.75rem;
             border-radius: 0.5rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.15s;
             font-size: 0.85rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
+            -webkit-tap-highlight-color: transparent;
         }
-        .add-chip:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            transform: translateY(-1px);
+        
+        /* FIX: Sticky Hover on Mobile - Only apply hover styles on devices that support hover */
+        @media (hover: hover) {
+            .add-chip:hover {
+                background: rgba(125, 125, 125, 0.2);
+                color: var(--text-main);
+                transform: translateY(-1px);
+            }
+            .add-chip.metal:hover { border-color: var(--gold-primary); color: var(--gold-primary); }
+            .add-chip.stone:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
         }
-        .add-chip.metal:hover { border-color: var(--gold-primary); color: var(--gold-primary); }
-        .add-chip.stone:hover { border-color: #64b5f6; color: #64b5f6; }
+
+        /* Active State for Touch Feedback */
+        .add-chip:active {
+            background: rgba(125, 125, 125, 0.3);
+            transform: translateY(1px);
+        }
+        .add-chip.metal:active { border-color: var(--gold-primary); color: var(--gold-primary); }
+        .add-chip.stone:active { border-color: var(--accent-blue); color: var(--accent-blue); }
+
 
         .delete-btn-corner {
-            position: absolute;
-            top: 2px;
-            right: 2px;
-            padding: 4px;
-            line-height: 1;
-            z-index: 20;
-            border-radius: 50%;
-            background: rgba(0,0,0,0.3);
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            position: absolute; top: 2px; right: 2px; padding: 4px; line-height: 1; z-index: 20;
+            border-radius: 50%; background: rgba(0,0,0,0.3); width: 20px; height: 20px;
+            display: flex; align-items: center; justify-content: center;
         }
         .delete-btn-corner i { font-size: 10px; }
         
         /* Spin Animation for Sync */
-        .fa-sync.spin {
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+        .fa-sync.spin, .fa-spinner.spin { animation: spin 1s linear infinite; }
 
+        /* --- NEW STYLES FOR INTEGRATION --- */
+        
+        /* Currency Dropdown */
+        .dropdown { position: relative; width: 100%; }
+        .dropdown-list {
+            position:absolute; top:100%; left:0; right:0; max-height:200px; overflow-y:auto;
+            background: var(--input-bg); border:1px solid var(--border-color); border-radius:8px;
+            display:none; z-index:50; font-size:14px; margin-top: 4px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        .dropdown-list div { padding:8px 12px; cursor:pointer; color: var(--text-main); }
+        .dropdown-list div:hover { background: rgba(125,125,125,0.1); }
+
+        /* Currency Converter Card Styles */
+        .conv-card {
+            background-color: var(--input-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .conv-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+        }
+        .conv-input {
+            background: transparent;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            outline: none;
+            width: 100%;
+        }
+        .conv-pill {
+            background: rgba(125,125,125,0.1);
+            border: 1px solid var(--border-color);
+            padding: 4px 12px;
+            border-radius: 99px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+        }
+        
+        /* Navigation Button Styles */
+        .nav-btn { 
+            color: var(--icon-color); 
+            transition: color 0.3s ease, background-color 0.3s ease; 
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .nav-btn:hover { background-color: rgba(125,125,125,0.1); }
+        
+        /* SVG Icon Fill Transition */
+        .nav-btn svg { transition: stroke 0.3s; }
+        
+        /* HOVER COLORS - FORCE VISIBILITY IN BOTH MODES */
+        body .hover-blue:hover, body.light .hover-blue:hover { color: #60a5fa !important; }
+        body .hover-green:hover, body.light .hover-green:hover { color: #4ade80 !important; }
+        body .hover-purple:hover, body.light .hover-purple:hover { color: #c084fc !important; }
+        body .hover-yellow:hover, body.light .hover-yellow:hover { color: #facc15 !important; }
+
+        /* Light Mode Text Overrides for dynamic elements */
+        body.light .text-gray-200 { color: #1f2937; }
+        body.light .text-gray-300 { color: #374151; }
+        body.light .text-gray-400 { color: #6b7280; }
+        body.light .text-gray-500 { color: #6b7280; }
+        body.light .bg-gray-800 { background-color: #f3f4f6; border-color: #e5e7eb; }
+        body.light .bg-gray-900 { background-color: #ffffff; }
+        body.light .bg-black { background-color: rgba(255,255,255,0.5); }
+        body.light .hover\:text-white:hover { color: #000; }
+        
+        /* Specific overrides for Headers to handle Contrast in Light Mode */
+        body.light .text-white { color: #1f2937 !important; } 
+        /* Revert yellow text for gold elements */
+        body.light .text-yellow-500 { color: #b45309 !important; } 
+        body.light .text-yellow-400 { color: #d97706 !important; }
+
+        /* PRESERVE RATE SETTINGS HEADER STYLE */
+        /* Force dark background and light yellow text even in light mode */
+        .settings-header {
+            background-image: linear-gradient(to right, #111827, transparent);
+        }
+        body.light .settings-header h2 { color: #EAB308 !important; } /* Force Light Yellow */
+        body.light .settings-header button { color: #9ca3af !important; } /* Restore close button color */
+        body.light .settings-header button:hover { color: #ffffff !important; }
+
+        /* Sync & Rates Buttons - Always White Text */
+        #sync-btn, #sync-btn:hover, #conv-refresh, #conv-refresh:hover {
+            color: #ffffff !important;
+        }
+
+        /* Summary Modal Backdrop - Opaque White in Light Mode */
+        body.light #summary-modal {
+            background-color: rgba(255, 255, 255, 0.96) !important;
+            backdrop-filter: blur(5px);
+        }
+        
     </style>
 </head>
 <body>
 
     <!-- Top Navigation (Fixed Height) -->
-    <nav class="flex-none h-16 w-full glass-panel border-b border-gray-800 z-40">
+    <nav class="flex-none h-16 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
                 <i class="fas fa-gem text-yellow-500 text-2xl"></i>
                 <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
             </div>
-            <div class="flex items-center gap-4">
-                <button onclick="toggleSummary()" class="text-gray-300 hover:text-blue-400 transition-colors p-2 rounded-full hover:bg-gray-800" title="View Summary">
-                    <i class="fas fa-file-invoice-dollar text-xl"></i>
+            
+            <!-- BUTTONS CONTAINER - GAP REDUCED TO 2 -->
+            <div class="flex items-center gap-2">
+                
+                <!-- Summary (Outline Document with Rupee) -->
+                <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <!-- Rupee Symbol - Slightly Left -->
+                        <text x="11.5" y="11" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
+                        <!-- Bottom Lines -->
+                        <line x1="8" y1="14" x2="16" y2="14"></line>
+                        <line x1="8" y1="17" x2="16" y2="17"></line>
+                    </svg>
                 </button>
-                <button onclick="toggleSettings()" class="text-gray-300 hover:text-yellow-400 transition-colors p-2 rounded-full hover:bg-gray-800" title="Manage Rates">
-                    <i class="fas fa-cog text-xl spin-hover"></i>
+
+                <!-- Discount Calculator (Outline Tag with Small % and Offset OFF) -->
+                <button onclick="toggleDiscount()" class="nav-btn hover-green p-2 rounded-full" title="Discount Calculator">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <!-- Smaller % Symbol -->
+                        <text x="8.5" y="10.5" font-family="Arial" font-size="7" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">%</text>
+                        <!-- OFF Text - Upper Right -->
+                        <text x="15" y="16.5" font-family="Arial" font-size="5" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle" transform="rotate(-45 15 16.5)">OFF</text>
+                    </svg>
+                </button>
+
+                <!-- Currency Converter (Outline Circular Arrows with Rupee) -->
+                <button onclick="toggleCurrency()" class="nav-btn hover-purple p-2 rounded-full" title="Currency Converter">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                        <path d="M8 16H3v5"></path>
+                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                        <path d="M16 8h5V3"></path>
+                        <text x="12" y="15.5" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
+                    </svg>
+                </button>
+
+                <!-- Settings -->
+                <button onclick="toggleSettings()" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                    </svg>
                 </button>
             </div>
         </div>
@@ -326,7 +470,7 @@
                 
                 <!-- Footer (Menu + Subtotal) -->
                 <div class="flex-none p-3 border-t border-gray-800 bg-black bg-opacity-20">
-                    <div id="metal-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll">
+                    <div id="metal-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll p-1">
                         <!-- Dynamic Metal Chips -->
                     </div>
                     <div class="flex justify-end text-sm text-gray-400">
@@ -350,7 +494,7 @@
 
                 <!-- Footer (Menu + Subtotal) -->
                 <div class="flex-none p-3 border-t border-gray-800 bg-black bg-opacity-20">
-                    <div id="stone-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll">
+                    <div id="stone-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll p-1">
                         <!-- Dynamic Stone Chips -->
                     </div>
                     <div class="flex justify-end text-sm text-gray-400">
@@ -365,9 +509,9 @@
     <!-- Settings Modal (Rate Settings) -->
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
-            <!-- Header -->
-            <div class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-900 to-transparent rounded-t-2xl flex-shrink-0">
-                <h2 class="text-2xl text-yellow-500 font-bold">RATE SETTINGS</h2>
+            <!-- Header (PRESERVED DARK STYLE) -->
+            <div class="settings-header flex justify-between items-center p-6 border-b border-gray-700 rounded-t-2xl flex-shrink-0">
+                <h2 class="text-2xl font-bold">RATE SETTINGS</h2>
                 <button onclick="toggleSettings()" class="text-gray-400 hover:text-white transition-colors">
                     <i class="fas fa-times text-2xl"></i>
                 </button>
@@ -414,6 +558,87 @@
             </div>
         </div>
     </div>
+
+    <!-- Discount Calculator Modal -->
+    <div id="discount-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-green-900">
+            <div class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-900 to-transparent rounded-t-2xl">
+                <h2 class="text-2xl text-green-400 font-bold">DISCOUNT</h2>
+                <button onclick="toggleDiscount()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            <div class="p-6">
+                <form onsubmit="return false;" class="flex flex-col gap-4">
+                    <div>
+                        <label class="text-sm text-gray-400 block mb-1">Original Price (₹):</label>
+                        <input type="number" id="calc-original" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-green-500 focus:outline-none" placeholder="0.00" oninput="runDiscountCalc()" min="0" step="any">
+                    </div>
+                    <div>
+                        <label class="text-sm text-gray-400 block mb-1">Discount (%):</label>
+                        <input type="number" id="calc-percent" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-green-500 focus:outline-none" value="0" oninput="runDiscountCalc()" min="0" max="100" step="any">
+                    </div>
+                    <div id="calc-result" class="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 hidden"></div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Currency Converter Modal -->
+    <div id="currency-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-2xl rounded-2xl flex flex-col shadow-2xl border border-purple-900">
+            <div class="flex justify-between items-center p-6 pb-2">
+                <div>
+                    <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">INR → Currency Converter</h2>
+                    <p class="text-gray-400 text-sm">Exchange Rates auto-update every 60 secs</p>
+                </div>
+                <button onclick="toggleCurrency()" class="text-gray-400 hover:text-white transition-colors -mt-6"><i class="fas fa-times text-2xl"></i></button>
+            </div>
+            
+            <div class="p-6 flex flex-col gap-4">
+                
+                <!-- Inputs Row -->
+                <div class="flex flex-col md:flex-row gap-4">
+                    <div class="conv-card flex-1">
+                        <label class="conv-label">Amount in INR (₹)</label>
+                        <input id="conv-inr" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
+                    </div>
+                    
+                    <div class="conv-card flex-1">
+                        <label class="conv-label">Convert To</label>
+                        <div class="dropdown">
+                            <input id="conv-search" class="bg-transparent text-xl font-bold w-full outline-none text-white cursor-pointer" placeholder="Select Currency" readonly>
+                            <div id="conv-list" class="dropdown-list custom-scroll"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Result Row -->
+                <div class="conv-card">
+                    <label class="conv-label">Estimated Amount in <span id="conv-label">USD</span></label>
+                    <input id="conv-out" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
+                </div>
+
+                <!-- Footer / Badges -->
+                <div class="flex flex-wrap items-center justify-between gap-3 mt-2">
+                    <div class="flex flex-wrap gap-2">
+                        <span id="conv-rate-1" class="conv-pill">1 INR = ...</span>
+                        <span id="conv-rate-2" class="conv-pill hidden md:inline-flex">1 USD = ...</span>
+                        <span class="conv-pill hidden md:inline-flex">Source: Frankfurter API</span>
+                    </div>
+                    
+                    <button id="conv-refresh" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
+                        Rates <i class="fas fa-sync-alt"></i>
+                    </button>
+                </div>
+
+                <div class="text-[10px] text-gray-500 mt-1 flex items-center gap-2">
+                    <span id="conv-status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                    <span id="conv-updated">Fetching...</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
 
     <!-- Summary Modal -->
     <div id="summary-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm p-4">
@@ -476,7 +701,31 @@
         let rates = (storedRates && storedRates.length > 0) ? storedRates : JSON.parse(JSON.stringify(DEFAULT_RATES));
         let items = []; 
 
+        // --- THEME LOGIC ---
+        function initTheme() {
+            // Check system preference
+            const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
+            
+            const applySystemTheme = (e) => {
+                if (e.matches) {
+                    document.body.classList.add('light');
+                } else {
+                    document.body.classList.remove('light');
+                }
+            };
+
+            // Initial check
+            applySystemTheme(mediaQuery);
+
+            // Listen for changes
+            mediaQuery.addEventListener('change', applySystemTheme);
+        }
+
+
         function init() {
+            initTheme();
+            initCurrencyConverter();
+
             // Register Service Worker for PWA Offline Capability
             if ('serviceWorker' in navigator) {
                 navigator.serviceWorker.register('sw.js')
@@ -495,6 +744,170 @@
             renderCalculator(); 
             calculateTotals();
         }
+
+        // --- MODAL TOGGLES ---
+        function toggleModal(id) {
+            const modal = document.getElementById(id);
+            modal.classList.toggle('active');
+            return modal.classList.contains('active');
+        }
+
+        function toggleSettings() { if(toggleModal('settings-modal')) renderSettings(); }
+        function toggleSummary() { if(toggleModal('summary-modal')) generateSummary(); }
+        
+        function toggleDiscount() { 
+            // PRE-FILL logic: Get total price from main UI
+            const totalText = document.getElementById('display-total-price').innerText;
+            // Remove commas and parse
+            const totalVal = parseFloat(totalText.replace(/,/g, ''));
+            
+            if(!isNaN(totalVal) && totalVal > 0) {
+                document.getElementById('calc-original').value = totalVal;
+                // Auto calculate with existing percentage (or 0)
+                runDiscountCalc();
+            }
+
+            toggleModal('discount-modal'); 
+        }
+
+        function toggleCurrency() { toggleModal('currency-modal'); }
+
+        // --- DISCOUNT CALCULATOR LOGIC ---
+        function runDiscountCalc() {
+            const originalPrice = parseFloat(document.getElementById('calc-original').value);
+            const discountPercentage = parseFloat(document.getElementById('calc-percent').value);
+            const resultDiv = document.getElementById('calc-result');
+
+            if (isNaN(originalPrice) || originalPrice < 0 || isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+                resultDiv.classList.add('hidden');
+                return;
+            }
+
+            const amountSaved = originalPrice * (discountPercentage / 100);
+            const discountedPrice = originalPrice - amountSaved;
+
+            resultDiv.classList.remove('hidden');
+            resultDiv.innerHTML = `
+                <div class="text-green-400 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                <div class="text-gray-400 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+            `;
+            
+            // Auto-fill currency converter with the Discounted Price
+            const convInr = document.getElementById('conv-inr');
+            if(convInr) {
+                convInr.value = discountedPrice.toFixed(2);
+                // Trigger event to update currency conversion if modal is open
+                convInr.dispatchEvent(new Event('input'));
+            }
+        }
+
+        // --- CURRENCY CONVERTER LOGIC ---
+        function initCurrencyConverter() {
+            const inrEl = document.getElementById('conv-inr');
+            const outEl = document.getElementById('conv-out');
+            const searchEl = document.getElementById('conv-search');
+            const listEl = document.getElementById('conv-list');
+            const labelEl = document.getElementById('conv-label');
+            
+            const rateLabel1 = document.getElementById('conv-rate-1');
+            const rateLabel2 = document.getElementById('conv-rate-2');
+            
+            const refreshBtn = document.getElementById('conv-refresh');
+            const updatedEl = document.getElementById('conv-updated');
+            const statusDot = document.getElementById('conv-status-dot');
+
+            let rateINRtoTarget = null;
+            let targetCurrency = 'USD';
+            const currencySymbols = { AED:"د.إ", AUD:"A$", CAD:"C$", CHF:"CHF", CNY:"¥", EUR:"€", GBP:"£", HKD:"HK$", JPY:"¥", SGD:"S$", USD:"$", SAR:"р.с", QAR:"р.ق", KWD:"د.ك", OMR:"р.ع." };
+
+            function updateConv(from='INR') {
+                if(!rateINRtoTarget) return;
+                if(from === 'INR'){
+                    const val = parseFloat(inrEl.value);
+                    if(!isNaN(val)) outEl.value = (val * rateINRtoTarget).toFixed(2);
+                    else outEl.value = '';
+                } else {
+                    const val = parseFloat(outEl.value);
+                    if(!isNaN(val)) inrEl.value = (val / rateINRtoTarget).toFixed(2);
+                    else inrEl.value = '';
+                }
+            }
+
+            async function fetchSymbols() {
+                try {
+                    const res = await fetch('https://api.frankfurter.app/currencies');
+                    const symbols = await res.json();
+                    listEl.innerHTML = '';
+                    Object.entries(symbols).sort((a,b)=>a[1].localeCompare(b[1])).forEach(([code, name]) => {
+                        const div = document.createElement('div');
+                        div.textContent = `${code} - ${name}`;
+                        div.dataset.code = code;
+                        if(code === 'USD') searchEl.value = div.textContent;
+                        listEl.appendChild(div);
+                    });
+                    fetchRate();
+                } catch(e) { console.error('Symbol fetch error'); }
+            }
+
+            async function fetchRate() {
+                const icon = refreshBtn.querySelector('i');
+                icon.classList.add('fa-spin');
+                updatedEl.textContent = 'Updating...';
+                
+                try {
+                    const res = await fetch(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`);
+                    const data = await res.json();
+                    const rate = data.rates[targetCurrency];
+                    
+                    if(rate) {
+                        rateINRtoTarget = rate;
+                        const symbol = currencySymbols[targetCurrency] || targetCurrency;
+                        
+                        rateLabel1.textContent = `1 INR = ${rate.toFixed(4)} ${symbol}`;
+                        rateLabel2.textContent = `1 ${symbol} = ${(1/rate).toFixed(2)} INR`;
+                        
+                        updatedEl.textContent = 'Updated: ' + new Date().toLocaleTimeString();
+                        statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
+                        updateConv('INR');
+                    }
+                } catch(e) {
+                    updatedEl.textContent = 'Error fetching rate';
+                    statusDot.classList.replace('bg-green-500', 'bg-red-500');
+                }
+                icon.classList.remove('fa-spin');
+            }
+
+            // Events
+            inrEl.addEventListener('input', () => updateConv('INR'));
+            outEl.addEventListener('input', () => updateConv('OUT'));
+            refreshBtn.addEventListener('click', fetchRate);
+            
+            searchEl.addEventListener('focus', () => listEl.style.display = 'block');
+            document.addEventListener('click', (e) => {
+                if(!searchEl.contains(e.target) && !listEl.contains(e.target)) listEl.style.display = 'none';
+            });
+            
+            searchEl.addEventListener('input', () => {
+                const term = searchEl.value.toLowerCase();
+                Array.from(listEl.children).forEach(div => {
+                    div.style.display = div.textContent.toLowerCase().includes(term) ? 'block' : 'none';
+                });
+            });
+
+            listEl.addEventListener('click', (e) => {
+                if(e.target.dataset.code) {
+                    targetCurrency = e.target.dataset.code;
+                    labelEl.textContent = targetCurrency;
+                    searchEl.value = e.target.textContent;
+                    listEl.style.display = 'none';
+                    fetchRate();
+                }
+            });
+
+            fetchSymbols();
+            setInterval(fetchRate, 60000); // Auto-refresh every minute
+        }
+
 
         // --- GOOGLE SHEET SYNC LOGIC ---
 
@@ -559,7 +972,7 @@
 
             } catch (error) {
                 console.error("Sync Error:", error);
-                showToast("Failed to fetch. DataBase updates take ~5 mins.");
+                showToast("Failed to fetch. Google updates take ~5 mins.");
             } finally {
                 // UI Reset State
                 btn.disabled = false;
