@@ -272,6 +272,12 @@
 
         /* --- NEW STYLES FOR INTEGRATION --- */
         
+        /* Theme Toggle Switch */
+        .theme-toggle { position:relative; display:inline-block; width:48px; height:26px; border-radius:30px; background:#4b5563; cursor:pointer; transition:background .3s ease; overflow:hidden; border: 1px solid var(--border-color); }
+        body.light .theme-toggle { background:#e2e8f0; border-color: #cbd5e1; }
+        .toggle-circle { position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#1f2937; display:flex; align-items:center; justify-content:center; font-size:12px; color:#fbbf24; transition:all .3s ease; z-index:2; }
+        body.light .toggle-circle { transform:translateX(22px); background:#fff; color:#f59e0b; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
+
         /* Currency Dropdown */
         .dropdown { position: relative; width: 100%; }
         .dropdown-list {
@@ -383,9 +389,14 @@
                 <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
             </div>
             
-            <!-- BUTTONS CONTAINER - GAP REDUCED TO 2 -->
-            <div class="flex items-center gap-2">
+            <!-- BUTTONS CONTAINER - GAP REDUCED TO 0.5 -->
+            <div class="flex items-center gap-0.5">
                 
+                <!-- Theme Toggle (Restored) -->
+                <div class="theme-toggle scale-75" id="themeToggle" title="Toggle Theme">
+                    <div class="toggle-circle">☾</div>
+                </div>
+
                 <!-- Summary (Outline Document with Rupee) -->
                 <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -703,22 +714,43 @@
 
         // --- THEME LOGIC ---
         function initTheme() {
-            // Check system preference
+            const toggle = document.getElementById('themeToggle');
+            const circle = toggle.querySelector('.toggle-circle');
+            const savedTheme = localStorage.getItem('theme');
             const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
-            
-            const applySystemTheme = (e) => {
-                if (e.matches) {
+
+            const setTheme = (mode) => {
+                if (mode === 'light') {
                     document.body.classList.add('light');
+                    circle.textContent = '☀';
                 } else {
                     document.body.classList.remove('light');
+                    circle.textContent = '☾';
                 }
+                localStorage.setItem('theme', mode);
             };
 
-            // Initial check
-            applySystemTheme(mediaQuery);
+            // 1. Check localStorage first
+            if (savedTheme) {
+                setTheme(savedTheme);
+            } else {
+                // 2. Fallback to System Preference
+                setTheme(mediaQuery.matches ? 'light' : 'dark');
+            }
 
-            // Listen for changes
-            mediaQuery.addEventListener('change', applySystemTheme);
+            // 3. Manual Toggle Handler
+            toggle.addEventListener('click', () => {
+                if (document.body.classList.contains('light')) {
+                    setTheme('dark');
+                } else {
+                    setTheme('light');
+                }
+            });
+
+            // 4. Listen for System Changes (only affects if no manual override set? 
+            // Usually better to let user choice persist, but here is a hybrid approach:
+            // If user hasn't manually toggled (cleared localstorage?), auto-switch.
+            // For simplicity, we'll stick to manual override priority as established.)
         }
 
 
