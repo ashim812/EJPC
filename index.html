@@ -631,9 +631,9 @@
                 <!-- Footer / Badges -->
                 <div class="flex flex-wrap items-center justify-between gap-3 mt-2">
                     <div class="flex flex-wrap gap-2">
-                        <span id="conv-rate-1" class="conv-pill">1 INR = ...</span>
                         <span id="conv-rate-2" class="conv-pill hidden md:inline-flex">1 USD = ...</span>
-                        <span class="conv-pill hidden md:inline-flex">Source: Frankfurter API</span>
+                        <span id="conv-rate-1" class="conv-pill">1 INR = ...</span>
+                        <span class="conv-pill hidden md:inline-flex">Source: ECB (via Frankfurter API)</span>
                     </div>
                     
                     <button id="conv-refresh" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
@@ -706,6 +706,13 @@
         // --- CONFIGURATION ---
         // Paste your Google Sheet Published CSV URL here (inside the quotes)
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNqsuqZA8a-qejlcJWu3ad_F9_TS_1-2OwznvetGZsUWUdANQIfnkiEskSDY393MB-taoW2dHuvYNu/pub?output=csv"; 
+        
+        let discountData = {
+            percentage: 0,
+            amount: 0,
+            discountedTotal: 0,
+            active: false
+        };
 
         let storedRates = JSON.parse(localStorage.getItem('jewelleryRates'));
         
@@ -746,11 +753,6 @@
                     setTheme('light');
                 }
             });
-
-            // 4. Listen for System Changes (only affects if no manual override set? 
-            // Usually better to let user choice persist, but here is a hybrid approach:
-            // If user hasn't manually toggled (cleared localstorage?), auto-switch.
-            // For simplicity, we'll stick to manual override priority as established.)
         }
 
 
@@ -812,11 +814,20 @@
 
             if (isNaN(originalPrice) || originalPrice < 0 || isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
                 resultDiv.classList.add('hidden');
+                discountData.active = false;
                 return;
             }
 
             const amountSaved = originalPrice * (discountPercentage / 100);
             const discountedPrice = originalPrice - amountSaved;
+
+            // Update Global Discount Data
+            discountData = {
+                percentage: discountPercentage,
+                amount: amountSaved,
+                discountedTotal: discountedPrice,
+                active: discountPercentage > 0
+            };
 
             resultDiv.classList.remove('hidden');
             resultDiv.innerHTML = `
@@ -1294,7 +1305,7 @@
             
             const div = document.createElement('div');
             div.id = item.id;
-            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg p-3 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
+            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
             
             const unitLabel = item.type === 'metal' ? 'g' : 'ct';
 
@@ -1459,11 +1470,27 @@
                 <span>Gross Weight</span>
                 <span class="invoice-val">${grossWeight.toFixed(3)} g</span>
             </div>
-            <div class="invoice-row mt-2">
-                <span class="text-white font-bold text-xl">Total Price</span>
-                <span class="invoice-total">₹${total.toLocaleString('en-IN')}</span>
-            </div>
             `;
+
+            if (discountData.active) {
+                html += `
+                <div class="invoice-row">
+                    <span>Discount (${discountData.percentage}%)</span>
+                    <span class="invoice-val text-green-400">-₹${discountData.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                </div>
+                <div class="invoice-row mt-2">
+                    <span class="text-white font-bold text-xl">Discounted Price</span>
+                    <span class="invoice-total">₹${discountData.discountedTotal.toLocaleString('en-IN')}</span>
+                </div>
+                `;
+            } else {
+                html += `
+                <div class="invoice-row mt-2">
+                    <span class="text-white font-bold text-xl">Total Price</span>
+                    <span class="invoice-total">₹${total.toLocaleString('en-IN')}</span>
+                </div>
+                `;
+            }
 
             container.innerHTML = html;
         }
@@ -1498,7 +1525,13 @@
 
             text += `--------------------------------\n`;
             text += `Gross Weight\t${grossWeight.toFixed(3)} g\n`;
-            text += `Total Price \t₹${total.toLocaleString('en-IN')}`;
+            
+            if(discountData.active) {
+                text += `Discount (${discountData.percentage}%)\t-₹${discountData.amount.toLocaleString('en-IN')}\n`;
+                text += `Discounted Price \t₹${discountData.discountedTotal.toLocaleString('en-IN')}`;
+            } else {
+                text += `Total Price \t₹${total.toLocaleString('en-IN')}`;
+            }
             
             const textArea = document.createElement("textarea");
             textArea.value = text;
