@@ -868,10 +868,7 @@
             const searchEl = document.getElementById('conv-search');
             const listEl = document.getElementById('conv-list');
             const labelEl = document.getElementById('conv-label');
-            
-            // Removed conv-rate-1 as per request
             const rateLabel2 = document.getElementById('conv-rate-2');
-            
             const refreshBtn = document.getElementById('conv-refresh');
             const updatedEl = document.getElementById('conv-updated');
             const statusDot = document.getElementById('conv-status-dot');
@@ -922,8 +919,7 @@
                     if(rate) {
                         rateINRtoTarget = rate;
                         const symbol = currencySymbols[targetCurrency] || targetCurrency;
-                        
-                        // We only have one label now: rateLabel2 (1 USD = ...)
+
                         // Calculate reverse rate for 1 Target = X INR
                         const oneTargetToInr = 1 / rate;
 
@@ -982,7 +978,7 @@
             let url = GOOGLE_SHEET_URL;
             
             if (!url) {
-                showToast("Please set GOOGLE_SHEET_URL in code");
+                showToast("Please set GOOGLE_SHEET_CSV_URL in code");
                 return;
             }
 
@@ -1030,12 +1026,12 @@
                     renderSettings();
                     showToast(`Synced ${newRates.length} rates successfully!`);
                 } else {
-                    showToast("Synced, but found no valid data.");
+                    showToast("Synced, but found no valid data format.");
                 }
 
             } catch (error) {
                 console.error("Sync Error:", error);
-                showToast("Failed to fetch. Google updates take ~5 mins.");
+                showToast("Failed to fetch. Check URL or Internet Connection.");
             } finally {
                 // UI Reset State
                 btn.disabled = false;
@@ -1219,7 +1215,7 @@
             }
 
             if (validStones.length === 0) {
-                stoneMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Settings to enable</span>`;
+                stoneMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Rate Settings to enable</span>`;
             } else {
                 validStones.forEach(r => {
                     const btn = document.createElement('button');
@@ -1364,7 +1360,6 @@
             const displayVal = item.weight > 0 ? item.weight.toFixed(precision) : '';
             const placeholderVal = isMetal ? '0.000' : '0.00';
 
-            // Reverted: Added flex-grow back to the label container
             div.innerHTML = `
                 <div class="flex-grow w-full md:w-auto pl-2">
                     <div class="text-gray-200 font-medium text-lg">${label}</div>
