@@ -321,6 +321,16 @@
             display: inline-flex;
             align-items: center;
         }
+        .conv-pill-small {
+            background: rgba(125,125,125,0.1);
+            border: 1px solid var(--border-color);
+            padding: 2px 10px;
+            border-radius: 99px;
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            display: inline-flex;
+            align-items: center;
+        }
         
         /* Navigation Button Styles */
         .nav-btn { 
@@ -470,7 +480,7 @@
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                 <!-- Header -->
                 <div class="flex-none p-3 border-b border-gray-700 flex justify-between items-center bg-black bg-opacity-20">
-                    <h2 class="text-lg text-gray-200"><i class="fas fa-cube mr-2 text-gray-400"></i>Precious Metals</h2>
+                    <h2 class="text-lg text-gray-200"><i class="fas fa-cube mr-2 text-gray-400"></i>Metals</h2>
                     <span class="text-xs text-gray-500">Weight (g)</span>
                 </div>
                 
@@ -494,7 +504,7 @@
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                 <!-- Header -->
                 <div class="flex-none p-3 border-b border-gray-700 flex justify-between items-center bg-black bg-opacity-20">
-                    <h2 class="text-lg text-gray-200"><i class="far fa-gem mr-2 text-blue-400"></i>Stones & Gems</h2>
+                    <h2 class="text-lg text-gray-200"><i class="far fa-gem mr-2 text-blue-400"></i>Stones</h2>
                     <span class="text-xs text-gray-500">Weight (ct)</span>
                 </div>
 
@@ -596,18 +606,24 @@
     <!-- Currency Converter Modal -->
     <div id="currency-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-2xl rounded-2xl flex flex-col shadow-2xl border border-purple-900">
-            <div class="flex justify-between items-center p-6 pb-2">
+            <div class="flex justify-between items-start p-6 pb-2">
                 <div>
                     <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">INR → Currency Converter</h2>
-                    <p class="text-gray-400 text-sm">Exchange Rates auto-update every 60 secs</p>
+                    <div class="flex flex-col gap-1">
+                        <p class="text-gray-400 text-sm">Exchange Rates auto-update every 60 secs</p>
+                        <div class="flex flex-col items-start gap-1 mt-1">
+                            <span class="conv-pill-small">Source: ECB (via Frankfurter API)</span>
+                            <span id="conv-rate-2" class="conv-pill-small">1 USD = ...</span>
+                        </div>
+                    </div>
                 </div>
-                <button onclick="toggleCurrency()" class="text-gray-400 hover:text-white transition-colors -mt-6"><i class="fas fa-times text-2xl"></i></button>
+                <button onclick="toggleCurrency()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-2xl"></i></button>
             </div>
             
-            <div class="p-6 flex flex-col gap-4">
+            <div class="p-6 pt-2 flex flex-col gap-4">
                 
                 <!-- Inputs Row -->
-                <div class="flex flex-col md:flex-row gap-4">
+                <div class="flex flex-col md:flex-row gap-4 mt-2">
                     <div class="conv-card flex-1">
                         <label class="conv-label">Amount in INR (₹)</label>
                         <input id="conv-inr" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
@@ -629,21 +645,15 @@
                 </div>
 
                 <!-- Footer / Badges -->
-                <div class="flex flex-wrap items-center justify-between gap-3 mt-2">
-                    <div class="flex flex-wrap gap-2">
-                        <span id="conv-rate-2" class="conv-pill hidden md:inline-flex">1 USD = ...</span>
-                        <span id="conv-rate-1" class="conv-pill">1 INR = ...</span>
-                        <span class="conv-pill hidden md:inline-flex">Source: ECB (via Frankfurter API)</span>
+                <div class="flex items-center justify-between mt-2">
+                    <div class="text-[10px] text-gray-500 flex items-center gap-2">
+                        <span id="conv-status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
+                        <span id="conv-updated">Fetching...</span>
                     </div>
                     
                     <button id="conv-refresh" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
                         Rates <i class="fas fa-sync-alt"></i>
                     </button>
-                </div>
-
-                <div class="text-[10px] text-gray-500 mt-1 flex items-center gap-2">
-                    <span id="conv-status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
-                    <span id="conv-updated">Fetching...</span>
                 </div>
 
             </div>
@@ -655,7 +665,7 @@
     <div id="summary-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm p-4">
         <div class="w-full h-full flex flex-col items-center justify-center relative">
             
-            <button onclick="toggleSummary()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-gray-800 rounded-full p-3 z-50">
+            <button onclick="toggleSummary()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-gray-800 rounded-full w-12 h-12 flex items-center justify-center z-50">
                 <i class="fas fa-times text-xl"></i>
             </button>
 
@@ -858,10 +868,7 @@
             const searchEl = document.getElementById('conv-search');
             const listEl = document.getElementById('conv-list');
             const labelEl = document.getElementById('conv-label');
-            
-            const rateLabel1 = document.getElementById('conv-rate-1');
             const rateLabel2 = document.getElementById('conv-rate-2');
-            
             const refreshBtn = document.getElementById('conv-refresh');
             const updatedEl = document.getElementById('conv-updated');
             const statusDot = document.getElementById('conv-status-dot');
@@ -912,22 +919,10 @@
                     if(rate) {
                         rateINRtoTarget = rate;
                         const symbol = currencySymbols[targetCurrency] || targetCurrency;
-                        
-                        rateLabel1.textContent = `1 USD = ${rate.toFixed(4)} ${symbol}`;
-                        rateLabel2.textContent = `1 INR = ${rate.toFixed(4)} ${symbol}`;
-
-                        // Fix logic for display
-                        rateLabel1.textContent = `1 USD = ...`; // Placeholder, actually irrelevant for direct API unless calc
-                        
-                        // Correct display logic based on 1 INR base or reverse
-                        // Frankfurter free API base is EUR. We need cross rate.
-                        // Actually the fetch url used is `latest?from=INR`. So `data.rates[TARGET]` is `1 INR = X TARGET`
-                        
-                        const oneInrToTarget = rate;
+                        // Calculate reverse rate for 1 Target = X INR
                         const oneTargetToInr = 1 / rate;
 
-                        rateLabel2.textContent = `1 ${symbol} = ${oneTargetToInr.toFixed(2)} INR`;
-                        rateLabel1.textContent = `1 INR = ${oneInrToTarget.toFixed(4)} ${symbol}`;
+                        if(rateLabel2) rateLabel2.textContent = `1 ${symbol} = ${oneTargetToInr.toFixed(2)} INR`;
                         
                         updatedEl.textContent = 'Updated: ' + new Date().toLocaleTimeString();
                         statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
@@ -982,7 +977,7 @@
             let url = GOOGLE_SHEET_URL;
             
             if (!url) {
-                showToast("Please set GOOGLE_SHEET_URL in code");
+                showToast("Please set GOOGLE_SHEET_CSV_URL in code");
                 return;
             }
 
@@ -1030,12 +1025,12 @@
                     renderSettings();
                     showToast(`Synced ${newRates.length} rates successfully!`);
                 } else {
-                    showToast("Synced, but found no valid data.");
+                    showToast("Synced, but found no valid data format.");
                 }
 
             } catch (error) {
                 console.error("Sync Error:", error);
-                showToast("Failed to fetch. Google updates take ~5 mins.");
+                showToast("Failed to fetch. Please check URL or Internet Connection.");
             } finally {
                 // UI Reset State
                 btn.disabled = false;
@@ -1207,7 +1202,7 @@
 
 
             if (validMetals.length === 0) {
-                metalMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Settings to enable</span>`;
+                metalMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Rate Settings to enable</span>`;
             } else {
                 validMetals.forEach(r => {
                     const btn = document.createElement('button');
@@ -1352,8 +1347,7 @@
             
             const div = document.createElement('div');
             div.id = item.id;
-            // Reduced vertical padding from py-1 to py-1, actually user asked to reduce padding, previous was p-3 (12px), now using px-3 py-1 (4px vertical)
-            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
+            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
             
             const unitLabel = item.type === 'metal' ? 'g' : 'ct';
             
