@@ -386,6 +386,37 @@
             background-color: rgba(255, 255, 255, 0.96) !important;
             backdrop-filter: blur(5px);
         }
+
+        /* Checkbox Styling */
+        input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 1.2em;
+            height: 1.2em;
+            background-color: var(--input-bg);
+            border: 1px solid var(--text-muted);
+            border-radius: 4px;
+            display: inline-grid;
+            place-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        input[type="checkbox"]::before {
+            content: "";
+            width: 0.65em;
+            height: 0.65em;
+            transform: scale(0);
+            transition: 120ms transform ease-in-out;
+            box-shadow: inset 1em 1em var(--gold-primary);
+            transform-origin: center;
+            clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
+        }
+        input[type="checkbox"]:checked::before {
+            transform: scale(1);
+        }
+        input[type="checkbox"]:checked {
+            border-color: var(--gold-primary);
+        }
         
     </style>
 </head>
@@ -676,13 +707,54 @@
 
                 <div class="invoice-card p-8 w-full relative">
                     <div id="summary-content"></div>
-                    <div class="mt-8 flex justify-between items-center pt-4 border-t border-gray-800">
+                    <div class="mt-8 flex justify-between items-center pt-4">
                         <span id="copy-feedback" class="text-green-400 text-xs uppercase tracking-wider opacity-0 transition-opacity"><i class="fas fa-check"></i> Copied</span>
-                        <button onclick="copySummary()" class="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase tracking-wide flex items-center gap-2 transition-colors">
-                            <i class="far fa-copy"></i> Copy
-                        </button>
+                        <div class="flex items-center gap-4">
+                             <button onclick="toggleCopySettings()" class="text-gray-500 hover:text-white transition-colors" title="Copy Settings">
+                                <i class="fas fa-cog text-xs"></i>
+                            </button>
+                            <button onclick="copySummary()" class="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase tracking-wide flex items-center gap-2 transition-colors">
+                                <i class="far fa-copy"></i> Copy
+                            </button>
+                        </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Copy Settings Modal -->
+    <div id="copy-settings-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col shadow-2xl border border-gray-700">
+            <div class="flex justify-between items-center p-4 border-b border-gray-700">
+                <h3 class="text-lg font-bold text-white">Copy Settings</h3>
+                <button onclick="toggleCopySettings()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div class="p-6 flex flex-col gap-4 items-center">
+                
+                <!-- Horizontal Options -->
+                <div class="flex items-center justify-center gap-3 w-full">
+                    <!-- Discount -->
+                    <button onclick="toggleCopyOption('discount')" id="btn-copy-discount" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
+                        <span class="text-xs font-bold uppercase">Discount</span>
+                    </button>
+
+                    <!-- Tax -->
+                    <button onclick="toggleCopyOption('tax')" id="btn-copy-tax" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
+                        <span class="text-xs font-bold uppercase">Tax</span>
+                    </button>
+
+                    <!-- Round Off -->
+                    <button onclick="toggleCopyOption('roundOff')" id="btn-copy-round" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
+                        <span class="text-xs font-bold uppercase">Round Off</span>
+                    </button>
+                </div>
+
+                <!-- Select All Button -->
+                <button onclick="toggleAllCopyOptions()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black py-3 rounded-xl text-sm font-bold tracking-wider transition-colors shadow-lg uppercase">
+                    Select All
+                </button>
             </div>
         </div>
     </div>
@@ -713,8 +785,7 @@
             { id: 's_def_8', name: 'Moonstone', type: 'stone', price: '' }
         ];
 
-        // --- CONFIGURATION ---
-        // Paste your Google Sheet Published CSV URL here (inside the quotes)
+        // --- CONFIGURATION --- Paste your Google Sheet Published CSV URL here (inside the quotes)
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNqsuqZA8a-qejlcJWu3ad_F9_TS_1-2OwznvetGZsUWUdANQIfnkiEskSDY393MB-taoW2dHuvYNu/pub?output=csv"; 
         
         let discountData = {
@@ -722,6 +793,21 @@
             amount: 0,
             discountedTotal: 0,
             active: false
+        };
+
+        let summaryState = {
+            tax: true,
+            taxSplit: false,
+            roundOffMode: 100, // 0: None, 1: Round Integer, 10: Round 10, 100: Round 100, 1000: Round 1000
+            showRoundOptions: false,
+            roundRowHidden: true
+        };
+        
+        // Copy Settings State
+        let copyOptions = {
+            discount: false,
+            tax: false,
+            roundOff: false
         };
 
         let storedRates = JSON.parse(localStorage.getItem('jewelleryRates'));
@@ -787,6 +873,7 @@
             renderCalculator();
             renderSettings();
             renderAddMenus();
+            renderCopySettings(); // Init checkbox states
         }
 
         function saveRates() {
@@ -806,6 +893,15 @@
         function toggleSettings() { if(toggleModal('settings-modal')) renderSettings(); }
         function toggleSummary() { if(toggleModal('summary-modal')) generateSummary(); }
         
+        // Toggle for Copy Settings
+        function toggleCopySettings() {
+             const modal = document.getElementById('copy-settings-modal');
+             modal.classList.toggle('active');
+             if(modal.classList.contains('active')) {
+                 renderCopySettings();
+             }
+        }
+        
         function toggleDiscount() { 
             // PRE-FILL logic: Get total price from main UI
             const totalText = document.getElementById('display-total-price').innerText;
@@ -821,7 +917,41 @@
             toggleModal('discount-modal'); 
         }
 
-        function toggleCurrency() { toggleModal('currency-modal'); }
+        function toggleCurrency() { 
+            if(toggleModal('currency-modal')) {
+                // Pre-fill Logic: Calculate current Total (with discount/tax/rounding)
+                let total = 0;
+                items.forEach(item => {
+                    const rate = rates.find(r => r.id === item.rateId);
+                    if(rate && item.weight > 0) {
+                        total += item.weight * (rate.price || 0);
+                    }
+                });
+                
+                // 1. Discount
+                let runningTotal = total;
+                if(discountData.active) {
+                    runningTotal = discountData.discountedTotal; // Already calculated
+                }
+                
+                // 2. Tax (Recalculate locally for accuracy if summary isn't open)
+                if(summaryState.tax) {
+                    runningTotal += (runningTotal * 0.03);
+                }
+
+                // 3. Round Off
+                if(summaryState.roundOffMode > 0) {
+                    const m = summaryState.roundOffMode;
+                    runningTotal = Math.round(runningTotal / m) * m;
+                }
+
+                const convInr = document.getElementById('conv-inr');
+                if(convInr) {
+                    convInr.value = runningTotal.toFixed(2);
+                    convInr.dispatchEvent(new Event('input'));
+                }
+            }
+        }
 
         // --- DISCOUNT CALCULATOR LOGIC ---
         function runDiscountCalc() {
@@ -851,14 +981,6 @@
                 <div class="text-green-400 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 <div class="text-gray-400 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
             `;
-            
-            // Auto-fill currency converter with the Discounted Price
-            const convInr = document.getElementById('conv-inr');
-            if(convInr) {
-                convInr.value = discountedPrice.toFixed(2);
-                // Trigger event to update currency conversion if modal is open
-                convInr.dispatchEvent(new Event('input'));
-            }
         }
 
         // --- CURRENCY CONVERTER LOGIC ---
@@ -1480,6 +1602,73 @@
             }
         }
 
+        function toggleSummaryOption(option) {
+            summaryState[option] = !summaryState[option];
+            generateSummary();
+        }
+
+        function toggleRoundOptions() {
+            summaryState.showRoundOptions = !summaryState.showRoundOptions;
+            generateSummary();
+        }
+        
+        function toggleRoundRowVisibility() {
+            summaryState.roundRowHidden = !summaryState.roundRowHidden;
+            generateSummary();
+        }
+
+        function setRoundMode(mode) {
+            if (summaryState.roundOffMode === mode) {
+                summaryState.roundOffMode = 0; // Toggle Off
+            } else {
+                summaryState.roundOffMode = mode;
+            }
+            generateSummary();
+        }
+
+        function toggleTaxSplit(e) {
+            if(e) e.stopPropagation();
+            summaryState.taxSplit = !summaryState.taxSplit;
+            generateSummary();
+        }
+        
+        // --- COPY SETTINGS FUNCTIONS ---
+        function toggleCopyOption(option) {
+            copyOptions[option] = !copyOptions[option];
+            renderCopySettings();
+        }
+        
+        function toggleAllCopyOptions() {
+            // Check if all individual options are currently true
+            const allTrue = copyOptions.discount && copyOptions.tax && copyOptions.roundOff;
+            
+            // Toggle to opposite
+            const newState = !allTrue;
+            copyOptions.discount = newState;
+            copyOptions.tax = newState;
+            copyOptions.roundOff = newState;
+            
+            renderCopySettings();
+        }
+        
+        function renderCopySettings() {
+            // Update Buttons State
+            const updateBtn = (id, active) => {
+                const btn = document.getElementById(id);
+                if(active) {
+                    btn.classList.add('border-yellow-500', 'bg-yellow-500', 'text-black');
+                    btn.classList.remove('border-gray-600', 'text-gray-300');
+                } else {
+                    btn.classList.remove('border-yellow-500', 'bg-yellow-500', 'text-black');
+                    btn.classList.add('border-gray-600', 'text-gray-300');
+                }
+            };
+
+            updateBtn('btn-copy-discount', copyOptions.discount);
+            updateBtn('btn-copy-tax', copyOptions.tax);
+            updateBtn('btn-copy-round', copyOptions.roundOff);
+        }
+
         function generateSummary() {
             const container = document.getElementById('summary-content');
             let html = '';
@@ -1517,6 +1706,7 @@
 
             html += `<div class="invoice-divider"></div>`;
 
+            // Gross Weight Row
             html += `
             <div class="invoice-row">
                 <span>Gross Weight</span>
@@ -1524,25 +1714,130 @@
             </div>
             `;
 
+            let runningTotal = total;
+
+            // Discount Row
             if (discountData.active) {
+                runningTotal = discountData.discountedTotal;
                 html += `
                 <div class="invoice-row">
                     <span>Discount (${discountData.percentage}%)</span>
-                    <span class="invoice-val text-green-400">-₹${discountData.amount.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
-                </div>
-                <div class="invoice-row mt-2">
-                    <span class="text-white font-bold text-xl">Discounted Price</span>
-                    <span class="invoice-total">₹${discountData.discountedTotal.toLocaleString('en-IN')}</span>
-                </div>
-                `;
-            } else {
-                html += `
-                <div class="invoice-row mt-2">
-                    <span class="text-white font-bold text-xl">Total Price</span>
-                    <span class="invoice-total">₹${total.toLocaleString('en-IN')}</span>
+                    <span class="invoice-val text-green-400">-₹${discountData.amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 </div>
                 `;
             }
+
+            // --- Tax Logic (3%) ---
+            let taxAmount = 0;
+            if (summaryState.tax) {
+                taxAmount = runningTotal * 0.03;
+                
+                // Main Tax Row
+                html += `
+                <div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleSummaryOption('tax')">
+                    <div class="flex items-center gap-2">
+                        <span>Tax (3%)</span>
+                        <button onclick="toggleTaxSplit(event)" class="text-gray-500 hover:text-blue-400 transition-colors" title="Split Tax">
+                            <i class="fas fa-code-branch text-xs transform rotate-90"></i>
+                        </button>
+                    </div>
+                    <span class="invoice-val text-yellow-500">+₹${taxAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                </div>
+                `;
+
+                // Split Rows (CGST/SGST)
+                if (summaryState.taxSplit) {
+                    const halfTax = taxAmount / 2;
+                    html += `
+                    <div class="flex flex-col pl-6 text-sm text-gray-400 animate-[slideIn_0.2s_ease-out]">
+                         <div class="flex justify-between py-1 border-l-2 border-gray-700 pl-2">
+                            <span>CGST (1.5%)</span>
+                            <span>₹${halfTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                         </div>
+                         <div class="flex justify-between py-1 border-l-2 border-gray-700 pl-2">
+                            <span>SGST (1.5%)</span>
+                            <span>₹${halfTax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                         </div>
+                    </div>
+                    `;
+                }
+
+                runningTotal += taxAmount;
+            } else {
+                // Disabled Tax Row
+                html += `
+                <div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleSummaryOption('tax')">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-500">Tax (3%)</span>
+                    </div>
+                </div>
+                `;
+            }
+
+            // --- Round Off Logic ---
+            let roundOffAmount = 0;
+            let roundLabel = "Round Off";
+            let roundDiffClass = "text-gray-500";
+            
+            // Calculate if active (Calculation happens regardless of visibility)
+            if (summaryState.roundOffMode > 0) {
+                const mode = summaryState.roundOffMode;
+                const rounded = Math.round(runningTotal / mode) * mode;
+                roundOffAmount = rounded - runningTotal;
+                runningTotal = rounded;
+                roundDiffClass = roundOffAmount >= 0 ? 'text-gray-400' : 'text-red-400';
+            }
+
+            const sign = roundOffAmount >= 0 ? '+' : '';
+            const displayDiff = summaryState.roundOffMode > 0 ? `${sign}₹${roundOffAmount.toFixed(2)}` : '';
+
+            // Info Button Style
+            const infoBtnClass = summaryState.showRoundOptions ? 'text-yellow-500' : 'text-gray-400';
+            
+            // Render Row ONLY if not hidden
+            if (!summaryState.roundRowHidden) {
+                html += `
+                <div class="flex flex-col">
+                    <div class="invoice-row items-center">
+                        <div class="flex items-center gap-2">
+                            <span>${roundLabel}</span>
+                            <button onclick="toggleRoundOptions()" class="${infoBtnClass} hover:text-white transition-colors">
+                                 <i class="fas fa-info-circle text-xs"></i>
+                            </button>
+                        </div>
+                        <span class="invoice-val ${roundDiffClass}">${displayDiff}</span>
+                    </div>
+                    
+                    <!-- Rounding Options Row -->
+                    <div class="${summaryState.showRoundOptions ? 'flex' : 'hidden'} justify-start gap-3 mb-2 animate-[slideIn_0.2s_ease-out]">
+                        <button onclick="setRoundMode(1)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 1 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1</button>
+                        <button onclick="setRoundMode(10)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 10 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10</button>
+                        <button onclick="setRoundMode(100)" class="w-10 h-8 rounded border ${summaryState.roundOffMode === 100 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">100</button>
+                        <button onclick="setRoundMode(1000)" class="w-11 h-8 rounded border ${summaryState.roundOffMode === 1000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1000</button>
+                        
+                        <!-- Hide Row Button -->
+                        <button onclick="toggleRoundRowVisibility()" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-400 transition-all ml-2" title="Hide Round Off Row">
+                            <i class="fas fa-eye-slash text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+                `;
+            }
+
+            // Final Total Row
+            html += `
+            <div class="invoice-row mt-4 pt-2 border-t border-gray-800">
+                <div class="flex items-center gap-2">
+                    <span class="text-white font-bold text-xl">Total Price</span>
+                    ${summaryState.roundRowHidden ? `
+                        <button onclick="toggleRoundRowVisibility()" class="text-gray-500 hover:text-yellow-500 transition-colors ml-2" title="Show Round Off">
+                            <i class="far fa-question-circle text-xs"></i>
+                        </button>
+                    ` : ''}
+                </div>
+                <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+            </div>
+            `;
 
             container.innerHTML = html;
         }
@@ -1576,14 +1871,40 @@
             }
 
             text += `--------------------------------\n`;
+            
             text += `Gross Weight\t${grossWeight.toFixed(3)} g\n`;
             
+            let runningTotal = total;
+
             if(discountData.active) {
-                text += `Discount (${discountData.percentage}%)\t-₹${discountData.amount.toLocaleString('en-IN')}\n`;
-                text += `Discounted Price \t₹${discountData.discountedTotal.toLocaleString('en-IN')}`;
-            } else {
-                text += `Total Price \t₹${total.toLocaleString('en-IN')}`;
+                if(copyOptions.discount) {
+                    text += `Discount (${discountData.percentage}%)\t-₹${discountData.amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                }
+                runningTotal = discountData.discountedTotal;
             }
+
+            if(summaryState.tax) {
+                const tax = runningTotal * 0.03;
+                if(copyOptions.tax) {
+                    text += `Tax (3%)\t+₹${tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                }
+                runningTotal += tax;
+            }
+
+            if(summaryState.roundOffMode > 0) {
+                const m = summaryState.roundOffMode;
+                const rounded = Math.round(runningTotal / m) * m;
+                
+		if (copyOptions.roundOff) {
+		    const diff = rounded - runningTotal;
+		    const sign = diff >= 0 ? '+' : '';
+		    text += `Round Off\t${sign}₹${diff.toFixed(2)}\n`;
+		}
+                
+                runningTotal = rounded; // Always update the total to the rounded value
+            }
+
+            text += `Total Price \t₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
             
             const textArea = document.createElement("textarea");
             textArea.value = text;
