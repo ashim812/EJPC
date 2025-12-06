@@ -426,7 +426,6 @@
     <nav class="flex-none h-16 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-4 flex justify-between items-center">
             <div class="flex items-center gap-3">
-                <i class="fas fa-gem text-yellow-500 text-2xl"></i>
                 <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
             </div>
             
@@ -785,7 +784,8 @@
             { id: 's_def_8', name: 'Moonstone', type: 'stone', price: '' }
         ];
 
-        // --- CONFIGURATION --- Paste your Google Sheet Published CSV URL here (inside the quotes)
+        // --- CONFIGURATION ---
+        // Paste your Google Sheet Published CSV URL here (inside the quotes)
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNqsuqZA8a-qejlcJWu3ad_F9_TS_1-2OwznvetGZsUWUdANQIfnkiEskSDY393MB-taoW2dHuvYNu/pub?output=csv"; 
         
         let discountData = {
@@ -798,7 +798,7 @@
         let summaryState = {
             tax: true,
             taxSplit: false,
-            roundOffMode: 100, // 0: None, 1: Round Integer, 10: Round 10, 100: Round 100, 1000: Round 1000
+            roundOffMode: 100, // 0: None, 1: Round Integer, 10: Round 10, 100: Round 100, 1000
             showRoundOptions: false,
             roundRowHidden: true
         };
@@ -893,7 +893,7 @@
         function toggleSettings() { if(toggleModal('settings-modal')) renderSettings(); }
         function toggleSummary() { if(toggleModal('summary-modal')) generateSummary(); }
         
-        // Toggle for Copy Settings
+        // New Toggle for Copy Settings
         function toggleCopySettings() {
              const modal = document.getElementById('copy-settings-modal');
              modal.classList.toggle('active');
@@ -924,7 +924,8 @@
                 items.forEach(item => {
                     const rate = rates.find(r => r.id === item.rateId);
                     if(rate && item.weight > 0) {
-                        total += item.weight * (rate.price || 0);
+                        const itemCost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
+                        total += itemCost;
                     }
                 });
                 
@@ -1143,9 +1144,29 @@
                 const newRates = parseCSV(csvText);
                 
                 if (newRates.length > 0) {
+                    // MIGRATION: Preserve item links by mapping old rate IDs to new stable IDs based on name
+                    items.forEach(item => {
+                        const currentRate = rates.find(r => r.id === item.rateId);
+                        // If we can identify the current item's name, try to find it in the new list
+                        if (currentRate) {
+                            const match = newRates.find(nr => 
+                                nr.type === currentRate.type && 
+                                nr.name.toLowerCase().trim() === currentRate.name.toLowerCase().trim()
+                            );
+                            if (match) {
+                                item.rateId = match.id;
+                            }
+                        }
+                    });
+
                     rates = newRates;
                     saveRates();
                     renderSettings();
+                    renderAddMenus();
+                    // Force refresh of calculator to fix "Unknown Item" labels immediately
+                    renderCalculator(); 
+                    calculateTotals();
+                    
                     showToast(`Synced ${newRates.length} rates successfully!`);
                 } else {
                     showToast("Synced, but found no valid data format.");
@@ -1219,26 +1240,37 @@
                 const name = currentline[nameIdx]?.trim();
                 let rateStr = currentline[rateIdx]?.trim();
 
-                if (typeRaw && name && rateStr) {
+                // CHANGED: We now process if Name is present. Rate is optional for Stones.
+                if (typeRaw && name) {
                     let type = '';
                     if (typeRaw.includes('metal')) type = 'metal';
                     else if (typeRaw.includes('stone') || typeRaw.includes('gem')) type = 'stone';
                     
                     if (type) {
-                        // Cleanup rate string: Remove currency symbols, commas
-                        const cleanRate = rateStr.replace(/[^\d.-]/g, '');
-                        const priceVal = parseFloat(cleanRate);
+                        // Parse Rate
+                        let priceVal = 0;
+                        if (rateStr) {
+                            const cleanRate = rateStr.replace(/[^\d.-]/g, '');
+                            const parsed = parseFloat(cleanRate);
+                            if (!isNaN(parsed)) priceVal = parsed;
+                        }
 
-                        if (!isNaN(priceVal)) {
+                        // Allow entry if:
+                        // 1. It's a Metal AND has a valid price (>=0)
+                        // 2. It's a Stone (Name alone is sufficient, price defaults to 0 if missing)
+                        if (type === 'stone' || (!isNaN(priceVal) && rateStr)) {
+                            
                             // Create unique key to prevent duplicates
                             const uniqueKey = `${type}_${name.toLowerCase()}`;
                             
-                            // Map.set will overwrite if key exists, ensuring we get the latest value if duplicate exists
+                            // STABLE ID: Based on type and sanitized name
+                            const stableId = `${type}_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+                            
                             uniqueMap.set(uniqueKey, {
-                                id: 'synced_' + Date.now() + Math.random().toString(36).substr(2, 5),
+                                id: stableId,
                                 type: type,
                                 name: name,
-                                price: priceVal
+                                price: priceVal // Will be 0 for stones without rate
                             });
                         }
                     }
@@ -1318,9 +1350,9 @@
                 .filter(r => r.type === 'metal' && r.name && (r.price || r.price === 0))
                 .sort(sortMetals);
 
-            // Filter and Sort Stones
+            // Filter and Sort Stones - CHANGED: Removed check for r.price
             const validStones = rates
-                .filter(r => r.type === 'stone' && r.name && (r.price || r.price === 0))
+                .filter(r => r.type === 'stone' && r.name)
                 .sort(sortStones);
 
 
@@ -1360,7 +1392,7 @@
                 return;
             }
 
-            items.push({ id: id, type: type, rateId: rateToUse.id, weight: 0 });
+            items.push({ id: id, type: type, rateId: rateToUse.id, weight: 0, manualPrice: 0 });
             renderRow(items[items.length - 1]);
             calculateTotals();
         }
@@ -1382,6 +1414,8 @@
             const item = items.find(i => i.id === id);
             if(item) {
                 if(field === 'weight') item.weight = parseFloat(value) || 0;
+                else if(field === 'manualPrice') item.manualPrice = parseFloat(value) || 0;
+                
                 updateRowDisplay(item);
                 calculateTotals();
             }
@@ -1391,7 +1425,7 @@
             const rate = rates.find(r => r.id === item.rateId);
             const totalSpan = document.getElementById(`total-${item.id}`);
             if(rate && totalSpan) {
-                const cost = item.weight * (rate.price || 0);
+                const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
                 totalSpan.innerText = cost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
         }
@@ -1405,7 +1439,7 @@
             items.forEach(item => {
                 const rate = rates.find(r => r.id === item.rateId);
                 if(rate) {
-                    const itemCost = item.weight * (rate.price || 0);
+                    const itemCost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
                     totalCost += itemCost;
                     
                     if(item.type === 'metal') {
@@ -1463,24 +1497,65 @@
             calculateTotals();
         }
 
+        // New Helper for Rounding Rate Input
+        function formatRateInput(id, input) {
+            const item = items.find(i => i.id === id);
+            if(!item) return;
+            
+            let val = parseFloat(input.value);
+            if(isNaN(val)) val = 0;
+            
+            // Round to integer
+            const rounded = Math.round(val);
+            item.manualPrice = rounded;
+            
+            // Update UI
+            if(rounded > 0) {
+                input.value = rounded;
+            } else {
+                input.value = ''; 
+            }
+            
+            updateRowDisplay(item);
+            calculateTotals();
+        }
+
         function renderRow(item) {
             const container = document.getElementById(item.type === 'metal' ? 'metal-list' : 'stone-list');
             const rate = rates.find(r => r.id === item.rateId);
             const label = rate ? rate.name : 'Unknown Item';
+            const isStone = item.type === 'stone';
             
             const div = document.createElement('div');
             div.id = item.id;
             div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
             
-            const unitLabel = item.type === 'metal' ? 'g' : 'ct';
+            const unitLabel = isStone ? 'ct' : 'g';
             
             // Logic for decimals
-            const isMetal = item.type === 'metal';
-            const precision = isMetal ? 3 : 2;
-            const stepVal = isMetal ? '0.001' : '0.01';
+            const precision = isStone ? 2 : 3;
+            const stepVal = isStone ? '0.01' : '0.001';
             // Only force format if value exists, otherwise empty string lets placeholder show
             const displayVal = item.weight > 0 ? item.weight.toFixed(precision) : '';
-            const placeholderVal = isMetal ? '0.000' : '0.00';
+            const placeholderVal = isStone ? '0.00' : '0.000';
+
+            // Rate Input for Stones
+            let rateInputHtml = '';
+            if (isStone) {
+                // Format manual price to integer or empty
+                const rateVal = item.manualPrice > 0 ? Math.round(item.manualPrice) : '';
+                
+                // Matches exact structure/classes of the weight input
+                rateInputHtml = `
+                <div class="flex items-center gap-2 w-1/2 md:w-32">
+                    <input type="number" step="1" placeholder="Rate" value="${rateVal}" 
+                           oninput="updateItem('${item.id}', 'manualPrice', this.value)"
+                           onblur="formatRateInput('${item.id}', this)"
+                           class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none">
+                    <span class="text-gray-500 text-sm w-6">/ct</span>
+                </div>
+                `;
+            }
 
             div.innerHTML = `
                 <div class="flex-grow w-full md:w-auto pl-2">
@@ -1493,6 +1568,7 @@
                            class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none">
                     <span class="text-gray-500 text-sm w-6">${unitLabel}</span>
                 </div>
+                ${rateInputHtml}
                 <div class="w-1/3 md:w-32 text-right font-mono text-yellow-500">
                     ₹<span id="total-${item.id}">0.00</span>
                 </div>
@@ -1535,6 +1611,7 @@
             const div = document.createElement('div');
             div.className = `rate-cube ${rate.type} p-3 rounded-lg flex flex-col gap-2 relative group`;
             const placeholderPrice = rate.type === 'metal' ? 'Rate/g' : 'Rate/ct';
+            const isStone = rate.type === 'stone';
             
             div.innerHTML = `
                 <button onclick="deleteRate('${rate.id}')" class="delete-btn-corner text-gray-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -1542,11 +1619,12 @@
                 </button>
                 <input type="text" value="${rate.name}" oninput="updateRateInline('${rate.id}', 'name', this.value)" 
                        class="rate-input text-gray-100 font-bold" placeholder="Name">
+                ${!isStone ? `
                 <div class="flex items-center gap-1">
                     <span class="text-gray-500 text-sm">₹</span>
                     <input type="number" value="${rate.price}" oninput="updateRateInline('${rate.id}', 'price', this.value)" 
                            class="rate-input text-gray-300 text-sm" placeholder="${placeholderPrice}">
-                </div>
+                </div>` : ''}
             `;
             return div;
         }
@@ -1679,7 +1757,7 @@
                 const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
-                    const cost = item.weight * price;
+                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
                     total += cost;
                     const unit = item.type === 'metal' ? 'g' : 'ct';
 
@@ -1851,7 +1929,7 @@
                 const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
-                    const cost = item.weight * price;
+                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
                     total += cost;
                     const unit = item.type === 'metal' ? 'g' : 'ct';
 
@@ -1872,6 +1950,7 @@
 
             text += `--------------------------------\n`;
             
+            // Always Copy Gross Weight (User requirement implies it's mandatory like items)
             text += `Gross Weight\t${grossWeight.toFixed(3)} g\n`;
             
             let runningTotal = total;
@@ -1895,13 +1974,15 @@
                 const m = summaryState.roundOffMode;
                 const rounded = Math.round(runningTotal / m) * m;
                 
-		if (copyOptions.roundOff) {
-		    const diff = rounded - runningTotal;
-		    const sign = diff >= 0 ? '+' : '';
-		    text += `Round Off\t${sign}₹${diff.toFixed(2)}\n`;
-		}
+                // Only add the Round Off line if the row is visible AND user opted to copy it
+                if (!summaryState.roundRowHidden && copyOptions.roundOff) {
+                    const diff = rounded - runningTotal;
+                    const sign = diff >= 0 ? '+' : '';
+                    text += `Round Off\t${sign}₹${diff.toFixed(2)}\n`;
+                }
                 
-                runningTotal = rounded; // Always update the total to the rounded value
+                // Always update the total to the rounded value
+                runningTotal = rounded;
             }
 
             text += `Total Price \t₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
