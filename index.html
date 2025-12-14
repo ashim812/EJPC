@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EJPC</title>
     
-    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#0f0f0f">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -13,6 +12,7 @@
     <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/svgs/solid/gem.svg">
 
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script> <!-- QR Scanner Lib -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -272,11 +272,108 @@
 
         /* --- NEW STYLES FOR INTEGRATION --- */
         
-        /* Theme Toggle Switch */
-        .theme-toggle { position:relative; display:inline-block; width:48px; height:26px; border-radius:30px; background:#4b5563; cursor:pointer; transition:background .3s ease; overflow:hidden; border: 1px solid var(--border-color); }
-        body.light .theme-toggle { background:#e2e8f0; border-color: #cbd5e1; }
-        .toggle-circle { position:absolute; top:2px; left:2px; width:20px; height:20px; border-radius:50%; background:#1f2937; display:flex; align-items:center; justify-content:center; font-size:12px; color:#fbbf24; transition:all .3s ease; z-index:2; }
-        body.light .toggle-circle { transform:translateX(22px); background:#fff; color:#f59e0b; box-shadow: 1px 1px 3px rgba(0,0,0,0.1); }
+        /* Theme Toggle Switch - UPDATED TO CIRCULAR */
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%; /* Perfect Circle */
+            background: #4b5563;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        body.light .theme-toggle {
+            background: #e2e8f0;
+            border-color: #cbd5e1;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .toggle-circle {
+            font-size: 14px;
+            color: #fbbf24;
+            transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        }
+
+        body.light .toggle-circle {
+            color: #f59e0b;
+            transform: rotate(360deg);
+        }
+        
+        /* QR SCANNER STYLES */
+        @keyframes scanline {
+            0% { top: 5%; opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { top: 95%; opacity: 0; }
+        }
+        .animate-scan {
+            position: absolute;
+            left: 5%;
+            right: 5%;
+            height: 2px;
+            background: #4ade80; /* green-400 */
+            box-shadow: 0 0 4px #4ade80;
+            animation: scanline 2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        }
+        
+        .qr-tab {
+            padding-bottom: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+        .qr-tab.active {
+            color: #4ade80;
+            border-bottom: 2px solid #4ade80;
+        }
+        .qr-tab.inactive {
+            color: #9ca3af;
+        }
+        .qr-tab.inactive:hover {
+            color: #ffffff;
+        }
+        
+        /* QR Interface Theme Adaptation */
+        /* Light Mode for QR Interface Components */
+        body.light #qr-top-bar {
+            background-color: rgba(255, 255, 255, 0.9);
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        body.light #qr-top-bar h2 { color: #1f2937; }
+        body.light #qr-top-bar button { color: #374151; }
+        body.light #qr-top-bar button:hover { background-color: rgba(0,0,0,0.05); }
+
+        body.light #qr-bottom-bar {
+            background-color: #ffffff;
+            border-top: 1px solid rgba(0,0,0,0.1);
+        }
+        body.light #qr-bottom-bar button { color: #374151; }
+        
+        /* Manual View Background in Light Mode (Matching Summary Modal Style) */
+        body.light #qr-manual-view {
+            background-color: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(5px);
+        }
+        body.light #qr-manual-view label { color: #4b5563; }
+        body.light #qr-manual-view input {
+            background-color: #f3f4f6;
+            border-color: #d1d5db;
+            color: #111;
+        }
+        body.light #qr-manual-view input:focus { border-color: #4ade80; }
+        
+        /* Hint Text in Light Mode */
+        body.light #qr-hint-text {
+            color: #ffffff; 
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8); /* Keep light text for contrast over camera, add shadow */
+        }
+
 
         /* Currency Dropdown */
         .dropdown { position: relative; width: 100%; }
@@ -350,6 +447,7 @@
         body .hover-green:hover, body.light .hover-green:hover { color: #4ade80 !important; }
         body .hover-purple:hover, body.light .hover-purple:hover { color: #c084fc !important; }
         body .hover-yellow:hover, body.light .hover-yellow:hover { color: #facc15 !important; }
+        body .hover-red:hover, body.light .hover-red:hover { color: #ef4444 !important; }
 
         /* Light Mode Text Overrides for dynamic elements */
         body.light .text-gray-200 { color: #1f2937; }
@@ -422,46 +520,57 @@
 </head>
 <body>
 
-    <!-- Top Navigation (Fixed Height) -->
     <nav class="flex-none h-16 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-4 flex justify-between items-center">
+            
+            <!-- BRAND + THEME TOGGLE (Left Side) -->
             <div class="flex items-center gap-3">
                 <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
-            </div>
-            
-            <!-- BUTTONS CONTAINER - GAP REDUCED TO 0.5 -->
-            <div class="flex items-center gap-0.5">
                 
-                <!-- Theme Toggle (Restored) -->
-                <div class="theme-toggle scale-75" id="themeToggle" title="Toggle Theme">
+                <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
                     <div class="toggle-circle">☾</div>
                 </div>
+            </div>
+            
+            <!-- ACTIONS (Right Side) -->
+            <div class="flex items-center gap-0.5">
+                
+                <!-- QR SCAN (Moved Here) -->
+                <button onclick="openQRScanner()" class="nav-btn hover-red p-2 rounded-full" title="Scan QR">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <!-- Corners -->
+                        <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                        <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                        <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                        <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                        <!-- Inner Markers -->
+                        <rect x="7" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                        <rect x="14" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                        <rect x="7" y="14" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                        <!-- BR Pattern Detail -->
+                        <path d="M14.5 14.5h.5v.5h-.5z" stroke-width="2.5"></path>
+                        <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
+                    </svg>
+                </button>
 
-                <!-- Summary (Outline Document with Rupee) -->
                 <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                         <polyline points="14 2 14 8 20 8"></polyline>
-                        <!-- Rupee Symbol - Slightly Left -->
                         <text x="11.5" y="11" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
-                        <!-- Bottom Lines -->
                         <line x1="8" y1="14" x2="16" y2="14"></line>
                         <line x1="8" y1="17" x2="16" y2="17"></line>
                     </svg>
                 </button>
 
-                <!-- Discount Calculator (Outline Tag with Small % and Offset OFF) -->
                 <button onclick="toggleDiscount()" class="nav-btn hover-green p-2 rounded-full" title="Discount Calculator">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                        <!-- Smaller % Symbol -->
                         <text x="8.5" y="10.5" font-family="Arial" font-size="7" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">%</text>
-                        <!-- OFF Text - Upper Right -->
                         <text x="15" y="16.5" font-family="Arial" font-size="5" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle" transform="rotate(-45 15 16.5)">OFF</text>
                     </svg>
                 </button>
 
-                <!-- Currency Converter (Outline Circular Arrows with Rupee) -->
                 <button onclick="toggleCurrency()" class="nav-btn hover-purple p-2 rounded-full" title="Currency Converter">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
@@ -472,7 +581,6 @@
                     </svg>
                 </button>
 
-                <!-- Settings -->
                 <button onclick="toggleSettings()" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                         <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
@@ -482,10 +590,8 @@
         </div>
     </nav>
 
-    <!-- Main Content (Fills remaining height) -->
     <main class="flex-grow flex flex-col p-2 gap-2 overflow-hidden w-full relative">
         
-        <!-- Dashboard / Summary Cards (Fixed Height) -->
         <div class="flex-none grid grid-cols-2 gap-2 w-full">
             <div class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <div class="absolute inset-0 bg-yellow-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
@@ -503,51 +609,38 @@
             </div>
         </div>
 
-        <!-- Lists Container (Fills remaining space and splits it) -->
         <div class="flex-grow flex flex-col gap-2 min-h-0 w-full">
             
-            <!-- Metals Section -->
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
-                <!-- Header -->
                 <div class="flex-none p-3 border-b border-gray-700 flex justify-between items-center bg-black bg-opacity-20">
                     <h2 class="text-lg text-gray-200"><i class="fas fa-cube mr-2 text-gray-400"></i>Metals</h2>
                     <span class="text-xs text-gray-500">Weight (g)</span>
                 </div>
                 
-                <!-- Scrollable List -->
                 <div id="metal-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll">
-                    <!-- Dynamic Metal Rows go here -->
-                </div>
+                    </div>
                 
-                <!-- Footer (Menu + Subtotal) -->
                 <div class="flex-none p-3 border-t border-gray-800 bg-black bg-opacity-20">
                     <div id="metal-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll p-1">
-                        <!-- Dynamic Metal Chips -->
-                    </div>
+                        </div>
                     <div class="flex justify-end text-sm text-gray-400">
                         <span>Metal Subtotal: ₹<span id="metal-subtotal">0.00</span></span>
                     </div>
                 </div>
             </div>
 
-            <!-- Stones Section -->
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
-                <!-- Header -->
                 <div class="flex-none p-3 border-b border-gray-700 flex justify-between items-center bg-black bg-opacity-20">
                     <h2 class="text-lg text-gray-200"><i class="far fa-gem mr-2 text-blue-400"></i>Stones</h2>
                     <span class="text-xs text-gray-500">Weight (ct)</span>
                 </div>
 
-                <!-- Scrollable List -->
                 <div id="stone-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll">
-                    <!-- Dynamic Stone Rows go here -->
-                </div>
+                    </div>
 
-                <!-- Footer (Menu + Subtotal) -->
                 <div class="flex-none p-3 border-t border-gray-800 bg-black bg-opacity-20">
                     <div id="stone-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll p-1">
-                        <!-- Dynamic Stone Chips -->
-                    </div>
+                        </div>
                     <div class="flex justify-end text-sm text-gray-400">
                         <span>Stone Subtotal: ₹<span id="stone-subtotal">0.00</span></span>
                     </div>
@@ -557,20 +650,16 @@
         </div>
     </main>
 
-    <!-- Settings Modal (Rate Settings) -->
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
-            <!-- Header (PRESERVED DARK STYLE) -->
             <div class="settings-header flex justify-between items-center p-6 border-b border-gray-700 rounded-t-2xl flex-shrink-0">
                 <h2 class="text-2xl font-bold">RATE SETTINGS</h2>
                 <button onclick="toggleSettings()" class="text-gray-400 hover:text-white transition-colors">
                     <i class="fas fa-times text-2xl"></i>
                 </button>
             </div>
-            <!-- Body -->
             <div class="p-6 overflow-y-auto custom-scroll flex-grow">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
-                    <!-- Left: Metals -->
                     <div class="bg-gray-900 bg-opacity-40 p-4 rounded-xl border border-gray-800 flex flex-col">
                         <div class="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
                             <i class="fas fa-cube text-yellow-500"></i>
@@ -578,7 +667,6 @@
                         </div>
                         <div id="settings-metals-list" class="auto-grid content-start"></div>
                     </div>
-                    <!-- Right: Stones -->
                     <div class="bg-gray-900 bg-opacity-40 p-4 rounded-xl border border-gray-800 flex flex-col">
                         <div class="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
                             <i class="far fa-gem text-blue-400"></i>
@@ -588,10 +676,8 @@
                     </div>
                 </div>
             </div>
-            <!-- Footer -->
             <div class="p-4 border-t border-gray-700 bg-gray-900 bg-opacity-80 rounded-b-2xl flex flex-col gap-3 flex-shrink-0">
                 
-                <!-- Action Buttons -->
                 <div class="flex justify-between items-center w-full">
                     <button onclick="clearRates()" class="text-xs text-red-500 hover:text-red-400 font-bold uppercase tracking-wider flex items-center gap-2">
                         <i class="fas fa-trash"></i> Clear All
@@ -610,7 +696,6 @@
         </div>
     </div>
 
-    <!-- Discount Calculator Modal -->
     <div id="discount-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-green-900">
             <div class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-900 to-transparent rounded-t-2xl">
@@ -633,7 +718,6 @@
         </div>
     </div>
 
-    <!-- Currency Converter Modal -->
     <div id="currency-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-2xl rounded-2xl flex flex-col shadow-2xl border border-purple-900">
             <div class="flex justify-between items-start p-6 pb-2">
@@ -652,7 +736,6 @@
             
             <div class="p-6 pt-2 flex flex-col gap-4">
                 
-                <!-- Inputs Row -->
                 <div class="flex flex-col md:flex-row gap-4 mt-2">
                     <div class="conv-card flex-1">
                         <label class="conv-label">Amount in INR (₹)</label>
@@ -668,13 +751,11 @@
                     </div>
                 </div>
 
-                <!-- Result Row -->
                 <div class="conv-card">
                     <label class="conv-label">Estimated Amount in <span id="conv-label">USD</span></label>
                     <input id="conv-out" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
                 </div>
 
-                <!-- Footer / Badges -->
                 <div class="flex items-center justify-between mt-2">
                     <div class="text-[10px] text-gray-500 flex items-center gap-2">
                         <span id="conv-status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
@@ -689,9 +770,95 @@
             </div>
         </div>
     </div>
+    
+    <!-- QR SCANNER INTERFACE -->
+    <div id="qr-interface" class="fixed inset-0 z-[100] bg-black hidden flex flex-col font-sans transition-opacity duration-300 opacity-0 pointer-events-none">
+        
+        <!-- HIDDEN INPUT FOR GALLERY SCAN -->
+        <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
+        
+        <!-- Top Bar -->
+        <div id="qr-top-bar" class="flex-none flex items-center justify-between px-4 pt-4 pb-2 bg-black/40 z-20 absolute top-0 w-full backdrop-blur-sm transition-colors">
+            <button onclick="closeQRScanner()" class="text-white p-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition">
+                <i class="fas fa-times text-lg"></i>
+            </button>
+            <h2 class="text-white font-medium tracking-wide">Scan QR Code</h2>
+            <div class="w-10"></div> <!-- Spacer -->
+        </div>
+
+        <!-- Content Area -->
+        <div class="flex-grow relative flex flex-col w-full h-full bg-[#111]">
+            
+            <!-- CAMERA VIEW -->
+            <div id="qr-scanner-view" class="absolute inset-0 w-full h-full">
+                <!-- Video Element -->
+                <video id="qr-video" class="absolute inset-0 w-full h-full object-cover opacity-80" playsinline muted autoplay></video>
+                
+                <!-- Error Message (Hidden by default) -->
+                <div id="qr-error-msg" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-center p-6">
+                     <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                     <p class="text-white text-lg font-bold mb-2">Camera Unavailable</p>
+                     <p class="text-gray-400 text-sm">Please allow camera access in your browser settings to scan QR codes.</p>
+                </div>
+
+                <!-- Dark Overlay with Cutout using Box Shadow -->
+                <div class="absolute inset-0 z-10 flex items-center justify-center overflow-hidden">
+                    <div class="relative w-72 h-72 rounded-3xl" style="box-shadow: 0 0 0 4000px rgba(0,0,0,0.6);">
+                        <!-- Corner Markers -->
+                        <div class="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white rounded-tl-xl"></div>
+                        <div class="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white rounded-tr-xl"></div>
+                        <div class="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white rounded-bl-xl"></div>
+                        <div class="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white rounded-br-xl"></div>
+                        
+                        <!-- Scan Line Animation -->
+                        <div class="animate-scan"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MANUAL INPUT VIEW (Hidden by default) -->
+            <div id="qr-manual-view" class="hidden absolute inset-0 z-30 bg-black/90 flex flex-col items-center justify-center p-8 transition-colors">
+                <div class="w-full max-w-sm">
+                    <label class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2 block">Enter Code Manually</label>
+                    <div class="flex flex-col gap-4">
+                        <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-xl text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000">
+                        <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95">
+                            SUBMIT CODE
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Tabs (Overlaid) -->
+             <div class="absolute top-16 left-0 right-0 flex justify-center gap-8 z-40 text-sm font-bold tracking-wider">
+                <div id="tab-scan" onclick="switchQRMode('scan')" class="qr-tab active shadow-lg drop-shadow-md">SCAN CODE</div>
+                <div id="tab-enter" onclick="switchQRMode('enter')" class="qr-tab inactive drop-shadow-md">ENTER CODE</div>
+            </div>
+
+            <!-- Bottom Text (Only for Scanner) -->
+            <div id="qr-hint-text" class="absolute bottom-36 w-full text-center text-gray-300 text-sm z-20 font-medium tracking-wide drop-shadow-md pointer-events-none">
+                Scanning for Unique ID...
+            </div>
+        </div>
+
+        <!-- Bottom Controls -->
+        <div id="qr-bottom-bar" class="flex-none h-24 bg-black flex items-center justify-between px-12 z-20 transition-colors">
+            <button onclick="triggerGallery()" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Scan Image">
+                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
+                    <i class="far fa-image text-lg"></i>
+                </div>
+            </button>
+            
+            <!-- Flash Toggle -->
+            <button onclick="toggleFlash()" id="flash-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Toggle Flash">
+                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
+                     <i class="fas fa-bolt text-lg"></i>
+                </div>
+            </button>
+        </div>
+    </div>
 
 
-    <!-- Summary Modal -->
     <div id="summary-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm p-4">
         <div class="w-full h-full flex flex-col items-center justify-center relative">
             
@@ -699,7 +866,6 @@
                 <i class="fas fa-times text-xl"></i>
             </button>
 
-            <!-- Container for Pill + Card -->
             <div class="flex flex-col items-center w-full max-w-md animate-[slideIn_0.3s_ease-out]">
                 
                 <div class="invoice-pill">APPROXIMATE COST</div>
@@ -722,7 +888,6 @@
         </div>
     </div>
     
-    <!-- Copy Settings Modal -->
     <div id="copy-settings-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col shadow-2xl border border-gray-700">
             <div class="flex justify-between items-center p-4 border-b border-gray-700">
@@ -732,25 +897,20 @@
             
             <div class="p-6 flex flex-col gap-4 items-center">
                 
-                <!-- Horizontal Options -->
                 <div class="flex items-center justify-center gap-3 w-full">
-                    <!-- Discount -->
                     <button onclick="toggleCopyOption('discount')" id="btn-copy-discount" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
                         <span class="text-xs font-bold uppercase">Discount</span>
                     </button>
 
-                    <!-- Tax -->
                     <button onclick="toggleCopyOption('tax')" id="btn-copy-tax" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
                         <span class="text-xs font-bold uppercase">Tax</span>
                     </button>
 
-                    <!-- Round Off -->
                     <button onclick="toggleCopyOption('roundOff')" id="btn-copy-round" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
                         <span class="text-xs font-bold uppercase">Round Off</span>
                     </button>
                 </div>
 
-                <!-- Select All Button -->
                 <button onclick="toggleAllCopyOptions()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black py-3 rounded-xl text-sm font-bold tracking-wider transition-colors shadow-lg uppercase">
                     Select All
                 </button>
@@ -758,7 +918,6 @@
         </div>
     </div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-yellow-400 px-6 py-3 rounded-full shadow-2xl border border-yellow-600 transition-all duration-300 opacity-0 translate-y-10 z-50 pointer-events-none flex items-center gap-2">
         <i class="fas fa-check-circle"></i>
         <span id="toast-msg">Action Successful</span>
@@ -951,6 +1110,221 @@
                     convInr.value = runningTotal.toFixed(2);
                     convInr.dispatchEvent(new Event('input'));
                 }
+            }
+        }
+        
+        // --- QR SCANNER LOGIC ---
+        
+        let qrScanner = null;
+
+        function openQRScanner() {
+            const ui = document.getElementById('qr-interface');
+            
+            ui.classList.remove('hidden');
+            // Small delay to allow display block to apply before opacity transition
+            setTimeout(() => {
+                ui.classList.remove('opacity-0', 'pointer-events-none');
+            }, 10);
+            
+            // Reset to Scan Mode by default
+            switchQRMode('scan');
+        }
+
+        function closeQRScanner() {
+            const ui = document.getElementById('qr-interface');
+            
+            ui.classList.add('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                ui.classList.add('hidden');
+                stopCamera();
+            }, 300);
+        }
+
+        function startCamera() {
+            const videoElem = document.getElementById('qr-video');
+            const errorElem = document.getElementById('qr-error-msg');
+            
+            // 1. Check for File Protocol (Browsers block camera on file://)
+            if (window.location.protocol === 'file:') {
+                 errorElem.innerHTML = `
+                    <div class="flex flex-col items-center max-w-xs text-center">
+                        <i class="fas fa-server text-red-500 text-4xl mb-4"></i>
+                        <p class="text-white text-lg font-bold mb-2">Security Restriction</p>
+                        <p class="text-gray-400 text-sm mb-3">Browsers block camera access on local files.</p>
+                        <p class="text-yellow-500 text-xs bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
+                            <strong>Fix:</strong> Use a local server (like "Live Server" in VS Code) or host this file on a website (https).
+                        </p>
+                    </div>
+                 `;
+                 errorElem.classList.remove('hidden');
+                 showToast("Camera blocked by browser security (file://).");
+                 return;
+            }
+
+            errorElem.classList.add('hidden');
+
+            if (qrScanner) {
+                qrScanner.destroy();
+                qrScanner = null;
+            }
+
+            // 2. Explicitly set Worker Path (Fixes standalone execution issues)
+            QrScanner.WORKER_PATH = 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner-worker.min.js';
+
+            // Using QrScanner Library
+            qrScanner = new QrScanner(
+                videoElem,
+                result => handleScannedCode(result.data),
+                {
+                    onDecodeError: error => {
+                        // console.log(error); // Verbose
+                    },
+                    highlightScanRegion: false,
+                    highlightCodeOutline: false,
+                    returnDetailedScanResult: true,
+                    // 3. Force environment (back) camera
+                    preferredCamera: 'environment'
+                }
+            );
+
+            qrScanner.start().then(() => {
+                console.log("QR Scanner started");
+                // Check if flash is available on start to update UI if needed
+                qrScanner.hasFlash().then(hasFlash => {
+                     const flashBtn = document.getElementById('flash-btn');
+                     if(!hasFlash) flashBtn.style.opacity = '0.3';
+                });
+            }).catch(err => {
+                console.warn("Camera start failed:", err);
+                
+                let msg = "Please allow camera access.";
+                let subMsg = "Check your browser settings.";
+                
+                if(err.name === 'NotAllowedError') {
+                    msg = "Permission Denied";
+                    subMsg = "You blocked camera access. Please reset permissions for this site.";
+                } else if(err.name === 'NotFoundError') {
+                    msg = "No Camera Found";
+                    subMsg = "We couldn't find a camera on this device.";
+                }
+
+                errorElem.innerHTML = `
+                     <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+                     <p class="text-white text-lg font-bold mb-2">${msg}</p>
+                     <p class="text-gray-400 text-sm">${subMsg}</p>
+                `;
+                errorElem.classList.remove('hidden');
+                showToast(msg);
+            });
+        }
+
+        function stopCamera() {
+            if (qrScanner) {
+                qrScanner.stop();
+                qrScanner.destroy();
+                qrScanner = null;
+            }
+        }
+        
+        function switchQRMode(mode) {
+            const scanView = document.getElementById('qr-scanner-view');
+            const manualView = document.getElementById('qr-manual-view');
+            const tabScan = document.getElementById('tab-scan');
+            const tabEnter = document.getElementById('tab-enter');
+            const hintText = document.getElementById('qr-hint-text');
+            const manualInput = document.getElementById('manual-code-input');
+
+            if (mode === 'scan') {
+                scanView.classList.remove('hidden');
+                manualView.classList.add('hidden');
+                hintText.classList.remove('hidden');
+                
+                tabScan.classList.add('active');
+                tabScan.classList.remove('inactive');
+                tabEnter.classList.add('inactive');
+                tabEnter.classList.remove('active');
+                
+                startCamera();
+            } else {
+                scanView.classList.add('hidden');
+                manualView.classList.remove('hidden');
+                hintText.classList.add('hidden');
+                
+                tabScan.classList.add('inactive');
+                tabScan.classList.remove('active');
+                tabEnter.classList.add('active');
+                tabEnter.classList.remove('inactive');
+                
+                stopCamera();
+                // Focus input slightly delayed for transition
+                setTimeout(() => manualInput.focus(), 100);
+            }
+        }
+        
+        // --- NEW: Gallery Scan & Flashlight Logic ---
+        
+        function triggerGallery() {
+            document.getElementById('qr-image-input').click();
+        }
+
+        async function handleImageScan(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            try {
+                // Use library to decode image file directly
+                const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
+                handleScannedCode(result.data);
+            } catch (error) {
+                console.warn(error);
+                showToast("No QR code found in selected image");
+            }
+            // Reset input so same file can be selected again
+            e.target.value = ''; 
+        }
+        
+        async function toggleFlash() {
+            if (qrScanner && await qrScanner.hasFlash()) {
+                await qrScanner.toggleFlash();
+                const flashBtn = document.getElementById('flash-btn');
+                const icon = flashBtn.querySelector('i');
+                const isFlashOn = await qrScanner.isFlashOn();
+                
+                if(isFlashOn) {
+                    flashBtn.classList.add('text-yellow-400');
+                    flashBtn.classList.remove('text-white');
+                    icon.classList.remove('fa-bolt');
+                    icon.classList.add('fa-lightbulb'); // Visual feedback
+                } else {
+                    flashBtn.classList.remove('text-yellow-400');
+                    flashBtn.classList.add('text-white');
+                    icon.classList.add('fa-bolt');
+                    icon.classList.remove('fa-lightbulb');
+                }
+            } else {
+                showToast("Flashlight not available");
+            }
+        }
+
+        function handleScannedCode(code) {
+            if(code) {
+                showToast(`Scanned: ${code}`);
+                closeQRScanner();
+                console.log("Code Scanned:", code);
+                // Here you would implement logic to use the code
+            }
+        }
+
+        function submitManualCode() {
+            const input = document.getElementById('manual-code-input');
+            const code = input.value.trim();
+            
+            if(code.length > 0) {
+                handleScannedCode(code);
+                input.value = ""; // Reset
+            } else {
+                showToast("Please enter a code");
             }
         }
 
@@ -1409,12 +1783,53 @@
                 }, 300);
             }
         }
+        
+        // --- NEW DECODING LOGIC ---
+        
+        function decodePrice(inputStr) {
+            // 1. Clean input
+            if(!inputStr) return 0;
+            const cleanStr = inputStr.toString().toUpperCase().trim();
+
+            // 2. Check if it's already a pure number
+            if (!isNaN(parseFloat(cleanStr)) && isFinite(cleanStr)) {
+                return parseFloat(cleanStr);
+            }
+
+            // 3. Define Map (Based on BRIJMOHAN X)
+            const encodingMap = {'B':1, 'R':2, 'I':3, 'J':4, 'M':5, 'O':6, 'H':7, 'A':8, 'N':9, 'X':0};
+
+            // 4. Validate and Decode
+            let decodedNumStr = "";
+            for (let char of cleanStr) {
+                if (encodingMap.hasOwnProperty(char)) {
+                    decodedNumStr += encodingMap[char];
+                } else {
+                    // Invalid character found, assume 0
+                    return 0;
+                }
+            }
+
+            // 5. Apply Multiplier (*1000)
+            if (decodedNumStr.length > 0) {
+                return parseInt(decodedNumStr) * 1000;
+            }
+
+            return 0;
+        }
 
         function updateItem(id, field, value) {
             const item = items.find(i => i.id === id);
             if(item) {
-                if(field === 'weight') item.weight = parseFloat(value) || 0;
-                else if(field === 'manualPrice') item.manualPrice = parseFloat(value) || 0;
+                if(field === 'weight') {
+                    item.weight = parseFloat(value) || 0;
+                }
+                else if(field === 'manualPrice') {
+                    // Temporarily we use the decoded value for calculation
+                    // But we allow the user to keep typing letters in the input field (handled by UI)
+                    // The calculation engine uses this result:
+                    item.manualPrice = decodePrice(value);
+                }
                 
                 updateRowDisplay(item);
                 calculateTotals();
@@ -1470,7 +1885,7 @@
             items.forEach(item => renderRow(item));
         }
 
-        // New Helper function to format input on blur
+        // Helper function to format input on blur
         function formatRowInput(id, input) {
             const item = items.find(i => i.id === id);
             if(!item) return;
@@ -1497,17 +1912,19 @@
             calculateTotals();
         }
 
-        // New Helper for Rounding Rate Input
+        // New Helper for Rounding Rate Input (Stones)
         function formatRateInput(id, input) {
             const item = items.find(i => i.id === id);
             if(!item) return;
             
-            let val = parseFloat(input.value);
+            // The item.manualPrice is already updated with the DECODED numeric value
+            // We just need to display it nicely now
+            
+            let val = item.manualPrice;
             if(isNaN(val)) val = 0;
             
             // Round to integer
             const rounded = Math.round(val);
-            item.manualPrice = rounded;
             
             // Update UI
             if(rounded > 0) {
@@ -1545,13 +1962,13 @@
                 // Format manual price to integer or empty
                 const rateVal = item.manualPrice > 0 ? Math.round(item.manualPrice) : '';
                 
-                // Matches exact structure/classes of the weight input
+                // --- INTEGRATION CHANGE: type="text" to allow codes ---
                 rateInputHtml = `
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
-                    <input type="number" step="1" placeholder="Rate" value="${rateVal}" 
+                    <input type="text" placeholder="Rate" value="${rateVal}" 
                            oninput="updateItem('${item.id}', 'manualPrice', this.value)"
                            onblur="formatRateInput('${item.id}', this)"
-                           class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none">
+                           class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none uppercase">
                     <span class="text-gray-500 text-sm w-6">/ct</span>
                 </div>
                 `;
@@ -1886,14 +2303,12 @@
                         <span class="invoice-val ${roundDiffClass}">${displayDiff}</span>
                     </div>
                     
-                    <!-- Rounding Options Row -->
                     <div class="${summaryState.showRoundOptions ? 'flex' : 'hidden'} justify-start gap-3 mb-2 animate-[slideIn_0.2s_ease-out]">
                         <button onclick="setRoundMode(1)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 1 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1</button>
                         <button onclick="setRoundMode(10)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 10 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10</button>
                         <button onclick="setRoundMode(100)" class="w-10 h-8 rounded border ${summaryState.roundOffMode === 100 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">100</button>
                         <button onclick="setRoundMode(1000)" class="w-11 h-8 rounded border ${summaryState.roundOffMode === 1000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1000</button>
                         
-                        <!-- Hide Row Button -->
                         <button onclick="toggleRoundRowVisibility()" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-400 transition-all ml-2" title="Hide Round Off Row">
                             <i class="fas fa-eye-slash text-sm"></i>
                         </button>
