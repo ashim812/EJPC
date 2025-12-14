@@ -822,7 +822,7 @@
                 <div class="w-full max-w-sm">
                     <label class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2 block">Enter Code Manually</label>
                     <div class="flex flex-col gap-4">
-                        <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-xl text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000">
+                        <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-xl text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
                         <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95">
                             SUBMIT CODE
                         </button>
@@ -1315,9 +1315,10 @@
 
         function handleScannedCode(code) {
             if(code) {
-                showToast(`Scanned: ${code}`);
+                const upperCode = code.toUpperCase();
+                showToast(`Scanned: ${upperCode}`);
                 closeQRScanner();
-                console.log("Code Scanned:", code);
+                console.log("Code Scanned:", upperCode);
                 // Here you would implement logic to use the code
             }
         }
@@ -1326,9 +1327,9 @@
             const input = document.getElementById('manual-code-input');
             const code = input.value.trim();
             
-            if(code.length > 0) {
+            if(code.length > 1) {
                 handleScannedCode(code);
-                input.value = ""; // Reset
+                input.value = "E"; // Reset
             } else {
                 showToast("Please enter a code");
             }
