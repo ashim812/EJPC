@@ -1236,6 +1236,11 @@
         function loadProductToCalculator() {
             if (!currentFetchedProduct) return;
             
+            // --- CLEAR PREVIOUS SELECTIONS ---
+            items = [];
+            renderCalculator();
+            calculateTotals(); // Reset totals to 0
+            
             const p = currentFetchedProduct;
             let loadedCount = 0;
 
@@ -1312,8 +1317,29 @@
             // 3. Load Other Stone
             if ((p.stone && p.stone !== '-') && parseFloat(p.stoneWt) > 0) {
                 // fuzzy match stone name
-                const stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase()));
+                let stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase()));
                 
+                // --- NEW: If no match found, create dynamic rate for display ---
+                if (!stoneRate) {
+                    // Check if we already created a dynamic one for this name in a previous step? 
+                    // No, because we just cleared items. But rates might have it if added previously.
+                    // Check purely by name exact match now.
+                    stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase() === p.stone.toLowerCase());
+                    
+                    if (!stoneRate) {
+                         const newId = 'dyn_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
+                         stoneRate = {
+                             id: newId,
+                             name: p.stone, // Exact name
+                             type: 'stone',
+                             price: 0 // Default price
+                         };
+                         // Add to rates array so addItem can find it
+                         rates.push(stoneRate);
+                         // Note: We do NOT call saveRates(), so this is temporary for the session
+                    }
+                }
+
                 if (stoneRate) {
                     addItem('stone', stoneRate.id);
                     const newItem = items[items.length - 1];
@@ -1321,17 +1347,6 @@
                     if(p.stoneRate) updateItem(newItem.id, 'manualPrice', p.stoneRate);
                     updateDOMInputs(newItem.id, p.stoneWt, p.stoneRate || '');
                     loadedCount++;
-                } else {
-                    // Fallback to generic "Stone"
-                     const genericStone = rates.find(r => r.type === 'stone' && (r.name.toLowerCase() === 'stone' || r.name.toLowerCase() === 'color stone'));
-                     if(genericStone) {
-                        addItem('stone', genericStone.id);
-                        const newItem = items[items.length - 1];
-                        updateItem(newItem.id, 'weight', p.stoneWt);
-                        if(p.stoneRate) updateItem(newItem.id, 'manualPrice', p.stoneRate);
-                        updateDOMInputs(newItem.id, p.stoneWt, p.stoneRate || '');
-                        loadedCount++;
-                     }
                 }
             }
 
