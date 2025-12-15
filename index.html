@@ -918,6 +918,30 @@
             </div>
         </div>
     </div>
+    
+    <!-- PRODUCT DETAILS POPUP -->
+    <div id="product-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
+        <div class="modal-content glass-panel w-full max-w-sm rounded-[32px] flex flex-col shadow-2xl border border-gray-600 relative overflow-hidden text-center p-8 gap-4 bg-white/95 dark:bg-[#1e1e1e]/95 backdrop-blur-md transition-colors">
+             <!-- Note: Reference image has white bg with dark text, adapting to match that specific look but keep dark mode capability -->
+             
+             <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
+
+             <h2 class="text-2xl font-bold italic mb-2 font-serif text-black dark:text-white mt-2">PRODUCT DETAILS</h2>
+
+             <div id="product-details-content" class="text-left space-y-1.5 text-black dark:text-gray-200 text-[15px] font-sans font-medium leading-relaxed">
+                  <!-- Dynamic Content -->
+                  <div class="flex justify-center p-4"><i class="fas fa-circle-notch fa-spin text-2xl text-yellow-600"></i></div>
+             </div>
+
+             <div id="product-error" class="hidden text-red-600 dark:text-red-400 font-bold mt-2 text-lg">
+                  Item <span id="err-prod-id"></span> not in database
+             </div>
+
+             <button onclick="closeProductModal()" class="mt-4 bg-[#E9967A] hover:bg-[#d0856c] text-black font-bold py-3 px-10 rounded-xl shadow-lg transition-transform active:scale-95 mx-auto uppercase tracking-wide">
+                 LOAD
+             </button>
+        </div>
+    </div>
 
     <div id="toast" class="fixed bottom-10 left-1/2 transform -translate-x-1/2 bg-gray-800 text-yellow-400 px-6 py-3 rounded-full shadow-2xl border border-yellow-600 transition-all duration-300 opacity-0 translate-y-10 z-50 pointer-events-none flex items-center gap-2">
         <i class="fas fa-check-circle"></i>
@@ -945,8 +969,13 @@
         ];
 
         // --- CONFIGURATION ---
-        // Paste your Google Sheet Published CSV URL here (inside the quotes)
+        // 1. RATES DATABASE URL - PASTE YOUR RATES SHEET CSV URL HERE
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNqsuqZA8a-qejlcJWu3ad_F9_TS_1-2OwznvetGZsUWUdANQIfnkiEskSDY393MB-taoW2dHuvYNu/pub?output=csv"; 
+        
+        // 2. PRODUCT DATABASE URL - PASTE YOUR INVENTORY SHEET CSV URL HERE
+        // It must have columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, CP
+        const PRODUCT_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMTBu_R4YiqvjuYo_m-pi8FyKd0voRh6_RJmLnVVDcAJHjzcni6eF6InH0yULCM7jPly3-l95FSpgX/pub?output=csv"; 
+
         
         let discountData = {
             percentage: 0,
@@ -1112,6 +1141,179 @@
                     convInr.dispatchEvent(new Event('input'));
                 }
             }
+        }
+
+        // --- PRODUCT DETAILS MODAL LOGIC ---
+
+        function openProductModal(loading = true) {
+            const modal = document.getElementById('product-modal');
+            const content = document.getElementById('product-details-content');
+            const errorDiv = document.getElementById('product-error');
+            
+            errorDiv.classList.add('hidden');
+            if(loading) {
+                content.innerHTML = `<div class="flex justify-center p-8"><i class="fas fa-circle-notch fa-spin text-3xl text-yellow-600"></i></div>`;
+            }
+            modal.classList.add('active');
+        }
+
+        function closeProductModal() {
+            document.getElementById('product-modal').classList.remove('active');
+        }
+
+        async function fetchProductDetails(code) {
+            if(!code) return;
+            const upperCode = code.toUpperCase();
+            
+            openProductModal(true); // Show Loading
+
+            let url = PRODUCT_DB_URL;
+            if (!url) {
+                document.getElementById('product-details-content').innerHTML = "No Inventory DB URL configured.";
+                return;
+            }
+
+            // Timestamp to prevent caching
+            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+
+            try {
+                // 1. Fetch CSV
+                let csvText = '';
+                try {
+                    const response = await fetch(uniqueUrl);
+                    if (!response.ok) throw new Error('Direct fetch failed');
+                    csvText = await response.text();
+                } catch (directError) {
+                    console.warn("Direct fetch failed, trying proxy...", directError);
+                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
+                    const proxyResponse = await fetch(proxyUrl);
+                    if (!proxyResponse.ok) throw new Error('Corsproxy failed');
+                    csvText = await proxyResponse.text();
+                }
+
+                // 2. Parse and Find Product
+                const product = parseProductCSV(csvText, upperCode);
+
+                if(product) {
+                    renderProductDetails(product);
+                } else {
+                    document.getElementById('product-details-content').innerHTML = ""; // Clear loader
+                    document.getElementById('err-prod-id').textContent = upperCode;
+                    document.getElementById('product-error').classList.remove('hidden');
+                }
+
+            } catch (error) {
+                console.error("Product Fetch Error:", error);
+                document.getElementById('product-details-content').innerHTML = `<div class="text-center text-red-500">Connection Failed</div>`;
+            }
+        }
+
+        function parseProductCSV(csvText, searchId) {
+            const lines = csvText.trim().split(/\r\n|\n/);
+            if (lines.length < 1) return null;
+
+            // Helper for CSV splitting (handling quotes)
+            const splitLine = (text) => {
+                const matches = [];
+                const regex = /(?:^|,)(\s*"(?:[^"]|"")*"\s*|[^,]*)/g;
+                let match;
+                while ((match = regex.exec(text)) !== null) {
+                    let val = match[1] || "";
+                    val = val.trim();
+                    if (val.startsWith('"') && val.endsWith('"')) {
+                        val = val.slice(1, -1).replace(/""/g, '"');
+                    }
+                    matches.push(val);
+                    if (regex.lastIndex === match.index) regex.lastIndex++;
+                }
+                // Handle empty trailing comma
+                if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) matches.pop();
+                return matches;
+            };
+
+            const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());
+            
+            // Expected Columns mapping
+            // Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, CP
+            const getIdx = (name) => headers.indexOf(name.toLowerCase());
+            
+            const idx = {
+                id: getIdx('prod id'),
+                item: getIdx('item'),
+                month: getIdx('month'),
+                sourcing: getIdx('sourcing'),
+                origin: getIdx('origin'),
+                metal: getIdx('metal'),
+                netWt: getIdx('net wt'),
+                diaWt: getIdx('dia wt'),
+                diaRate: getIdx('dia rate'),
+                stone: getIdx('stone'),
+                stoneWt: getIdx('stone wt'),
+                stoneRate: getIdx('stone rate'),
+                grossWt: getIdx('gross wt'),
+                cp: getIdx('cp')
+            };
+
+            if (idx.id === -1) {
+                console.error("Prod ID column not found");
+                return null;
+            }
+
+            for (let i = 1; i < lines.length; i++) {
+                const row = splitLine(lines[i]);
+                const rowId = row[idx.id]?.toUpperCase().trim();
+                
+                if (rowId === searchId) {
+                    return {
+                        id: rowId,
+                        item: row[idx.item] || "-",
+                        month: row[idx.month] || "-",
+                        sourcing: row[idx.sourcing] || "",
+                        origin: row[idx.origin] || "",
+                        metal: row[idx.metal] || "",
+                        netWt: row[idx.netWt] || "0",
+                        diaWt: row[idx.diaWt],
+                        diaRate: row[idx.diaRate],
+                        stone: row[idx.stone],
+                        stoneWt: row[idx.stoneWt],
+                        stoneRate: row[idx.stoneRate],
+                        grossWt: row[idx.grossWt] || "0",
+                        cp: row[idx.cp] || "0"
+                    };
+                }
+            }
+            return null;
+        }
+
+        function renderProductDetails(p) {
+            const container = document.getElementById('product-details-content');
+            
+            let html = `
+                <div>Product ID : ${p.id}</div>
+                <div>Product : ${p.item}</div>
+                <div>Dated : ${p.month}</div>
+                <div>${p.sourcing ? p.sourcing : 'Sourcing'} from ${p.origin ? p.origin : 'Origin'}</div>
+                <div>G.W: ${p.grossWt} g</div>
+                <div>${p.metal} : ${p.netWt} g</div>
+            `;
+
+            // Conditional Diamond Row
+            if (parseFloat(p.diaWt) > 0) {
+                html += `<div>Dia : ${p.diaWt} ct @ ₹${p.diaRate}/ct</div>`;
+            }
+
+            // Conditional Stone Row
+            if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {
+                // If Stone Name exists but weight is 0/empty, handle gracefully
+                const sName = p.stone || "Stone";
+                const sWt = p.stoneWt || "0";
+                const sRate = p.stoneRate || "0";
+                html += `<div>${sName} : ${sWt} ct @ ₹${sRate}/ct</div>`;
+            }
+
+            html += `<div>Min. Cost : ${p.cp}</div>`;
+
+            container.innerHTML = html;
         }
         
         // --- QR SCANNER LOGIC ---
@@ -1316,10 +1518,10 @@
         function handleScannedCode(code) {
             if(code) {
                 const upperCode = code.toUpperCase();
-                showToast(`Scanned: ${upperCode}`);
-                closeQRScanner();
                 console.log("Code Scanned:", upperCode);
-                // Here you would implement logic to use the code
+                closeQRScanner();
+                // --- NEW INTEGRATION: Fetch Details instead of just Toast ---
+                fetchProductDetails(upperCode);
             }
         }
 
@@ -1472,7 +1674,7 @@
         }
 
 
-        // --- GOOGLE SHEET SYNC LOGIC ---
+        // --- GOOGLE SHEET SYNC LOGIC (RATES) ---
 
         async function syncRates() {
             const btn = document.getElementById('sync-btn');
@@ -1505,7 +1707,6 @@
                     console.warn("Direct fetch failed, trying proxy...", directError);
                     
                     // 2. Fallback to Proxy (corsproxy.io is often faster/more reliable than allorigins)
-                    // We try corsproxy.io first
                     try {
                         const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
                         const proxyResponse = await fetch(proxyUrl);
