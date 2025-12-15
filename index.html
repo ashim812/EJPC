@@ -951,6 +951,7 @@
 
     <script>
         // --- DATA MANAGEMENT ---
+        let currentFetchedProduct = null;
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1208,10 +1209,11 @@
                 const actionBtn = document.getElementById('prod-action-btn');
 
                 if(product) {
+                    currentFetchedProduct = product; // Store it
                     renderProductDetails(product);
                     // Success State
                     actionBtn.innerText = "LOAD";
-                    actionBtn.onclick = closeProductModal;
+                    actionBtn.onclick = loadProductToCalculator;
                 } else {
                     document.getElementById('product-details-content').innerHTML = ""; // Clear loader
                     document.getElementById('err-prod-id').textContent = upperCode;
@@ -1228,6 +1230,116 @@
                 const actionBtn = document.getElementById('prod-action-btn');
                 actionBtn.innerText = "RETRY";
                 actionBtn.onclick = retryScan;
+            }
+        }
+        
+        function loadProductToCalculator() {
+            if (!currentFetchedProduct) return;
+            
+            const p = currentFetchedProduct;
+            let loadedCount = 0;
+
+            // Helper to update DOM inputs for newly added item
+            const updateDOMInputs = (itemId, weight, rate) => {
+                const row = document.getElementById(itemId);
+                if (!row) return;
+                
+                const weightInput = row.querySelector('input[type="number"]');
+                if (weightInput) weightInput.value = weight;
+                
+                if (rate) {
+                    const rateInput = row.querySelector('input[type="text"]');
+                    if (rateInput) rateInput.value = rate;
+                }
+            };
+
+            // 1. Load Metal
+            // Try to find a matching metal rate
+            // Common formats in DB: "18K", "Gold 18K", "22K"
+            // Rates formats: "Gold 18K", "Gold 22K", "Silver 925"
+            if (p.metal && parseFloat(p.netWt) > 0) {
+                // Simple heuristic: find rate where rate name contains the metal string or vice versa
+                // Normalizing: remove 'Gold', spaces, case insensitive
+                const normalize = s => s.toLowerCase().replace(/gold/g, '').replace(/silver/g, '').trim();
+                const pMetalClean = normalize(p.metal);
+                
+                const metalRate = rates.find(r => r.type === 'metal' && normalize(r.name).includes(pMetalClean));
+                
+                if (metalRate) {
+                    addItem('metal', metalRate.id);
+                    const newItem = items[items.length - 1]; // The one just added
+                    updateItem(newItem.id, 'weight', p.netWt);
+                    updateDOMInputs(newItem.id, p.netWt, null);
+                    loadedCount++;
+                } else {
+                     console.warn("No rate found for metal:", p.metal);
+                     // Fallback: try to find just by purity number if present (e.g. 18)
+                     const purityMatch = p.metal.match(/\d+/);
+                     if(purityMatch) {
+                         const purity = purityMatch[0];
+                         const fallbackRate = rates.find(r => r.type === 'metal' && r.name.includes(purity));
+                         if(fallbackRate) {
+                              addItem('metal', fallbackRate.id);
+                              const newItem = items[items.length - 1];
+                              updateItem(newItem.id, 'weight', p.netWt);
+                              updateDOMInputs(newItem.id, p.netWt, null);
+                              loadedCount++;
+                         }
+                     }
+                }
+            }
+
+            // 2. Load Diamond
+            if (parseFloat(p.diaWt) > 0) {
+                // Look for "Diamond" in rates
+                const diaRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes('diamond'));
+                if (diaRate) {
+                    addItem('stone', diaRate.id);
+                    const newItem = items[items.length - 1];
+                    updateItem(newItem.id, 'weight', p.diaWt);
+                    if(p.diaRate) updateItem(newItem.id, 'manualPrice', p.diaRate); // Set rate if available
+                    
+                    // Decode for display
+                    let decodedRate = p.diaRate;
+                    if(p.diaRate && isNaN(p.diaRate)) decodedRate = decodePrice(p.diaRate);
+                    // Actually we want to show the original string in the box if it's text, or number if number.
+                    // But updateDOMInputs takes raw value.
+                    updateDOMInputs(newItem.id, p.diaWt, p.diaRate || '');
+                    loadedCount++;
+                }
+            }
+
+            // 3. Load Other Stone
+            if ((p.stone && p.stone !== '-') && parseFloat(p.stoneWt) > 0) {
+                // fuzzy match stone name
+                const stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase()));
+                
+                if (stoneRate) {
+                    addItem('stone', stoneRate.id);
+                    const newItem = items[items.length - 1];
+                    updateItem(newItem.id, 'weight', p.stoneWt);
+                    if(p.stoneRate) updateItem(newItem.id, 'manualPrice', p.stoneRate);
+                    updateDOMInputs(newItem.id, p.stoneWt, p.stoneRate || '');
+                    loadedCount++;
+                } else {
+                    // Fallback to generic "Stone"
+                     const genericStone = rates.find(r => r.type === 'stone' && (r.name.toLowerCase() === 'stone' || r.name.toLowerCase() === 'color stone'));
+                     if(genericStone) {
+                        addItem('stone', genericStone.id);
+                        const newItem = items[items.length - 1];
+                        updateItem(newItem.id, 'weight', p.stoneWt);
+                        if(p.stoneRate) updateItem(newItem.id, 'manualPrice', p.stoneRate);
+                        updateDOMInputs(newItem.id, p.stoneWt, p.stoneRate || '');
+                        loadedCount++;
+                     }
+                }
+            }
+
+            if (loadedCount > 0) {
+                showToast("Product Loaded to Calculator");
+                closeProductModal();
+            } else {
+                showToast("Could not match items to Rates");
             }
         }
 
