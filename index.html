@@ -2,17 +2,25 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Updated Viewport for Full Screen & Notches -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EJPC</title>
     
     <meta name="theme-color" content="#0f0f0f">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/svgs/solid/gem.svg">
+    
+    <link rel="icon" type="image/png" href="EJPC-app-icon-favicon.png">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="EJPC">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="EJPC-app-icon-ati.png">
+
+    <meta name="msapplication-TileColor" content="#0f0f0f">
+    <meta name="msapplication-TileImage" content="EJPC-app-icon-512.png">
 
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script> <!-- QR Scanner Lib -->
+    <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -29,6 +37,8 @@
             --bg-gradient-1: #1f1f1f;
             --bg-gradient-2: #000000;
             --icon-color: #d1d5db; /* gray-300 default */
+            --safe-top: env(safe-area-inset-top, 0px);
+            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         /* Light Mode Overrides */
@@ -47,22 +57,28 @@
             --icon-color: #374151; /* gray-700 for light mode */
         }
 
-        /* Full Screen Lock */
-        html, body {
+        /* Full Screen Lock - Updated for 100dvh */
+        html {
             height: 100%;
-            overflow: hidden; /* Prevent body scroll */
-            margin: 0;
-            padding: 0;
+            overflow: hidden; 
             background-color: var(--dark-bg);
         }
 
         body {
+            height: 100%;
+            height: 100dvh; /* Dynamic Viewport Height for mobile browsers */
+            overflow: hidden; /* Prevent body scroll */
+            margin: 0;
+            padding: 0;
+            padding-top: var(--safe-top); /* Handle Notch */
+            padding-bottom: var(--safe-bottom); /* Handle Home Bar */
             font-family: 'Lato', sans-serif;
             background-image: radial-gradient(circle at 50% 50%, var(--bg-gradient-1) 0%, var(--bg-gradient-2) 100%);
             color: var(--text-main);
             display: flex;
             flex-direction: column;
             transition: background 0.3s ease, color 0.3s ease;
+            position: relative; /* For P2R positioning */
         }
 
         h1, h2, .brand-font {
@@ -130,6 +146,8 @@
             opacity: 0;
             visibility: hidden;
             pointer-events: none;
+            padding-top: var(--safe-top); /* Ensure modals respect safe area */
+            padding-bottom: var(--safe-bottom);
         }
         .modal.active {
             opacity: 1;
@@ -516,25 +534,55 @@
         input[type="checkbox"]:checked {
             border-color: var(--gold-primary);
         }
+
+        /* --- PULL TO REFRESH STYLES --- */
+        #p2r-container {
+            position: absolute;
+            top: var(--safe-top); /* Align below safe area */
+            left: 0;
+            width: 100%;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s;
+        }
+        
+        #p2r-icon {
+            color: var(--gold-primary);
+            font-size: 20px;
+            background: var(--panel-bg);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            border: 1px solid var(--border-color);
+        }
         
     </style>
 </head>
 <body>
 
+    <!-- PULL TO REFRESH SPINNER -->
+    <div id="p2r-container">
+        <div id="p2r-icon">
+            <i class="fas fa-arrow-down"></i>
+        </div>
+    </div>
+
     <nav class="flex-none h-16 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-4 flex justify-between items-center">
             
-            <!-- BRAND + THEME TOGGLE (Left Side) -->
+            <!-- BRAND + QR SCAN (Left Side - Swapped) -->
             <div class="flex items-center gap-3">
                 <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
-                
-                <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
-                    <div class="toggle-circle">☾</div>
-                </div>
-            </div>
-            
-            <!-- ACTIONS (Right Side) -->
-            <div class="flex items-center gap-0.5">
                 
                 <!-- QR SCAN (Moved Here) -->
                 <button onclick="openQRScanner()" class="nav-btn hover-red p-2 rounded-full" title="Scan QR">
@@ -553,45 +601,56 @@
                         <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
                     </svg>
                 </button>
+            </div>
+            
+            <!-- ACTIONS (Right Side) -->
+            <div class="flex items-center gap-2">
+                
+                <!-- THEME TOGGLE (Moved Here - Swapped) -->
+                <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
+                    <div class="toggle-circle">☾</div>
+                </div>
 
-                <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                        <polyline points="14 2 14 8 20 8"></polyline>
-                        <text x="11.5" y="11" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
-                        <line x1="8" y1="14" x2="16" y2="14"></line>
-                        <line x1="8" y1="17" x2="16" y2="17"></line>
-                    </svg>
-                </button>
+                <div class="flex items-center gap-0.5">
+                    <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                            <polyline points="14 2 14 8 20 8"></polyline>
+                            <text x="11.5" y="11" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
+                            <line x1="8" y1="14" x2="16" y2="14"></line>
+                            <line x1="8" y1="17" x2="16" y2="17"></line>
+                        </svg>
+                    </button>
 
-                <button onclick="toggleDiscount()" class="nav-btn hover-green p-2 rounded-full" title="Discount Calculator">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                        <text x="8.5" y="10.5" font-family="Arial" font-size="7" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">%</text>
-                        <text x="15" y="16.5" font-family="Arial" font-size="5" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle" transform="rotate(-45 15 16.5)">OFF</text>
-                    </svg>
-                </button>
+                    <button onclick="toggleDiscount()" class="nav-btn hover-green p-2 rounded-full" title="Discount Calculator">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                            <text x="8.5" y="10.5" font-family="Arial" font-size="7" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">%</text>
+                            <text x="15" y="16.5" font-family="Arial" font-size="5" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle" transform="rotate(-45 15 16.5)">OFF</text>
+                        </svg>
+                    </button>
 
-                <button onclick="toggleCurrency()" class="nav-btn hover-purple p-2 rounded-full" title="Currency Converter">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-                        <path d="M8 16H3v5"></path>
-                        <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-                        <path d="M16 8h5V3"></path>
-                        <text x="12" y="15.5" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
-                    </svg>
-                </button>
+                    <button onclick="toggleCurrency()" class="nav-btn hover-purple p-2 rounded-full" title="Currency Converter">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
+                            <path d="M8 16H3v5"></path>
+                            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
+                            <path d="M16 8h5V3"></path>
+                            <text x="12" y="15.5" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
+                        </svg>
+                    </button>
 
-                <button onclick="toggleSettings()" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
-                    </svg>
-                </button>
+                    <button onclick="toggleSettings()" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
+                        <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
         </div>
     </nav>
 
-    <main class="flex-grow flex flex-col p-2 gap-2 overflow-hidden w-full relative">
+    <main id="app-main" class="flex-grow flex flex-col p-2 gap-2 overflow-hidden w-full relative transition-transform duration-100 ease-out">
         
         <div class="flex-none grid grid-cols-2 gap-2 w-full">
             <div class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
@@ -654,10 +713,18 @@
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
             <div class="settings-header flex justify-between items-center p-6 border-b border-gray-700 rounded-t-2xl flex-shrink-0">
-                <h2 class="text-2xl font-bold">RATE SETTINGS</h2>
-                <button onclick="toggleSettings()" class="text-gray-400 hover:text-white transition-colors">
-                    <i class="fas fa-times text-2xl"></i>
-                </button>
+                <h2 class="text-2xl font-bold">RATES</h2>
+                <div class="flex items-center">
+                    <!-- Profit Margin Input -->
+                    <div class="flex items-center gap-2 mr-4">
+                         <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">P% :</span>
+                         <input type="number" id="profit-margin-input" value="25" class="w-16 bg-gray-800 border border-gray-600 rounded p-1 text-white text-center font-mono focus:border-yellow-500 focus:outline-none" onchange="updateProfitMargin(this.value)">
+                    </div>
+
+                    <button onclick="toggleSettings()" class="text-gray-400 hover:text-white transition-colors">
+                        <i class="fas fa-times text-2xl"></i>
+                    </button>
+                </div>
             </div>
             <div class="p-6 overflow-y-auto custom-scroll flex-grow">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
@@ -838,7 +905,7 @@
 
             <!-- Bottom Text (Only for Scanner) -->
             <div id="qr-hint-text" class="absolute bottom-36 w-full text-center text-gray-300 text-sm z-20 font-medium tracking-wide drop-shadow-md pointer-events-none">
-                Scanning for Product ID...
+                Scanning for Product QR Code...
             </div>
         </div>
 
@@ -952,6 +1019,7 @@
     <script>
         // --- DATA MANAGEMENT ---
         let currentFetchedProduct = null;
+        let profitMargin = 25; // Default Profit Margin
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1053,6 +1121,14 @@
         function init() {
             initTheme();
             initCurrencyConverter();
+            initPullToRefresh(); // NEW: Init P2R
+            
+            // Load Profit Margin
+            const storedMargin = localStorage.getItem('profitMargin');
+            if (storedMargin !== null) {
+                profitMargin = parseFloat(storedMargin);
+                document.getElementById('profit-margin-input').value = profitMargin;
+            }
 
             // Register Service Worker for PWA Offline Capability
             if ('serviceWorker' in navigator) {
@@ -1065,6 +1141,109 @@
             renderSettings();
             renderAddMenus();
             renderCopySettings(); // Init checkbox states
+        }
+        
+        // --- PULL TO REFRESH LOGIC ---
+        function initPullToRefresh() {
+            const body = document.body;
+            const main = document.getElementById('app-main');
+            const p2rContainer = document.getElementById('p2r-container');
+            const icon = document.getElementById('p2r-icon');
+            const iconI = icon.querySelector('i');
+            
+            let startY = 0;
+            let currentY = 0;
+            let isPulling = false;
+            const threshold = 120; // Drag distance needed
+            
+            body.addEventListener('touchstart', (e) => {
+                // Only enable if at the very top of page
+                if (window.scrollY === 0) {
+                    // Check if we are inside a scrollable element that is NOT at top
+                    const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');
+                    if (scrollable && scrollable.scrollTop > 0) {
+                        return; // Let internal scroll happen
+                    }
+                    
+                    startY = e.touches[0].clientY;
+                    isPulling = true;
+                }
+            }, { passive: true });
+
+            body.addEventListener('touchmove', (e) => {
+                if (!isPulling) return;
+                
+                const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');
+                if (scrollable && scrollable.scrollTop > 0) {
+                    isPulling = false; // Cancel if we started scrolling down internally
+                    return;
+                }
+
+                currentY = e.touches[0].clientY;
+                const diff = currentY - startY;
+                
+                // Only handle pull down
+                if (diff > 0) {
+                    // Resistance formula
+                    const move = Math.min(diff * 0.4, 150); 
+                    
+                    if (diff > 10) {
+                        // Visual Feedback
+                        p2rContainer.style.opacity = '1';
+                        p2rContainer.style.transform = `translateY(${move - 20}px)`; // -20 offset from CSS
+                        main.style.transform = `translateY(${move}px)`;
+                        
+                        // Rotate arrow
+                        const rotate = Math.min(diff * 2, 180);
+                        icon.style.transform = `rotate(${rotate}deg)`;
+                        
+                        if (diff > threshold) {
+                            iconI.className = "fas fa-sync";
+                            icon.style.borderColor = "var(--gold-primary)";
+                        } else {
+                             iconI.className = "fas fa-arrow-down";
+                             icon.style.borderColor = "var(--border-color)";
+                        }
+                    }
+                }
+            }, { passive: true });
+
+            body.addEventListener('touchend', (e) => {
+                if (!isPulling) return;
+                isPulling = false;
+                const diff = currentY - startY;
+                
+                if (diff > threshold) {
+                    // Trigger Refresh
+                    iconI.classList.add('fa-spin'); // Spin
+                    p2rContainer.style.transform = `translateY(40px)`;
+                    main.style.transform = `translateY(60px)`;
+                    
+                    // Vibration feedback if available
+                    if (navigator.vibrate) navigator.vibrate(50);
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 500);
+                } else {
+                    // Reset
+                    p2rContainer.style.opacity = '0';
+                    p2rContainer.style.transform = 'translateY(-20px)';
+                    main.style.transform = 'translateY(0)';
+                }
+                
+                // Reset vars
+                startY = 0;
+                currentY = 0;
+            });
+        }
+        
+        function updateProfitMargin(val) {
+            const num = parseFloat(val);
+            if(!isNaN(num) && num >= 0) {
+                profitMargin = num;
+                localStorage.setItem('profitMargin', profitMargin);
+            }
         }
 
         function saveRates() {
@@ -1093,14 +1272,30 @@
              }
         }
         
+        // Helper to calculate Grand Total inclusive of Margin (for Discount Modal consistency)
+        function calculateTotalWithMargin() {
+            let total = 0;
+            items.forEach(item => {
+                const rate = rates.find(r => r.id === item.rateId);
+                if(rate && item.weight > 0) {
+                    const price = rate.price || 0;
+                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
+                    
+                    // Apply Profit Margin Logic
+                    const priceWithMargin = cost * (1 + profitMargin/100);
+                    total += priceWithMargin;
+                }
+            });
+            return total;
+        }
+
         function toggleDiscount() { 
-            // PRE-FILL logic: Get total price from main UI
-            const totalText = document.getElementById('display-total-price').innerText;
-            // Remove commas and parse
-            const totalVal = parseFloat(totalText.replace(/,/g, ''));
+            // Get total using the Margin logic to match Summary Modal
+            const totalVal = calculateTotalWithMargin();
             
             if(!isNaN(totalVal) && totalVal > 0) {
-                document.getElementById('calc-original').value = totalVal;
+                // Round it nicely for input display if needed, but keeping precision is better for calc
+                document.getElementById('calc-original').value = totalVal.toFixed(2);
                 // Auto calculate with existing percentage (or 0)
                 runDiscountCalc();
             }
@@ -1110,28 +1305,24 @@
 
         function toggleCurrency() { 
             if(toggleModal('currency-modal')) {
-                // Pre-fill Logic: Calculate current Total (with discount/tax/rounding)
-                let total = 0;
-                items.forEach(item => {
-                    const rate = rates.find(r => r.id === item.rateId);
-                    if(rate && item.weight > 0) {
-                        const itemCost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
-                        total += itemCost;
-                    }
-                });
+                // Pre-fill Logic: Calculate current Total (with discount/tax/rounding/margin)
                 
-                // 1. Discount
-                let runningTotal = total;
+                // 1. Get Base Total with Margin
+                let runningTotal = calculateTotalWithMargin();
+                
+                // 2. Discount
                 if(discountData.active) {
-                    runningTotal = discountData.discountedTotal; // Already calculated
+                    // Recalculate discount based on current margin-inclusive total
+                    const amountSaved = runningTotal * (discountData.percentage / 100);
+                    runningTotal = runningTotal - amountSaved;
                 }
                 
-                // 2. Tax (Recalculate locally for accuracy if summary isn't open)
+                // 3. Tax (Recalculate locally for accuracy if summary isn't open)
                 if(summaryState.tax) {
                     runningTotal += (runningTotal * 0.03);
                 }
 
-                // 3. Round Off
+                // 4. Round Off
                 if(summaryState.roundOffMode > 0) {
                     const m = summaryState.roundOffMode;
                     runningTotal = Math.round(runningTotal / m) * m;
@@ -2101,7 +2292,7 @@
             }
 
             if (validStones.length === 0) {
-                stoneMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Rate Settings to enable</span>`;
+                stoneMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Settings to enable</span>`;
             } else {
                 validStones.forEach(r => {
                     const btn = document.createElement('button');
@@ -2533,7 +2724,11 @@
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
                     const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-                    total += cost;
+                    
+                    // Apply Profit Margin
+                    const priceWithMargin = cost * (1 + profitMargin/100);
+                    total += priceWithMargin;
+                    
                     const unit = item.type === 'metal' ? 'g' : 'ct';
 
                     if(item.type === 'metal') {
@@ -2547,7 +2742,7 @@
                     html += `
                     <div class="invoice-row">
                         <span>${nameLabel} <span class="text-xs text-gray-500">(${item.weight}${unit})</span></span>
-                        <span class="invoice-val">₹${cost.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
+                        <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
                     </div>
                     `;
                 }
@@ -2571,11 +2766,20 @@
 
             // Discount Row
             if (discountData.active) {
-                runningTotal = discountData.discountedTotal;
+                // IMPORTANT: Recalculate discount based on current margin-loaded price
+                // If profit margin changed since discount was calculated, update it here visually
+                const amountSaved = runningTotal * (discountData.percentage / 100);
+                const discountedTotal = runningTotal - amountSaved;
+                
+                // We update local display var, but not global state to avoid loop recursion issues
+                // (though discountData should arguably update too)
+                
+                runningTotal = discountedTotal;
+                
                 html += `
                 <div class="invoice-row">
                     <span>Discount (${discountData.percentage}%)</span>
-                    <span class="invoice-val text-green-400">-₹${discountData.amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    <span class="invoice-val text-green-400">-₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 </div>
                 `;
             }
@@ -2703,7 +2907,10 @@
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
                     const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-                    total += cost;
+                    
+                    const priceWithMargin = cost * (1 + profitMargin/100);
+                    total += priceWithMargin;
+                    
                     const unit = item.type === 'metal' ? 'g' : 'ct';
 
                     if(item.type === 'metal') {
@@ -2713,7 +2920,7 @@
                     }
                     
                     const nameLabel = rate.name || "Unnamed Item";
-                    text += `${nameLabel} (${item.weight}${unit})\t₹${cost.toLocaleString('en-IN')}\n`;
+                    text += `${nameLabel} (${item.weight}${unit})\t₹${priceWithMargin.toLocaleString('en-IN')}\n`;
                 }
             });
 
@@ -2729,10 +2936,14 @@
             let runningTotal = total;
 
             if(discountData.active) {
+                // Calc discount relative to running total (inclusive of margin)
+                const amountSaved = runningTotal * (discountData.percentage / 100);
+                const discountedTotal = runningTotal - amountSaved;
+                
                 if(copyOptions.discount) {
-                    text += `Discount (${discountData.percentage}%)\t-₹${discountData.amount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `Discount (${discountData.percentage}%)\t-₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
-                runningTotal = discountData.discountedTotal;
+                runningTotal = discountedTotal;
             }
 
             if(summaryState.tax) {
