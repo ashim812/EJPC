@@ -1,15 +1,27 @@
 {
-    "name": "Epopee Jewels Price Calculator",
+    "name": "EPOPEE Jewellery Price Calculator",
     "short_name": "EJPC",
-    "start_url": "index.html",
+    "start_url": "./index.html",
     "display": "standalone",
     "background_color": "#0f0f0f",
     "theme_color": "#0f0f0f",
+    "orientation": "portrait-primary",
     "icons": [
         {
-            "src": "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/svgs/solid/gem.svg",
-            "type": "image/svg+xml",
+            "src": "./EJPC-app-icon-192.png",
+            "type": "image/png",
+            "sizes": "192x192"
+        },
+        {
+            "src": "./EJPC-app-icon-512.png",
+            "type": "image/png",
             "sizes": "512x512"
+        },
+        {
+            "src": "./EJPC-app-icon-512.png",
+            "type": "image/png",
+            "sizes": "512x512",
+            "purpose": "any maskable"
         }
     ]
 }
