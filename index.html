@@ -486,9 +486,9 @@
 
         /* PRESERVE RATE SETTINGS HEADER STYLE */
         /* Force dark background and light yellow text even in light mode */
-        .settings-header {
-            background-image: linear-gradient(to right, #111827, transparent);
-        }
+        /* REMOVED .settings-header gradient style to match currency modal */
+        /* .settings-header { background-image: linear-gradient(to right, #111827, transparent); } */
+        
         body.light .settings-header h2 { color: #EAB308 !important; } /* Force Light Yellow */
         body.light .settings-header button { color: #9ca3af !important; } /* Restore close button color */
         body.light .settings-header button:hover { color: #ffffff !important; }
@@ -712,20 +712,25 @@
 
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
-            <div class="settings-header flex justify-between items-center p-6 border-b border-gray-700 rounded-t-2xl flex-shrink-0">
-                <h2 class="text-2xl font-bold">RATES</h2>
-                <div class="flex items-center">
-                    <!-- Profit Margin Input -->
-                    <div class="flex items-center gap-2 mr-4">
-                         <span class="text-xs text-gray-400 font-bold uppercase tracking-wider">P% :</span>
-                         <input type="number" id="profit-margin-input" value="25" class="w-16 bg-gray-800 border border-gray-600 rounded p-1 text-white text-center font-mono focus:border-yellow-500 focus:outline-none" onchange="updateProfitMargin(this.value)">
+            <!-- UPDATED SETTINGS HEADER (Currency Style) -->
+            <div class="flex justify-between items-center p-6 pb-2 border-b border-gray-700/50 flex-shrink-0">
+                <div>
+                    <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">Rates</h2>
+                </div>
+                
+                <div class="flex items-center gap-[40px]">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">P%:</span>
+                        <div class="flex items-center bg-gray-800 rounded border border-gray-700 p-0.5">
+                           <input type="number" id="profit-margin-input" value="25" class="w-8 bg-transparent text-white text-center font-mono text-sm focus:outline-none" onchange="updateProfitMargin(this.value)">
+                        </div>
                     </div>
-
                     <button onclick="toggleSettings()" class="text-gray-400 hover:text-white transition-colors">
                         <i class="fas fa-times text-2xl"></i>
                     </button>
                 </div>
             </div>
+            
             <div class="p-6 overflow-y-auto custom-scroll flex-grow">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
                     <div class="bg-gray-900 bg-opacity-40 p-4 rounded-xl border border-gray-800 flex flex-col">
@@ -766,11 +771,15 @@
 
     <div id="discount-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-green-900">
-            <div class="flex justify-between items-center p-6 border-b border-gray-700 bg-gradient-to-r from-gray-900 to-transparent rounded-t-2xl">
-                <h2 class="text-2xl text-green-400 font-bold">DISCOUNT</h2>
+            <!-- UPDATED DISCOUNT HEADER (Currency Style) -->
+            <div class="flex justify-between items-start p-6 pb-2">
+                <div>
+                    <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">Discount Calculator</h2>
+                </div>
                 <button onclick="toggleDiscount()" class="text-gray-400 hover:text-white transition-colors"><i class="fas fa-times text-2xl"></i></button>
             </div>
-            <div class="p-6">
+            
+            <div class="p-6 pt-2">
                 <form onsubmit="return false;" class="flex flex-col gap-4">
                     <div>
                         <label class="text-sm text-gray-400 block mb-1">Original Price (₹):</label>
@@ -1121,7 +1130,7 @@
         function init() {
             initTheme();
             initCurrencyConverter();
-            initPullToRefresh(); // NEW: Init P2R
+            initPullToRefresh(); 
             
             // Load Profit Margin
             const storedMargin = localStorage.getItem('profitMargin');
@@ -1141,6 +1150,12 @@
             renderSettings();
             renderAddMenus();
             renderCopySettings(); // Init checkbox states
+
+            // --- AUTO SYNC RATES: Every 1 Hour (3600000 ms) ---
+            setInterval(() => {
+                console.log("Triggering Auto-Sync for Rates...");
+                syncRates(); 
+            }, 3600000);
         }
         
         // --- PULL TO REFRESH LOGIC ---
@@ -1157,6 +1172,9 @@
             const threshold = 120; // Drag distance needed
             
             body.addEventListener('touchstart', (e) => {
+                // Check for active modals - if any modal is active, DISABLE P2R
+                if (document.querySelector('.modal.active')) return;
+
                 // Only enable if at the very top of page
                 if (window.scrollY === 0) {
                     // Check if we are inside a scrollable element that is NOT at top
