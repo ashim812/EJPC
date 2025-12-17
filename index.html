@@ -2,7 +2,6 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Updated Viewport for Full Screen & Notches -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>EJPC</title>
     
@@ -41,7 +40,6 @@
             --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
-        /* Light Mode Overrides */
         body.light {
             --gold-primary: #b8860b;
             --gold-light: #d4af37;
@@ -57,7 +55,6 @@
             --icon-color: #374151; /* gray-700 for light mode */
         }
 
-        /* Full Screen Lock - Updated for 100dvh */
         html {
             height: 100%;
             overflow: hidden; 
@@ -258,7 +255,7 @@
             -webkit-tap-highlight-color: transparent;
         }
         
-        /* FIX: Sticky Hover on Mobile - Only apply hover styles on devices that support hover */
+        /* Sticky Hover on Mobile - Only apply hover styles on devices that support hover */
         @media (hover: hover) {
             .add-chip:hover {
                 background: rgba(125, 125, 125, 0.2);
@@ -290,14 +287,14 @@
 
         /* --- NEW STYLES FOR INTEGRATION --- */
         
-        /* Theme Toggle Switch - UPDATED TO CIRCULAR */
+        /* Theme Toggle Switch */
         .theme-toggle {
             display: flex;
             align-items: center;
             justify-content: center;
             width: 32px;
             height: 32px;
-            border-radius: 50%; /* Perfect Circle */
+            border-radius: 50%;
             background: #4b5563;
             cursor: pointer;
             transition: all 0.3s ease;
@@ -358,8 +355,6 @@
             color: #ffffff !important;
         }
         
-        /* QR Interface Theme Adaptation */
-        /* Light Mode for QR Interface Components */
         body.light #qr-top-bar {
             background-color: rgba(255, 255, 255, 0.9);
             border-bottom: 1px solid rgba(0,0,0,0.1);
@@ -374,7 +369,6 @@
         }
         body.light #qr-bottom-bar button { color: #374151; }
         
-        /* Manual View Background in Light Mode (Matching Summary Modal Style) */
         body.light #qr-manual-view {
             background-color: rgba(255, 255, 255, 0.96);
             backdrop-filter: blur(5px);
@@ -387,10 +381,9 @@
         }
         body.light #qr-manual-view input:focus { border-color: #4ade80; }
         
-        /* Hint Text in Light Mode */
         body.light #qr-hint-text {
             color: #ffffff; 
-            text-shadow: 0 1px 3px rgba(0,0,0,0.8); /* Keep light text for contrast over camera, add shadow */
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
         }
 
 
@@ -457,18 +450,15 @@
             justify-content: center;
         }
         .nav-btn:hover { background-color: rgba(125,125,125,0.1); }
-        
-        /* SVG Icon Fill Transition */
         .nav-btn svg { transition: stroke 0.3s; }
         
-        /* HOVER COLORS - FORCE VISIBILITY IN BOTH MODES */
+        /* HOVER COLORS VISIBILITY IN BOTH THEME MODES */
         body .hover-blue:hover, body.light .hover-blue:hover { color: #60a5fa !important; }
         body .hover-green:hover, body.light .hover-green:hover { color: #4ade80 !important; }
         body .hover-purple:hover, body.light .hover-purple:hover { color: #c084fc !important; }
         body .hover-yellow:hover, body.light .hover-yellow:hover { color: #facc15 !important; }
         body .hover-red:hover, body.light .hover-red:hover { color: #ef4444 !important; }
 
-        /* Light Mode Text Overrides for dynamic elements */
         body.light .text-gray-200 { color: #1f2937; }
         body.light .text-gray-300 { color: #374151; }
         body.light .text-gray-400 { color: #6b7280; }
@@ -479,18 +469,13 @@
         body.light .hover\:text-white:hover { color: #000; }
         
         /* Specific overrides for Headers to handle Contrast in Light Mode */
-        body.light .text-white { color: #1f2937 !important; } 
-        /* Revert yellow text for gold elements */
+        body.light .text-white { color: #1f2937 !important; }
         body.light .text-yellow-500 { color: #b45309 !important; } 
         body.light .text-yellow-400 { color: #d97706 !important; }
 
-        /* PRESERVE RATE SETTINGS HEADER STYLE */
-        /* Force dark background and light yellow text even in light mode */
-        /* REMOVED .settings-header gradient style to match currency modal */
-        /* .settings-header { background-image: linear-gradient(to right, #111827, transparent); } */
-        
-        body.light .settings-header h2 { color: #EAB308 !important; } /* Force Light Yellow */
-        body.light .settings-header button { color: #9ca3af !important; } /* Restore close button color */
+        /* RATE SETTINGS HEADER STYLE */        
+        body.light .settings-header h2 { color: #EAB308 !important; }
+        body.light .settings-header button { color: #9ca3af !important; }
         body.light .settings-header button:hover { color: #ffffff !important; }
 
         /* Sync & Rates Buttons - Always White Text */
@@ -498,7 +483,6 @@
             color: #ffffff !important;
         }
 
-        /* Summary Modal Backdrop - Opaque White in Light Mode */
         body.light #summary-modal {
             background-color: rgba(255, 255, 255, 0.96) !important;
             backdrop-filter: blur(5px);
@@ -538,7 +522,7 @@
         /* --- PULL TO REFRESH STYLES --- */
         #p2r-container {
             position: absolute;
-            top: var(--safe-top); /* Align below safe area */
+            top: var(--safe-top);
             left: 0;
             width: 100%;
             height: 60px;
@@ -579,12 +563,8 @@
 
     <nav class="flex-none h-16 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-4 flex justify-between items-center">
-            
-            <!-- BRAND + QR SCAN (Left Side - Swapped) -->
             <div class="flex items-center gap-3">
                 <h1 class="text-xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
-                
-                <!-- QR SCAN (Moved Here) -->
                 <button onclick="openQRScanner()" class="nav-btn hover-red p-2 rounded-full" title="Scan QR">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Corners -->
@@ -602,11 +582,7 @@
                     </svg>
                 </button>
             </div>
-            
-            <!-- ACTIONS (Right Side) -->
             <div class="flex items-center gap-2">
-                
-                <!-- THEME TOGGLE (Moved Here - Swapped) -->
                 <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
                     <div class="toggle-circle">☾</div>
                 </div>
@@ -670,7 +646,6 @@
         </div>
 
         <div class="flex-grow flex flex-col gap-2 min-h-0 w-full">
-            
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                 <div class="flex-none p-3 border-b border-gray-700 flex justify-between items-center bg-black bg-opacity-20">
                     <h2 class="text-lg text-gray-200"><i class="fas fa-cube mr-2 text-gray-400"></i>Metals</h2>
@@ -712,7 +687,6 @@
 
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
-            <!-- UPDATED SETTINGS HEADER (Currency Style) -->
             <div class="flex justify-between items-center p-6 pb-2 border-b border-gray-700/50 flex-shrink-0">
                 <div>
                     <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">Rates</h2>
@@ -771,7 +745,6 @@
 
     <div id="discount-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-green-900">
-            <!-- UPDATED DISCOUNT HEADER (Currency Style) -->
             <div class="flex justify-between items-start p-6 pb-2">
                 <div>
                     <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">Discount Calculator</h2>
@@ -900,7 +873,7 @@
                     <div class="flex flex-col gap-4">
                         <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-xl text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
                         <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95">
-                            FETCH PRODUCT DETAILS
+                            FETCH PRODUCT ID DETAILS
                         </button>
                     </div>
                 </div>
@@ -929,7 +902,7 @@
             <!-- Flash Toggle -->
             <button onclick="toggleFlash()" id="flash-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Toggle Flash">
                 <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
-                     <i class="fas fa-bolt text-lg"></i>
+                     <i class="fas fa-solid fa-lightbulb text-lg"></i>
                 </div>
             </button>
         </div>
@@ -995,26 +968,19 @@
         </div>
     </div>
     
-    <!-- PRODUCT DETAILS POPUP -->
+    <!-- PRODUCT DETAILS POPUP BOX -->
     <div id="product-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-sm rounded-[32px] flex flex-col shadow-2xl border border-red-500 relative overflow-hidden text-center p-8 gap-4 backdrop-blur-md transition-colors">
-             <!-- Modified Visual Scheme: Uses glass-panel (inherits theme vars) and Red Border -->
-             
              <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
-
              <h2 class="text-2xl font-bold italic mb-2 font-serif text-[var(--text-main)] mt-2">PRODUCT DETAILS</h2>
-
              <div id="product-details-content" class="text-left space-y-1.5 text-[var(--text-main)] text-[15px] font-sans font-medium leading-relaxed">
                   <!-- Dynamic Content -->
                   <div class="flex justify-center p-4"><i class="fas fa-circle-notch fa-spin text-2xl text-yellow-600"></i></div>
              </div>
-
              <div id="product-error" class="hidden text-red-600 dark:text-red-400 font-bold mt-2 text-lg">
                   Item <span id="err-prod-id"></span> not in database
              </div>
-
-             <!-- Modified Button: Red Theme matching Currency Refresh -->
-             <button id="prod-action-btn" onclick="closeProductModal()" class="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-10 rounded-xl shadow-lg transition-transform active:scale-95 mx-auto uppercase tracking-wide">
+             <button id="prod-action-btn" onclick="closeProductModal()" class="mt-4 bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-7 rounded-xl shadow-lg transition-transform active:scale-95 mx-auto uppercase tracking-wide">
                  LOAD
              </button>
         </div>
@@ -1151,7 +1117,7 @@
             renderAddMenus();
             renderCopySettings(); // Init checkbox states
 
-            // --- AUTO SYNC RATES: Every 1 Hour (3600000 ms) ---
+            // --- AUTO SYNC RATES: Every 1 Hour ---
             setInterval(() => {
                 console.log("Triggering Auto-Sync for Rates...");
                 syncRates(); 
@@ -1205,8 +1171,7 @@
                     // Resistance formula
                     const move = Math.min(diff * 0.4, 150); 
                     
-                    if (diff > 10) {
-                        // Visual Feedback
+                    if (diff > 10) {                      // Visual Feedback
                         p2rContainer.style.opacity = '1';
                         p2rContainer.style.transform = `translateY(${move - 20}px)`; // -20 offset from CSS
                         main.style.transform = `translateY(${move}px)`;
@@ -1312,7 +1277,6 @@
             const totalVal = calculateTotalWithMargin();
             
             if(!isNaN(totalVal) && totalVal > 0) {
-                // Round it nicely for input display if needed, but keeping precision is better for calc
                 document.getElementById('calc-original').value = totalVal.toFixed(2);
                 // Auto calculate with existing percentage (or 0)
                 runDiscountCalc();
@@ -1335,7 +1299,7 @@
                     runningTotal = runningTotal - amountSaved;
                 }
                 
-                // 3. Tax (Recalculate locally for accuracy if summary isn't open)
+                // 3. Tax
                 if(summaryState.tax) {
                     runningTotal += (runningTotal * 0.03);
                 }
@@ -1355,7 +1319,6 @@
         }
 
         // --- PRODUCT DETAILS MODAL LOGIC ---
-
         function openProductModal(loading = true) {
             const modal = document.getElementById('product-modal');
             const content = document.getElementById('product-details-content');
@@ -1394,8 +1357,7 @@
                 return;
             }
 
-            // Timestamp to prevent caching
-            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();     // Timestamp to prevent caching
 
             try {
                 // 1. Fetch CSV
@@ -1435,8 +1397,7 @@
             } catch (error) {
                 console.error("Product Fetch Error:", error);
                 document.getElementById('product-details-content').innerHTML = `<div class="text-center text-red-500">Connection Failed</div>`;
-                // Connection Error -> Retry
-                const actionBtn = document.getElementById('prod-action-btn');
+                const actionBtn = document.getElementById('prod-action-btn');                // Connection Error -> Retry
                 actionBtn.innerText = "RETRY";
                 actionBtn.onclick = retryScan;
             }
@@ -1468,15 +1429,9 @@
             };
 
             // 1. Load Metal
-            // Try to find a matching metal rate
-            // Common formats in DB: "18K", "Gold 18K", "22K"
-            // Rates formats: "Gold 18K", "Gold 22K", "Silver 925"
-            if (p.metal && parseFloat(p.netWt) > 0) {
-                // Simple heuristic: find rate where rate name contains the metal string or vice versa
-                // Normalizing: remove 'Gold', spaces, case insensitive
-                const normalize = s => s.toLowerCase().replace(/gold/g, '').replace(/silver/g, '').trim();
-                const pMetalClean = normalize(p.metal);
-                
+            if (p.metal && parseFloat(p.netWt) > 0) {                // Simple heuristic: find rate where rate name contains the metal string or vice versa
+                const normalize = s => s.toLowerCase().replace(/gold/g, '').replace(/silver/g, '').trim();// Normalizing: remove 'Gold', spaces, case insensitive
+                const pMetalClean = normalize(p.metal);      
                 const metalRate = rates.find(r => r.type === 'metal' && normalize(r.name).includes(pMetalClean));
                 
                 if (metalRate) {
@@ -1487,8 +1442,7 @@
                     loadedCount++;
                 } else {
                      console.warn("No rate found for metal:", p.metal);
-                     // Fallback: try to find just by purity number if present (e.g. 18)
-                     const purityMatch = p.metal.match(/\d+/);
+                     const purityMatch = p.metal.match(/\d+/);      // Fallback: try to find just by purity number if present (e.g. 18)
                      if(purityMatch) {
                          const purity = purityMatch[0];
                          const fallbackRate = rates.find(r => r.type === 'metal' && r.name.includes(purity));
@@ -1505,8 +1459,7 @@
 
             // 2. Load Diamond
             if (parseFloat(p.diaWt) > 0) {
-                // Look for "Diamond" in rates
-                const diaRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes('diamond'));
+                const diaRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes('diamond')); // Look for "Diamond" in rates
                 if (diaRate) {
                     addItem('stone', diaRate.id);
                     const newItem = items[items.length - 1];
@@ -1516,24 +1469,18 @@
                     // Decode for display
                     let decodedRate = p.diaRate;
                     if(p.diaRate && isNaN(p.diaRate)) decodedRate = decodePrice(p.diaRate);
-                    // Actually we want to show the original string in the box if it's text, or number if number.
-                    // But updateDOMInputs takes raw value.
-                    updateDOMInputs(newItem.id, p.diaWt, p.diaRate || '');
+                    updateDOMInputs(newItem.id, p.diaWt, p.diaRate || '');  // Actually we want to show the original string in the box if it's text, or number if number but updateDOMInputs takes raw value.
                     loadedCount++;
                 }
             }
 
             // 3. Load Other Stone
             if ((p.stone && p.stone !== '-') && parseFloat(p.stoneWt) > 0) {
-                // fuzzy match stone name
-                let stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase()));
+                let stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase())); // fuzzy match stone name
                 
                 // --- NEW: If no match found, create dynamic rate for display ---
-                if (!stoneRate) {
-                    // Check if we already created a dynamic one for this name in a previous step? 
-                    // No, because we just cleared items. But rates might have it if added previously.
-                    // Check purely by name exact match now.
-                    stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase() === p.stone.toLowerCase());
+                if (!stoneRate) {             
+                    stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase() === p.stone.toLowerCase());    // Check purely by name exact match now.
                     
                     if (!stoneRate) {
                          const newId = 'dyn_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
@@ -1543,9 +1490,7 @@
                              type: 'stone',
                              price: 0 // Default price
                          };
-                         // Add to rates array so addItem can find it
-                         rates.push(stoneRate);
-                         // Note: We do NOT call saveRates(), so this is temporary for the session
+                         rates.push(stoneRate);    // Add to rates array so addItem can find it. Note: We do NOT call saveRates(), so this is temporary for the session
                     }
                 }
 
@@ -1585,16 +1530,13 @@
                     matches.push(val);
                     if (regex.lastIndex === match.index) regex.lastIndex++;
                 }
-                // Handle empty trailing comma
-                if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) matches.pop();
+                if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) matches.pop();                // Handle empty trailing comma
                 return matches;
             };
 
             const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());
-            
-            // Expected Columns mapping
-            // Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, CP
-            const getIdx = (name) => headers.indexOf(name.toLowerCase());
+                        
+            const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, CP
             
             const idx = {
                 id: getIdx('prod id'),
@@ -1662,8 +1604,7 @@
             }
 
             // Conditional Stone Row
-            if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {
-                // If Stone Name exists but weight is 0/empty, handle gracefully
+            if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {                // If Stone Name exists but weight is 0/empty, handle accordingly
                 const sName = p.stone || "Stone";
                 const sWt = p.stoneWt || "0";
                 const sRate = p.stoneRate || "0";
@@ -1671,32 +1612,25 @@
             }
 
             html += `<div>Min. Cost : ${p.cp}</div>`;
-
             container.innerHTML = html;
         }
         
-        // --- QR SCANNER LOGIC ---
-        
+        // --- QR SCANNER LOGIC ---        
         let qrScanner = null;
 
         function openQRScanner() {
             const ui = document.getElementById('qr-interface');
             
             ui.classList.remove('hidden');
-            // Small delay to allow display block to apply before opacity transition
             setTimeout(() => {
                 ui.classList.remove('opacity-0', 'pointer-events-none');
-            }, 10);
-            
-            // Reset to Scan Mode by default
-            switchQRMode('scan');
+            }, 10);            // Small delay to allow display block to apply before opacity transition            
+            switchQRMode('scan');            // Reset to Scan Mode by default
         }
 
         function closeQRScanner() {
-            const ui = document.getElementById('qr-interface');
-            
-            ui.classList.add('opacity-0', 'pointer-events-none');
-            
+            const ui = document.getElementById('qr-interface');            
+            ui.classList.add('opacity-0', 'pointer-events-none');            
             setTimeout(() => {
                 ui.classList.add('hidden');
                 stopCamera();
@@ -1723,9 +1657,7 @@
                  showToast("Camera blocked by browser security (file://).");
                  return;
             }
-
             errorElem.classList.add('hidden');
-
             if (qrScanner) {
                 qrScanner.destroy();
                 qrScanner = null;
@@ -1734,8 +1666,7 @@
             // 2. Explicitly set Worker Path (Fixes standalone execution issues)
             QrScanner.WORKER_PATH = 'https://unpkg.com/qr-scanner@1.4.2/qr-scanner-worker.min.js';
 
-            // Using QrScanner Library
-            qrScanner = new QrScanner(
+            qrScanner = new QrScanner(            // Using QrScanner Library
                 videoElem,
                 result => handleScannedCode(result.data),
                 {
@@ -1745,15 +1676,14 @@
                     highlightScanRegion: false,
                     highlightCodeOutline: false,
                     returnDetailedScanResult: true,
-                    // 3. Force environment (back) camera
+            // 3. Force environment (back) camera
                     preferredCamera: 'environment'
                 }
             );
 
             qrScanner.start().then(() => {
                 console.log("QR Scanner started");
-                // Check if flash is available on start to update UI if needed
-                qrScanner.hasFlash().then(hasFlash => {
+                qrScanner.hasFlash().then(hasFlash => {                // Check if flash is available on start to update UI if needed
                      const flashBtn = document.getElementById('flash-btn');
                      if(!hasFlash) flashBtn.style.opacity = '0.3';
                 });
@@ -1829,26 +1759,22 @@
             }
         }
         
-        // --- NEW: Gallery Scan & Flashlight Logic ---
-        
+        // --- Gallery Scan & Flashlight Logic ---        
         function triggerGallery() {
             document.getElementById('qr-image-input').click();
         }
-
         async function handleImageScan(e) {
             const file = e.target.files[0];
             if (!file) return;
 
             try {
-                // Use library to decode image file directly
-                const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });
+                const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });  // Use library to decode image file directly
                 handleScannedCode(result.data);
             } catch (error) {
                 console.warn(error);
                 showToast("No QR code found in selected image");
             }
-            // Reset input so same file can be selected again
-            e.target.value = ''; 
+            e.target.value = ''; // Reset input so same file can be selected again
         }
         
         async function toggleFlash() {
@@ -1861,13 +1787,13 @@
                 if(isFlashOn) {
                     flashBtn.classList.add('text-yellow-400');
                     flashBtn.classList.remove('text-white');
-                    icon.classList.remove('fa-bolt');
-                    icon.classList.add('fa-lightbulb'); // Visual feedback
+                    icon.classList.remove('fa-solid fa-lightbulb');
+                    icon.classList.add('"fa-solid fa-lightbulb" style="color: #ffc800;"'); // Visual feedback
                 } else {
                     flashBtn.classList.remove('text-yellow-400');
                     flashBtn.classList.add('text-white');
-                    icon.classList.add('fa-bolt');
-                    icon.classList.remove('fa-lightbulb');
+                    icon.classList.add('fa-solid fa-lightbulb');
+                    icon.classList.remove('"fa-solid fa-lightbulb" style="color: #ffc800;"');
                 }
             } else {
                 showToast("Flashlight not available");
@@ -1879,7 +1805,6 @@
                 const upperCode = code.toUpperCase();
                 console.log("Code Scanned:", upperCode);
                 closeQRScanner();
-                // --- NEW INTEGRATION: Fetch Details instead of just Toast ---
                 fetchProductDetails(upperCode);
             }
         }
@@ -2034,14 +1959,11 @@
 
 
         // --- GOOGLE SHEET SYNC LOGIC (RATES) ---
-
         async function syncRates() {
             const btn = document.getElementById('sync-btn');
-            const icon = document.getElementById('sync-icon');
-            
-            // Use the constant directly
-            let url = GOOGLE_SHEET_URL;
-            
+            const icon = document.getElementById('sync-icon');            
+
+            let url = GOOGLE_SHEET_URL;            // Use the constant directly            
             if (!url) {
                 showToast("Please set GOOGLE_SHEET_CSV_URL in code");
                 return;
@@ -2082,14 +2004,13 @@
                 }
 
                 // 4. Parse Data
-                const newRates = parseCSV(csvText);
-                
+                const newRates = parseCSV(csvText);                
                 if (newRates.length > 0) {
-                    // MIGRATION: Preserve item links by mapping old rate IDs to new stable IDs based on name
-                    items.forEach(item => {
+
+                    items.forEach(item => {   // MIGRATION: Preserve item links by mapping old rate IDs to new stable IDs based on name
                         const currentRate = rates.find(r => r.id === item.rateId);
-                        // If we can identify the current item's name, try to find it in the new list
-                        if (currentRate) {
+
+                        if (currentRate) {    // If identify the current item's name, try to find it in the new list
                             const match = newRates.find(nr => 
                                 nr.type === currentRate.type && 
                                 nr.name.toLowerCase().trim() === currentRate.name.toLowerCase().trim()
@@ -2104,7 +2025,6 @@
                     saveRates();
                     renderSettings();
                     renderAddMenus();
-                    // Force refresh of calculator to fix "Unknown Item" labels immediately
                     renderCalculator(); 
                     calculateTotals();
                     
@@ -2115,7 +2035,7 @@
 
             } catch (error) {
                 console.error("Sync Error:", error);
-                showToast("Failed to fetch. Check URL or Internet Connection.");
+                showToast("Failed to fetch. Please try again after few minutes.");
             } finally {
                 // UI Reset State
                 btn.disabled = false;
@@ -2132,34 +2052,28 @@
             // Helper to split CSV line respecting quotes
             const splitLine = (text) => {
                 const matches = [];
-                // Regex matches: "quoted value" OR value_without_comma
-                const regex = /(?:^|,)(\s*"(?:[^"]|"")*"\s*|[^,]*)/g;
+
+                const regex = /(?:^|,)(\s*"(?:[^"]|"")*"\s*|[^,]*)/g;  // Regex matches: "quoted value" OR value_without_comma
                 let match;
                 while ((match = regex.exec(text)) !== null) {
-                    // Remove leading comma if present (from regex group)
-                    let val = match[1];
+                    let val = match[1]; // Remove leading comma if present (from regex group)
                     if (val) {
-                        // Remove surrounding quotes and handle double quotes
-                        val = val.trim();
+                        val = val.trim();  // Remove surrounding quotes and handle double quotes
                         if (val.startsWith('"') && val.endsWith('"')) {
                             val = val.slice(1, -1).replace(/""/g, '"');
                         }
                     }
                     matches.push(val || "");
-                    // Avoid infinite loop on empty trailing commas
-                    if (regex.lastIndex === match.index) regex.lastIndex++;
+                    if (regex.lastIndex === match.index) regex.lastIndex++; // Avoid infinite loop on empty trailing commas
                 }
-                // The regex usually adds an empty match at the end, remove it if it's spurious
-                if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) {
+                if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) { //The regex usually adds an empty match at the end, remove it if it's spurious
                      matches.pop();
                 }
                 return matches;
             };
 
-            const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());
-            
-            // Map to store unique entries. Key: Type + Name (lowercase)
-            const uniqueMap = new Map();
+            const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());         
+            const uniqueMap = new Map();            // Map to store unique entries. Key: Type + Name (lowercase)
 
             // Identify column indices
             const typeIdx = headers.indexOf('type');
@@ -2175,13 +2089,11 @@
                 const line = lines[i].trim();
                 if (!line) continue;
                 
-                const currentline = splitLine(line); 
-                
+                const currentline = splitLine(line);                 
                 const typeRaw = currentline[typeIdx]?.trim().toLowerCase();
                 const name = currentline[nameIdx]?.trim();
                 let rateStr = currentline[rateIdx]?.trim();
 
-                // CHANGED: We now process if Name is present. Rate is optional for Stones.
                 if (typeRaw && name) {
                     let type = '';
                     if (typeRaw.includes('metal')) type = 'metal';
@@ -2199,13 +2111,9 @@
                         // Allow entry if:
                         // 1. It's a Metal AND has a valid price (>=0)
                         // 2. It's a Stone (Name alone is sufficient, price defaults to 0 if missing)
-                        if (type === 'stone' || (!isNaN(priceVal) && rateStr)) {
-                            
-                            // Create unique key to prevent duplicates
-                            const uniqueKey = `${type}_${name.toLowerCase()}`;
-                            
-                            // STABLE ID: Based on type and sanitized name
-                            const stableId = `${type}_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;
+                        if (type === 'stone' || (!isNaN(priceVal) && rateStr)) {           
+                            const uniqueKey = `${type}_${name.toLowerCase()}`; // Create unique key to prevent duplicates                          
+                            const stableId = `${type}_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`;  // STABLE ID: Based on type and sanitized name
                             
                             uniqueMap.set(uniqueKey, {
                                 id: stableId,
@@ -2217,13 +2125,10 @@
                     }
                 }
             }
-            // Convert Map values back to array
-            return Array.from(uniqueMap.values());
+            return Array.from(uniqueMap.values());    // Convert Map values back to array
         }
 
-
-        // --- RENDER ADD MENUS & SORTING ---
-        
+        // --- RENDER ADD MENUS & SORTING ---        
         // Sorting logic for Metals: Gold > Silver > Others
         function sortMetals(a, b) {
             const nameA = a.name.toLowerCase();
@@ -2278,11 +2183,9 @@
             return nameA.localeCompare(nameB); // Fallback to alphabetical
         }
 
-
         function renderAddMenus() {
             const metalMenu = document.getElementById('metal-add-menu');
-            const stoneMenu = document.getElementById('stone-add-menu');
-            
+            const stoneMenu = document.getElementById('stone-add-menu');            
             metalMenu.innerHTML = '';
             stoneMenu.innerHTML = '';
 
@@ -2291,11 +2194,10 @@
                 .filter(r => r.type === 'metal' && r.name && (r.price || r.price === 0))
                 .sort(sortMetals);
 
-            // Filter and Sort Stones - CHANGED: Removed check for r.price
+            // Filter and Sort Stones
             const validStones = rates
                 .filter(r => r.type === 'stone' && r.name)
                 .sort(sortStones);
-
 
             if (validMetals.length === 0) {
                 metalMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Settings to enable</span>`;
@@ -2310,7 +2212,7 @@
             }
 
             if (validStones.length === 0) {
-                stoneMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Settings to enable</span>`;
+                stoneMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set names in Settings to enable</span>`;
             } else {
                 validStones.forEach(r => {
                     const btn = document.createElement('button');
@@ -2323,7 +2225,6 @@
         }
 
         // --- CALCULATOR LOGIC ---
-
         function addItem(type, specificRateId) {
             const id = 'item_' + Date.now() + Math.random().toString(36).substr(2, 9);
             const rateToUse = rates.find(r => r.id === specificRateId);
@@ -2351,8 +2252,7 @@
             }
         }
         
-        // --- NEW DECODING LOGIC ---
-        
+        // --- STONE PRICE DECODING LOGIC ---        
         function decodePrice(inputStr) {
             // 1. Clean input
             if(!inputStr) return 0;
@@ -2363,7 +2263,7 @@
                 return parseFloat(cleanStr);
             }
 
-            // 3. Define Map (Based on BRIJMOHAN X)
+            // 3. Define Map
             const encodingMap = {'B':1, 'R':2, 'I':3, 'J':4, 'M':5, 'O':6, 'H':7, 'A':8, 'N':9, 'X':0};
 
             // 4. Validate and Decode
@@ -2392,9 +2292,6 @@
                     item.weight = parseFloat(value) || 0;
                 }
                 else if(field === 'manualPrice') {
-                    // Temporarily we use the decoded value for calculation
-                    // But we allow the user to keep typing letters in the input field (handled by UI)
-                    // The calculation engine uses this result:
                     item.manualPrice = decodePrice(value);
                 }
                 
@@ -2445,7 +2342,6 @@
         }
 
         // --- RENDERING ---
-
         function renderCalculator() {
             document.getElementById('metal-list').innerHTML = '';
             document.getElementById('stone-list').innerHTML = '';
@@ -2461,18 +2357,15 @@
             const precision = isMetal ? 3 : 2;
             
             let val = parseFloat(input.value);
-            if(isNaN(val)) val = 0;
-            
-            // Round logic
-            const rounded = parseFloat(val.toFixed(precision));
-            item.weight = rounded;
-            
-            // Update UI if value > 0
-            if(rounded > 0) {
+            if(isNaN(val)) val = 0;            
+
+            const rounded = parseFloat(val.toFixed(precision));   // Round logic
+            item.weight = rounded;            
+
+            if(rounded > 0) {       // Update UI if value > 0
                 input.value = rounded.toFixed(precision);
             } else {
-                // Keep empty or placeholder visible if 0
-                input.value = ''; 
+                input.value = '';  // Keep empty or placeholder visible if 0
             }
             
             updateRowDisplay(item);
@@ -2482,20 +2375,13 @@
         // New Helper for Rounding Rate Input (Stones)
         function formatRateInput(id, input) {
             const item = items.find(i => i.id === id);
-            if(!item) return;
-            
-            // The item.manualPrice is already updated with the DECODED numeric value
-            // We just need to display it nicely now
-            
+            if(!item) return;            
             let val = item.manualPrice;
-            if(isNaN(val)) val = 0;
-            
-            // Round to integer
-            const rounded = Math.round(val);
-            
-            // Update UI
+            if(isNaN(val)) val = 0;           
+
+            const rounded = Math.round(val);   // Round to integer
             if(rounded > 0) {
-                input.value = rounded;
+                input.value = rounded;   // Update UI
             } else {
                 input.value = ''; 
             }
@@ -2514,22 +2400,15 @@
             div.id = item.id;
             div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
             
-            const unitLabel = isStone ? 'ct' : 'g';
-            
-            // Logic for decimals
-            const precision = isStone ? 2 : 3;
+            const unitLabel = isStone ? 'ct' : 'g';           
+            const precision = isStone ? 2 : 3;  // Logic for decimals
             const stepVal = isStone ? '0.01' : '0.001';
-            // Only force format if value exists, otherwise empty string lets placeholder show
-            const displayVal = item.weight > 0 ? item.weight.toFixed(precision) : '';
+            const displayVal = item.weight > 0 ? item.weight.toFixed(precision) : ''; // Only force format if value exists, otherwise empty string lets placeholder show
             const placeholderVal = isStone ? '0.00' : '0.000';
 
-            // Rate Input for Stones
-            let rateInputHtml = '';
+            let rateInputHtml = '';            // Rate Input for Stones
             if (isStone) {
-                // Format manual price to integer or empty
-                const rateVal = item.manualPrice > 0 ? Math.round(item.manualPrice) : '';
-                
-                // --- INTEGRATION CHANGE: type="text" to allow codes ---
+                const rateVal = item.manualPrice > 0 ? Math.round(item.manualPrice) : '';  // Format manual price to integer or empty
                 rateInputHtml = `
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
                     <input type="text" placeholder="Rate" value="${rateVal}" 
@@ -2565,7 +2444,6 @@
         }
 
         // --- SETTINGS / VAULT LOGIC ---
-
         function toggleSettings() {
             const modal = document.getElementById('settings-modal');
             modal.classList.toggle('active');
@@ -2576,17 +2454,13 @@
 
         function renderSettings() {
             const metalList = document.getElementById('settings-metals-list');
-            const stoneList = document.getElementById('settings-stones-list');
-            
+            const stoneList = document.getElementById('settings-stones-list');            
             metalList.innerHTML = '';
             stoneList.innerHTML = '';
-
             const metals = rates.filter(r => r.type === 'metal');
             const stones = rates.filter(r => r.type === 'stone');
-
             metals.forEach(r => metalList.appendChild(createCubeElement(r)));
             metalList.appendChild(createAddButton('metal'));
-
             stones.forEach(r => stoneList.appendChild(createCubeElement(r)));
             stoneList.appendChild(createAddButton('stone'));
         }
@@ -2645,8 +2519,7 @@
 
         function clearRates() {
     	    if(confirm("Reset Rates to default settings?")) {
-        	// Restore the hardcoded defaults instead of an empty array
-        	rates = JSON.parse(JSON.stringify(DEFAULT_RATES));
+        	rates = JSON.parse(JSON.stringify(DEFAULT_RATES)); // Restore the hardcoded defaults instead of an empty array
         	items = []; // Clear the calculator items
         	saveRates();
         	renderSettings(); // Re-render the settings panel immediately
@@ -2655,7 +2528,6 @@
         }
 
         // --- SUMMARY & COPY LOGIC ---
-
         function toggleSummary() {
             const modal = document.getElementById('summary-modal');
             modal.classList.toggle('active');
@@ -2701,8 +2573,7 @@
         }
         
         function toggleAllCopyOptions() {
-            // Check if all individual options are currently true
-            const allTrue = copyOptions.discount && copyOptions.tax && copyOptions.roundOff;
+            const allTrue = copyOptions.discount && copyOptions.tax && copyOptions.roundOff;   // Check if all individual options are currently true
             
             // Toggle to opposite
             const newState = !allTrue;
@@ -2714,8 +2585,7 @@
         }
         
         function renderCopySettings() {
-            // Update Buttons State
-            const updateBtn = (id, active) => {
+            const updateBtn = (id, active) => {    // Update Buttons State
                 const btn = document.getElementById(id);
                 if(active) {
                     btn.classList.add('border-yellow-500', 'bg-yellow-500', 'text-black');
@@ -2784,16 +2654,9 @@
 
             // Discount Row
             if (discountData.active) {
-                // IMPORTANT: Recalculate discount based on current margin-loaded price
-                // If profit margin changed since discount was calculated, update it here visually
                 const amountSaved = runningTotal * (discountData.percentage / 100);
-                const discountedTotal = runningTotal - amountSaved;
-                
-                // We update local display var, but not global state to avoid loop recursion issues
-                // (though discountData should arguably update too)
-                
-                runningTotal = discountedTotal;
-                
+                const discountedTotal = runningTotal - amountSaved;                
+                runningTotal = discountedTotal;                
                 html += `
                 <div class="invoice-row">
                     <span>Discount (${discountData.percentage}%)</span>
@@ -2911,7 +2774,6 @@
                 <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
             </div>
             `;
-
             container.innerHTML = html;
         }
 
@@ -2924,11 +2786,9 @@
                 const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
-                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-                    
+                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);                    
                     const priceWithMargin = cost * (1 + profitMargin/100);
-                    total += priceWithMargin;
-                    
+                    total += priceWithMargin;                    
                     const unit = item.type === 'metal' ? 'g' : 'ct';
 
                     if(item.type === 'metal') {
@@ -2946,16 +2806,13 @@
                 text += "No items added.\n";
             }
 
-            text += `--------------------------------\n`;
-            
-            // Always Copy Gross Weight (User requirement implies it's mandatory like items)
+            text += `--------------------------------\n`;            
             text += `Gross Weight\t${grossWeight.toFixed(3)} g\n`;
             
             let runningTotal = total;
 
             if(discountData.active) {
-                // Calc discount relative to running total (inclusive of margin)
-                const amountSaved = runningTotal * (discountData.percentage / 100);
+                const amountSaved = runningTotal * (discountData.percentage / 100);   // Calc discount relative to running total (inclusive of margin)
                 const discountedTotal = runningTotal - amountSaved;
                 
                 if(copyOptions.discount) {
@@ -2983,8 +2840,7 @@
                     text += `Round Off\t${sign}₹${diff.toFixed(2)}\n`;
                 }
                 
-                // Always update the total to the rounded value
-                runningTotal = rounded;
+                runningTotal = rounded; // Always update the total to the rounded value
             }
 
             text += `Total Price \t₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
@@ -3026,4 +2882,3 @@
     </script>
 </body>
 </html>
-
