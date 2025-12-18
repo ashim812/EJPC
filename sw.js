@@ -1,4 +1,4 @@
-const CACHE_NAME = 'ejpc-cache-v2';
+const CACHE_NAME = 'ejpc-cache-v1';
 const ASSETS = [
     './',
     './index.html',
@@ -44,4 +44,5 @@ self.addEventListener('fetch', (e) => {
         })
     );
 });
+
 
