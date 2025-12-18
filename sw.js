@@ -1,4 +1,4 @@
-const CACHE_NAME = 'epopee-calc-v2';
+const CACHE_NAME = 'ejpc-cache-v2';
 const ASSETS = [
     './',
     './index.html',
@@ -7,9 +7,14 @@ const ASSETS = [
     './EJPC-app-icon-512.png',
     './EJPC-app-icon-ati.png',
     './EJPC-app-icon-favicon.png',
-    'https://cdn.tailwindcss.com',
-    'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css',
-    'https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@400;700&display=swap'
+    './tailwind.min.js',
+    './all.min.css',
+    './qr-scanner.umd.min.js',
+    './qr-scanner-worker.min.js',
+    './webfonts/fa-brands-400.woff2',
+    './webfonts/fa-regular-400.woff2',
+    './webfonts/fa-solid-900.woff2',
+    './webfonts/fa-v4compatibility.woff2'
 ];
 
 self.addEventListener('install', (e) => {
@@ -18,8 +23,29 @@ self.addEventListener('install', (e) => {
     );
 });
 
+self.addEventListener('activate', (e) => {
+    e.waitUntil(
+        caches.keys().then((keyList) => {
+            return Promise.all(keyList.map((key) => {
+                if (key !== CACHE_NAME) {
+                    console.log('[Service Worker] Removing old cache', key);
+                    return caches.delete(key);
+                }
+            }));
+        })
+    );
+    return self.clients.claim();
+});
+
 self.addEventListener('fetch', (e) => {
     e.respondWith(
-        caches.match(e.request).then((response) => response || fetch(e.request))
+        caches.match(e.request).then((response) => {
+            // Cache hit - return response
+            if (response) {
+                return response;
+            }
+            // Not in cache - return network request
+            return fetch(e.request);
+        })
     );
 });
