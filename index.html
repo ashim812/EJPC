@@ -21,6 +21,7 @@
     <script src="tailwind.min.js"></script>
     <script src="qr-scanner.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    
     <style>
         :root {
             --gold-primary: #D4AF37;
@@ -1018,7 +1019,7 @@
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNqsuqZA8a-qejlcJWu3ad_F9_TS_1-2OwznvetGZsUWUdANQIfnkiEskSDY393MB-taoW2dHuvYNu/pub?output=csv"; 
         
         // 2. PRODUCT DATABASE URL - PASTE YOUR INVENTORY SHEET CSV URL HERE
-        // It must have columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, CP
+        // It must have columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
         const PRODUCT_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMTBu_R4YiqvjuYo_m-pi8FyKd0voRh6_RJmLnVVDcAJHjzcni6eF6InH0yULCM7jPly3-l95FSpgX/pub?output=csv"; 
 
         
@@ -1538,7 +1539,7 @@
 
             const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());
                         
-            const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, CP
+            const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
             
             const idx = {
                 id: getIdx('prod id'),
@@ -1553,8 +1554,7 @@
                 stone: getIdx('stone'),
                 stoneWt: getIdx('stone wt'),
                 stoneRate: getIdx('stone rate'),
-                grossWt: getIdx('gross wt'),
-                cp: getIdx('cp')
+                grossWt: getIdx('gross wt')
             };
 
             if (idx.id === -1) {
@@ -1580,8 +1580,7 @@
                         stone: row[idx.stone],
                         stoneWt: row[idx.stoneWt],
                         stoneRate: row[idx.stoneRate],
-                        grossWt: row[idx.grossWt] || "0",
-                        cp: row[idx.cp] || "0"
+                        grossWt: row[idx.grossWt] || "0"
                     };
                 }
             }
@@ -1612,8 +1611,6 @@
                 const sRate = p.stoneRate || "0";
                 html += `<div>${sName} : ${sWt} ct @ ₹${sRate}/ct</div>`;
             }
-
-            html += `<div>Min. Cost : ${p.cp}</div>`;
             container.innerHTML = html;
         }
         
@@ -2884,4 +2881,3 @@
     </script>
 </body>
 </html>
-
