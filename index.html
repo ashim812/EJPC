@@ -1138,12 +1138,15 @@
             let startY = 0;
             let currentY = 0;
             let isPulling = false;
-            const threshold = 150; // Drag distance needed
+            const threshold = 120; // Drag distance needed
             
             body.addEventListener('touchstart', (e) => {
                 // Check for active modals - if any modal is active, DISABLE P2R
                 if (document.querySelector('.modal.active')) return;
 		
+		// Ignore if touching a button (prevents accidental triggers)
+        	if (e.target.closest('button') || e.target.closest('.rate-cube')) return;
+
                 // Only enable if at the very top of page
                 if (window.scrollY === 0) {
                     // Check if we are inside a scrollable element that is NOT at top
@@ -2052,7 +2055,6 @@
             // Helper to split CSV line respecting quotes
             const splitLine = (text) => {
                 const matches = [];
-
                 const regex = /(?:^|,)(\s*"(?:[^"]|"")*"\s*|[^,]*)/g;  // Regex matches: "quoted value" OR value_without_comma
                 let match;
                 while ((match = regex.exec(text)) !== null) {
