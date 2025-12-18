@@ -18,20 +18,10 @@
     <meta name="msapplication-TileColor" content="#0f0f0f">
     <meta name="msapplication-TileImage" content="EJPC-app-icon-512.png">
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-    	if (!window.tailwind) {
-            document.write('<script src="tailwind.min.js"><\/script>');
-    	}
-    </script>
-    <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
-    <script>
-    	if (typeof QrScanner === 'undefined') {
-            document.write('<script src="qr-scanner.umd.min.js"><\/script>');
-    	}
-    </script>
+    <script src="tailwind.min.js"></script>
+    <script src="qr-scanner.umd.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+     
     <style>
         :root {
             --gold-primary: #D4AF37;
@@ -2337,6 +2327,22 @@
             return 0;
         }
 
+	// ---- Silent Validation Helpers ----
+	function setHint(input, message) {
+    	    let hint = input.parentElement.querySelector('.input-hint');
+            if (!hint) {
+        	hint = document.createElement('div');
+	        hint.className = 'input-hint text-xs mt-1 text-gray-400';
+        	input.parentElement.appendChild(hint);
+    	    }
+	    hint.textContent = message || '';
+	}
+
+	function clearHint(input) {
+    	    const hint = input.parentElement.querySelector('.input-hint');
+    	    if (hint) hint.textContent = '';
+	}
+
         function updateItem(id, field, value) {
             const item = items.find(i => i.id === id);
             if(item) {
@@ -2353,6 +2359,13 @@
         }
 
         function updateRowDisplay(item) {
+	    const row = document.getElementById(item.id);
+	    if (row) {
+    		const invalid =
+        	    item.weight <= 0 ||
+        	    (item.type === 'stone' && item.manualPrice <= 0);
+    		row.classList.toggle('opacity-60', invalid);
+	    }
             const rate = rates.find(r => r.id === item.rateId);
             const totalSpan = document.getElementById(`total-${item.id}`);
             if(rate && totalSpan) {
@@ -2369,6 +2382,8 @@
 
             items.forEach(item => {
                 const rate = rates.find(r => r.id === item.rateId);
+		if (!rate || item.weight <= 0) return;
+    		if (item.type === 'stone' && item.manualPrice <= 0) return;
                 if(rate) {
                     const itemCost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
                     totalCost += itemCost;
@@ -2424,6 +2439,19 @@
             calculateTotals();
         }
 
+	function validateWeight(input) {
+    	    const val = parseFloat(input.value);
+	    if (input.value === '') {
+        	setHint(input, 'Required');
+        	return;
+    	    }
+	    if (isNaN(val) || val <= 0) {
+        	setHint(input, 'Must be > 0');
+        	return;
+    	    }
+	    clearHint(input);
+	}
+
         // New Helper for Rounding Rate Input (Stones)
         function formatRateInput(id, input) {
             const item = items.find(i => i.id === id);
@@ -2441,6 +2469,19 @@
             updateRowDisplay(item);
             calculateTotals();
         }
+
+	function validateRate(input) {
+    	    const val = parseFloat(input.value);
+	    if (input.value === '') {
+        	setHint(input, 'Rate missing');
+        	return;
+    	    }
+	    if (isNaN(val) || val <= 0) {
+        	setHint(input, 'Invalid rate');
+        	return;
+    	    }
+	    clearHint(input);
+	}
 
         function renderRow(item) {
             const container = document.getElementById(item.type === 'metal' ? 'metal-list' : 'stone-list');
@@ -2464,7 +2505,7 @@
                 rateInputHtml = `
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
                     <input type="text" placeholder="Rate" value="${rateVal}" 
-                           oninput="updateItem('${item.id}', 'manualPrice', this.value)"
+                           oninput="validateRate(this); updateItem('${item.id}', 'manualPrice', this.value)"
                            onblur="formatRateInput('${item.id}', this)"
                            class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none uppercase">
                     <span class="text-gray-500 text-sm w-6">/ct</span>
@@ -2478,7 +2519,7 @@
                 </div>
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
                     <input type="number" step="${stepVal}" min="0" value="${displayVal}" placeholder="${placeholderVal}" 
-                           oninput="updateItem('${item.id}', 'weight', this.value)" 
+                           oninput="validateWeight(this); updateItem('${item.id}', 'weight', this.value)" 
                            onblur="formatRowInput('${item.id}', this)"
                            class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none">
                     <span class="text-gray-500 text-sm w-6">${unitLabel}</span>
