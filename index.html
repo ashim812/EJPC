@@ -6,7 +6,8 @@
     <title>EJPC</title>
     
     <meta name="theme-color" content="#0f0f0f">
-    <link rel="manifest" href="manifest.json">    
+    <link rel="manifest" href="manifest.json">
+    
     <link rel="icon" type="image/png" href="EJPC-app-icon-favicon.png">
 
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -17,8 +18,18 @@
     <meta name="msapplication-TileColor" content="#0f0f0f">
     <meta name="msapplication-TileImage" content="EJPC-app-icon-512.png">
 
-    <script src="tailwind.min.js"></script>
-    <script src="qr-scanner.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    	if (!window.tailwind) {
+            document.write('<script src="tailwind.min.js"><\/script>');
+    	}
+    </script>
+    <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
+    <script>
+    	if (typeof QrScanner === 'undefined') {
+            document.write('<script src="qr-scanner.umd.min.js"><\/script>');
+    	}
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     
     <style>
@@ -912,20 +923,20 @@
     <div id="summary-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm p-4">
         <div class="w-full h-full flex flex-col items-center justify-center relative">
             
-            <button onclick="toggleSummary()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-gray-800 rounded-full w-12 h-12 flex items-center justify-center z-50">
+            <button id="summary-close-btn" onclick="toggleSummary()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-gray-800 rounded-full w-12 h-12 flex items-center justify-center z-50">
                 <i class="fas fa-times text-xl"></i>
             </button>
 
             <div class="flex flex-col items-center w-full max-w-md animate-[slideIn_0.3s_ease-out]">
                 
-                <div class="invoice-pill">APPROXIMATE COST</div>
+                <div id="summary-header-pill" class="invoice-pill select-none cursor-pointer">APPROXIMATE COST</div>
 
                 <div class="invoice-card p-8 w-full relative">
                     <div id="summary-content"></div>
                     <div class="mt-8 flex justify-between items-center pt-4">
                         <span id="copy-feedback" class="text-green-400 text-xs uppercase tracking-wider opacity-0 transition-opacity"><i class="fas fa-check"></i> Copied</span>
                         <div class="flex items-center gap-4">
-                             <button onclick="toggleCopySettings()" class="text-gray-500 hover:text-white transition-colors" title="Copy Settings">
+                             <button id="summary-settings-btn" onclick="toggleCopySettings()" class="text-gray-500 hover:text-white transition-colors" title="Copy Settings">
                                 <i class="fas fa-cog text-xs"></i>
                             </button>
                             <button onclick="copySummary()" class="text-blue-400 hover:text-blue-300 text-sm font-bold uppercase tracking-wide flex items-center gap-2 transition-colors">
@@ -1091,12 +1102,62 @@
                 }
             });
         }
+	// --- STEALTH LOCK ---
+	let isStealthMode = false;
 
+	function initStealthMode() {
+    	    const pill = document.getElementById('summary-header-pill');
+    	    let timer;
+
+    	    // Helper to start the 2-second timer
+    	    const startPress = (e) => {
+        	// Prevent default browser context menu on long press
+        	if(e.type === 'touchstart') e.stopPropagation(); 
+        
+        	timer = setTimeout(() => {
+            	    toggleStealthMode();
+        	}, 2000); // 2 Seconds Hold to Toggle
+    	    };
+
+    	    // Helper to cancel if finger moves or releases
+    	    const cancelPress = () => {
+        	clearTimeout(timer);
+    	    };
+
+    	    // Touch Events (Mobile)
+    	    pill.addEventListener('touchstart', startPress, {passive: true});
+    	    pill.addEventListener('touchend', cancelPress);
+    	    pill.addEventListener('touchmove', cancelPress);
+
+    	    // Mouse Events (Desktop)
+    	    pill.addEventListener('mousedown', startPress);
+    	    pill.addEventListener('mouseup', cancelPress);
+    	    pill.addEventListener('mouseleave', cancelPress);
+	}
+
+	function toggleStealthMode() {
+    	    isStealthMode = !isStealthMode;
+    
+    	    const closeBtn = document.getElementById('summary-close-btn');
+    	    const settingsBtn = document.getElementById('summary-settings-btn');
+    
+    	    // Hide/Show Buttons
+    	    if(closeBtn) closeBtn.style.display = isStealthMode ? 'none' : 'flex';
+     	    if(settingsBtn) settingsBtn.style.display = isStealthMode ? 'none' : 'block';
+    	    generateSummary();
+    	    // Provide Feedback
+    	    if(isStealthMode) {
+        	if(navigator.vibrate) navigator.vibrate([50, 50, 50]);  // Vibrate to let the owner know it locked
+    	    } else {
+        	if(navigator.vibrate) navigator.vibrate(100);
+   	    }
+	}
 
         function init() {
             initTheme();
             initCurrencyConverter();
-            initPullToRefresh(); 
+            initPullToRefresh();
+	    initStealthMode(); 
             
             // Load Profit Margin
             const storedMargin = localStorage.getItem('profitMargin');
@@ -1104,16 +1165,7 @@
                 profitMargin = parseFloat(storedMargin);
                 document.getElementById('profit-margin-input').value = profitMargin;
             }
-
-            // Register Service Worker for PWA Offline Capability
-            if ('serviceWorker' in navigator) {
-		window.addEventListener('load', () => {
-                    navigator.serviceWorker.register('./sw.js')
-                        .then(() => console.log('Service Worker Registered', reg.scope))
-                        .catch((err) => console.log('Service Worker Failed:', err));
-		});
-            }
-            
+          
             renderCalculator();
             renderSettings();
             renderAddMenus();
@@ -1137,12 +1189,13 @@
             let startY = 0;
             let currentY = 0;
             let isPulling = false;
-            const threshold = 120; // Drag distance needed
+            const threshold = 150; // Drag distance needed
             
             body.addEventListener('touchstart', (e) => {
                 // Check for active modals - if any modal is active, DISABLE P2R
                 if (document.querySelector('.modal.active')) return;
-		
+		// Ignore if touching a button (prevents accidental triggers)
+        	if (e.target.closest('button')) return;
                 // Only enable if at the very top of page
                 if (window.scrollY === 0) {
                     // Check if we are inside a scrollable element that is NOT at top
@@ -1171,7 +1224,7 @@
                 // Only handle pull down
                 if (diff > 0) {
                     // Resistance formula
-                    const move = Math.min(diff * 0.4, 150); 
+                    const move = Math.min(diff * 0.4, 180); 
                     
                     if (diff > 10) {                      // Visual Feedback
                         p2rContainer.style.opacity = '1';
@@ -2117,7 +2170,7 @@
                                 id: stableId,
                                 type: type,
                                 name: name,
-                                price: priceVal // Will be 0 for stones without rate
+                                price: priceVal, // Will be 0 for stones without rate
 				isSynced: true
                             });
                         }
@@ -2678,8 +2731,11 @@
             if (summaryState.tax) {
                 taxAmount = runningTotal * 0.03;
                 
-                // Main Tax Row
-                html += `
+                // Main Tax Row (Locked if in Stealth Mode)
+        	const taxClickAction = isStealthMode ? '' : "toggleSummaryOption('tax')";
+        	const taxCursorClass = isStealthMode ? '' : 'cursor-pointer hover:bg-white/5';
+                
+		html += `
                 <div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleSummaryOption('tax')">
                     <div class="flex items-center gap-2">
                         <span>Tax (3%)</span>
@@ -2740,8 +2796,8 @@
             // Info Button Style
             const infoBtnClass = summaryState.showRoundOptions ? 'text-yellow-500' : 'text-gray-400';
             
-            // Render Row ONLY if not hidden
-            if (!summaryState.roundRowHidden) {
+            // Render Row ONLY if not hidden AND not in stealth mode
+            if (!summaryState.roundRowHidden && !isStealthMode) {
                 html += `
                 <div class="flex flex-col">
                     <div class="invoice-row items-center">
@@ -2754,7 +2810,7 @@
                         <span class="invoice-val ${roundDiffClass}">${displayDiff}</span>
                     </div>
                     
-                    <div class="${summaryState.showRoundOptions ? 'flex' : 'hidden'} justify-start gap-3 mb-2 animate-[slideIn_0.2s_ease-out]">
+                    <div class="${(summaryState.showRoundOptions && !isStealthMode) ? 'flex' : 'hidden'} justify-start gap-3 mb-2 animate-[slideIn_0.2s_ease-out]">
                         <button onclick="setRoundMode(1)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 1 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1</button>
                         <button onclick="setRoundMode(10)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 10 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10</button>
                         <button onclick="setRoundMode(100)" class="w-10 h-8 rounded border ${summaryState.roundOffMode === 100 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">100</button>
@@ -2773,7 +2829,7 @@
             <div class="invoice-row mt-4 pt-2 border-t border-gray-800">
                 <div class="flex items-center gap-2">
                     <span class="text-white font-bold text-xl">Total Price</span>
-                    ${summaryState.roundRowHidden ? `
+                    ${(summaryState.roundRowHidden && !isStealthMode) ? `
                         <button onclick="toggleRoundRowVisibility()" class="text-gray-500 hover:text-yellow-500 transition-colors ml-2" title="Show Round Off">
                             <i class="far fa-question-circle text-xs"></i>
                         </button>
@@ -2890,4 +2946,3 @@
     </script>
 </body>
 </html>
-
