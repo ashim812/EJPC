@@ -8,13 +8,8 @@ const ASSETS = [
     './EJPC-app-icon-ati.png',
     './EJPC-app-icon-favicon.png',
     './tailwind.min.js',
-    './all.min.css',
     './qr-scanner.umd.min.js',
-    './qr-scanner-worker.min.js',
-    './webfonts/fa-brands-400.woff2',
-    './webfonts/fa-regular-400.woff2',
-    './webfonts/fa-solid-900.woff2',
-    './webfonts/fa-v4compatibility.woff2'
+    './qr-scanner-worker.min.js'
 ];
 
 self.addEventListener('install', (e) => {
@@ -49,3 +44,4 @@ self.addEventListener('fetch', (e) => {
         })
     );
 });
+
