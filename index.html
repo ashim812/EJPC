@@ -632,7 +632,7 @@
         <div class="flex-none grid grid-cols-2 gap-2 w-full">
             <div class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
                 <div class="absolute inset-0 bg-yellow-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
-                <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest mb-1">Total Price</span>
+                <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest mb-1">Cost Price</span>
                 <div class="text-xl md:text-3xl font-bold text-yellow-400 brand-font">
                     ₹<span id="display-total-price">0.00</span>
                 </div>
@@ -1138,11 +1138,14 @@
             let startY = 0;
             let currentY = 0;
             let isPulling = false;
-            const threshold = 120; // Drag distance needed
+            const threshold = 150; // Drag distance needed
             
             body.addEventListener('touchstart', (e) => {
                 // Check for active modals - if any modal is active, DISABLE P2R
                 if (document.querySelector('.modal.active')) return;
+		
+		// Ignore if touching a button (prevents accidental triggers)
+		if (e.target.closest('button')) return;
 
                 // Only enable if at the very top of page
                 if (window.scrollY === 0) {
@@ -2120,6 +2123,7 @@
                                 type: type,
                                 name: name,
                                 price: priceVal // Will be 0 for stones without rate
+				isSynced: true
                             });
                         }
                     }
@@ -2471,18 +2475,27 @@
             const placeholderPrice = rate.type === 'metal' ? 'Rate/g' : 'Rate/ct';
             const isStone = rate.type === 'stone';
             
+	    // Check if synced
+    	    const isSynced = rate.isSynced === true;
+            const readOnlyAttr = isSynced ? 'readonly' : '';
+            const inputClass = isSynced ? 'text-gray-400 cursor-not-allowed' : 'text-gray-100 font-bold';
+            const priceClass = isSynced ? 'text-gray-500 cursor-not-allowed' : 'text-gray-300';
+    
+    	    // Delete Button Logic: Hide if synced
+    	    const deleteBtn = isSynced ? 
+        	`<div class="delete-btn-corner text-gray-600"><i class="fas fa-lock"></i></div>` : 
+	        `<button onclick="deleteRate('${rate.id}')" class="delete-btn-corner text-gray-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-times"></i></button>`;
+
             div.innerHTML = `
-                <button onclick="deleteRate('${rate.id}')" class="delete-btn-corner text-gray-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <i class="fas fa-times"></i>
-                </button>
-                <input type="text" value="${rate.name}" oninput="updateRateInline('${rate.id}', 'name', this.value)" 
-                       class="rate-input text-gray-100 font-bold" placeholder="Name">
-                ${!isStone ? `
-                <div class="flex items-center gap-1">
-                    <span class="text-gray-500 text-sm">₹</span>
-                    <input type="number" value="${rate.price}" oninput="updateRateInline('${rate.id}', 'price', this.value)" 
-                           class="rate-input text-gray-300 text-sm" placeholder="${placeholderPrice}">
-                </div>` : ''}
+        	${deleteBtn}
+	        <input type="text" value="${rate.name}" ${!isSynced ? `oninput="updateRateInline('${rate.id}', 'name', this.value)"` : ''} 
+        	       class="rate-input ${inputClass}" placeholder="Name" ${readOnlyAttr}>
+     	        ${!isStone ? `
+       	        <div class="flex items-center gap-1">
+           	    <span class="text-gray-500 text-sm">₹</span>
+           	    <input type="number" value="${rate.price}" ${!isSynced ? `oninput="updateRateInline('${rate.id}', 'price', this.value)"` : ''} 
+                   	   class="rate-input ${priceClass} text-sm" placeholder="${placeholderPrice}" ${readOnlyAttr}>
+        	</div>` : ''}
             `;
             return div;
         }
