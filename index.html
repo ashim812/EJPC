@@ -603,7 +603,7 @@
             <!-- Loading Spinner -->
             <div id="auth-loading" class="block text-center">
                 <i class="fas fa-circle-notch fa-spin text-yellow-500 text-2xl"></i>
-                <span class="text-gray-500 text-xs block mt-2">Verifying ID...</span>
+                <span class="text-gray-500 text-xs block mt-2">Verifying Email ID...</span>
             </div>
         </div>
     </div>
@@ -1089,121 +1089,163 @@
 	// --- ASYNC INITIALIZATION ---
         (async function startSystem() {
             try {
-                // Fetch API Key dynamically
-                const keyResponse = await fetch(API_KEY_SHEET_URL);
-                if (!keyResponse.ok) throw new Error("Authentication Failed.");
-                const keyText = await keyResponse.text();
-                
-                // Assumes the key is in the first cell (A1)
-                const fetchedApiKey = keyText.trim().split(/[\r\n,]+/)[0].replace(/['"]+/g, '').trim();
+                // --- 1. FETCH API KEY (With Proxy Fallback) ---
+                let keyText = "";
+                const uniqueKeyUrl = API_KEY_SHEET_URL + (API_KEY_SHEET_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
 
+                try {
+                    const response = await fetch(uniqueKeyUrl);
+                    if (!response.ok) throw new Error('Direct fetch failed');
+                    keyText = await response.text();
+                } catch (directError) {
+                    console.warn("API Key direct fetch failed, trying proxy...", directError);
+                    try {
+                        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueKeyUrl);
+                        const proxyResponse = await fetch(proxyUrl);
+                        if (!proxyResponse.ok) throw new Error('Corsproxy failed');
+                        keyText = await proxyResponse.text();
+                    } catch (proxyError) {
+                        console.warn("API Key corsproxy failed, trying allorigins...", proxyError);
+                        const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueKeyUrl);
+                        const backupResponse = await fetch(backupProxy);
+                        if (!backupResponse.ok) throw new Error('All proxies failed');
+                        keyText = await backupResponse.text();
+                    }
+                }
+                
+                const fetchedApiKey = keyText.trim().split(/[\r\n,]+/)[0].replace(/['"]+/g, '').trim();
                 if (!fetchedApiKey) throw new Error("Authentication Failed.");
 
                 // Construct Configuration
                 const firebaseConfig = {
                     apiKey: fetchedApiKey,
-		    authDomain: "ejpc-vault.firebaseapp.com",
+                    authDomain: "ejpc-vault.firebaseapp.com",
                     projectId: "ejpc-vault",
                     storageBucket: "ejpc-vault.firebasestorage.app",
                     messagingSenderId: "640002447814",
                     appId: "1:640002447814:web:4be6d2b288c539af8efac7"
-		};
+                };
 
-		// --- INITIALIZE FIREBASE ---
-        	const app = initializeApp(firebaseConfig);
-        	const auth = getAuth(app);
-        	const provider = new GoogleAuthProvider();
+                // --- INITIALIZE FIREBASE ---
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const provider = new GoogleAuthProvider();
 
-        	// --- LOGIN FUNCTION ---
-        	window.signIn = function() {
-            	    const btn = document.getElementById('google-login-btn');
-            	    const loading = document.getElementById('auth-loading');
-            	    const status = document.getElementById('auth-status');
+                // --- LOGIN FUNCTION ---
+                window.signIn = function() {
+                    const btn = document.getElementById('google-login-btn');
+                    const loading = document.getElementById('auth-loading');
+                    const status = document.getElementById('auth-status');
             
-            	    btn.classList.add('hidden');
-            	    loading.classList.remove('hidden');
-            	    status.innerText = "Connecting...";
+                    btn.classList.add('hidden');
+                    loading.classList.remove('hidden');
+                    status.innerText = "Connecting...";
         
-            	    signInWithPopup(auth, provider).catch((error) => {
-                	console.error(error);
-                	status.innerText = "Login Failed.";
-                	btn.classList.remove('hidden');
-                	loading.classList.add('hidden');
-            	    });
-        	};
+                    signInWithPopup(auth, provider).catch((error) => {
+                        console.error(error);
+                        status.innerText = "Login Failed.";
+                        btn.classList.remove('hidden');
+                        loading.classList.add('hidden');
+                    });
+                };
 
-        // --- AUTH OBSERVER ---
-        onAuthStateChanged(auth, async (user) => {
-            const overlay = document.getElementById('auth-overlay');
-            const vaultElement = document.getElementById('protected-content');
-            const btn = document.getElementById('google-login-btn');
-            const loading = document.getElementById('auth-loading');
-            const status = document.getElementById('auth-status');
-        
-            if (user) {
-                status.innerHTML = "Verifying Userbase...<br><span class='text-xs text-gray-500'>Scanning Authorized Users</span>";
+                // --- AUTH OBSERVER ---
+                onAuthStateChanged(auth, async (user) => {
+                    const overlay = document.getElementById('auth-overlay');
+                    const vaultElement = document.getElementById('protected-content');
+                    const btn = document.getElementById('google-login-btn');
+                    const loading = document.getElementById('auth-loading');
+                    const status = document.getElementById('auth-status');
                 
-                try {                    
-                    const response = await fetch(USERS_SHEET_URL);	// Fetch from Google Sheets
-                    if (!response.ok) throw new Error("Userbase Unavailable");                    
-                    const csvText = await response.text();
-                    const allowedEmails = parseUsersCSV(csvText);                    
-                    const userEmail = user.email.toLowerCase().trim();
-                    
-                    if (allowedEmails.includes(userEmail)) { 		// Check Permission                    
-                        status.className = "text-green-400 text-sm font-bold mb-2";
-                        status.innerText = `Welcome, ${user.displayName}`;    // SUCCESS: ACCESS GRANTED
+                    if (user) {
+                        status.innerHTML = "Scanning USERBASE...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users</span>";
                         
-                        if(vaultElement && vaultElement.innerHTML === "") {	// Restore App from Memory
-                            vaultElement.innerHTML = secureAppHTML;                        
-                            if (typeof window.init === "function") window.init();   // Start the App Logic
+                        try {
+                            // --- 2. FETCH USERBASE (With Proxy Fallback) ---
+                            let csvText = "";
+                            const uniqueUserUrl = USERS_SHEET_URL + (USERS_SHEET_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+
+                            try {
+                                // Attempt 1: Direct
+                                const response = await fetch(uniqueUserUrl);
+                                if (!response.ok) throw new Error("Direct fetch failed");
+                                csvText = await response.text();
+                            } catch (directErr) {
+                                console.warn("Userbase direct fetch failed, trying proxy...", directErr);
+                                try {
+                                    // Attempt 2: CorsProxy
+                                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUserUrl);
+                                    const proxyResponse = await fetch(proxyUrl);
+                                    if (!proxyResponse.ok) throw new Error("Corsproxy failed");
+                                    csvText = await proxyResponse.text();
+                                } catch (proxyErr) {
+                                    console.warn("Userbase corsproxy failed, trying allorigins...", proxyErr);
+                                    // Attempt 3: AllOrigins
+                                    const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUserUrl);
+                                    const backupResponse = await fetch(backupProxy);
+                                    if (!backupResponse.ok) throw new Error("All proxies failed");
+                                    csvText = await backupResponse.text();
+                                }
+                            }
+
+                            const allowedEmails = parseUsersCSV(csvText);                    
+                            const userEmail = user.email.toLowerCase().trim();
+                            
+                            if (allowedEmails.includes(userEmail)) {
+                                // SUCCESS: ACCESS GRANTED
+                                status.className = "text-green-400 text-sm font-bold mb-2";
+                                status.innerText = `Welcome, ${user.displayName}`;
+                                
+                                if(vaultElement && vaultElement.innerHTML === "") {
+                                    vaultElement.innerHTML = secureAppHTML;                        
+                                    if (typeof window.init === "function") window.init();
+                                }
+                             
+                                setTimeout(() => {
+                                    overlay.style.opacity = '0';
+                                    setTimeout(() => overlay.style.display = 'none', 500);
+                                }, 800);
+
+                            } else {
+                                throw new Error("ACCESS NOT GRANTED");
+                            }
+
+                        } catch (err) {                 
+                            console.warn(err);
+                            status.className = "text-red-500 text-sm font-bold text-center";
+                            status.innerHTML = `ACCESS DENIED.<br>${user.email} is not authorized.`;
+                            signOut(auth);
+                            
+                            btn.classList.remove('hidden');
+                            loading.classList.add('hidden');
+                            if(vaultElement) vaultElement.innerHTML = "";
                         }
-                     
-                        setTimeout(() => {
-                            overlay.style.opacity = '0';   //Remove Overlay
-                            setTimeout(() => overlay.style.display = 'none', 500);
-                        }, 800);
 
                     } else {
-                        throw new Error("ACCESS NOT GRANTED");
+                        // LOGGED OUT
+                        if (overlay) {
+                            overlay.style.display = 'flex';
+                            overlay.style.opacity = '1';
+                        }
+                        if (btn) btn.classList.remove('hidden');
+                        if (loading) loading.classList.add('hidden');                
+                        
+                        if(vaultElement) vaultElement.innerHTML = "";
                     }
+                });
 
-                } catch (err) {                 
-                    console.warn(err);   // FAILURE
-                    status.className = "text-red-500 text-sm font-bold text-center";
-                    status.innerHTML = `ACCESS DENIED.<br>${user.email} is not authorized.`;
-                    signOut(auth);
-                    
-                    btn.classList.remove('hidden');
-                    loading.classList.add('hidden');
-                    if(vaultElement) vaultElement.innerHTML = "";
-                }
+                // --- SECURITY WATCHDOG ---
+                setInterval(() => {
+                    const overlay = document.getElementById('auth-overlay');
+                    const user = auth.currentUser;           
+                    if (!user) {
+                        if (!overlay || overlay.style.display === 'none' || overlay.style.opacity === '0') {
+                            window.location.reload();
+                        }
+                    }
+                }, 1500);
 
-            } else {
-                // LOGGED OUT
-                if (overlay) {
-                    overlay.style.display = 'flex';
-                    overlay.style.opacity = '1';
-                }
-                if (btn) btn.classList.remove('hidden');
-                if (loading) loading.classList.add('hidden');                
-                
-                if(vaultElement) vaultElement.innerHTML = ""; // Empty the vault again just in case
-            }
-        });
-
-        // --- SECURITY WATCHDOG ---
-        setInterval(() => {
-            const overlay = document.getElementById('auth-overlay');
-            const user = auth.currentUser;           
-            if (!user) {
-                if (!overlay || overlay.style.display === 'none' || overlay.style.opacity === '0') {
-                    window.location.reload();  // If not logged in, but overlay is gone/hidden -> RELOAD
-                }
-            }
-        }, 1500);
-
-	    } catch (err) {
+            } catch (err) {
                 console.error("Initialization Failed:", err);
                 const status = document.getElementById('auth-status');
                 if(status) status.innerText = "System Error: Configuration Failed";
