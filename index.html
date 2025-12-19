@@ -18,10 +18,20 @@
     <meta name="msapplication-TileColor" content="#0f0f0f">
     <meta name="msapplication-TileImage" content="EJPC-app-icon-512.png">
 
-    <script src="tailwind.min.js"></script>
-    <script src="qr-scanner.umd.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+    	if (!window.tailwind) {
+            document.write('<script src="tailwind.min.js"><\/script>');
+    	}
+    </script>
+    <script src="https://unpkg.com/qr-scanner@1.4.2/qr-scanner.umd.min.js"></script>
+    <script>
+    	if (typeof QrScanner === 'undefined') {
+            document.write('<script src="qr-scanner.umd.min.js"><\/script>');
+    	}
+    </script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-     
+    
     <style>
         :root {
             --gold-primary: #D4AF37;
@@ -91,6 +101,27 @@
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
             transition: background 0.3s ease, border 0.3s ease;
         }
+	.error-icon {
+    	    font-size: 11px;
+	    color: #facc15;
+	    margin-left: 4px;
+	    cursor: help;
+	    opacity: 0;
+    	    animation: iconFadeIn 0.2s ease forwards;
+	}
+
+	@keyframes iconFadeIn {
+    	    from { opacity: 0; transform: translateY(-2px); }
+    	    to   { opacity: 0.85; transform: translateY(0); }
+	}
+
+	.error-icon.fade-out {
+    	    animation: iconFadeOut 0.15s ease forwards;
+	}
+
+	@keyframes iconFadeOut {
+    	    to { opacity: 0; transform: translateY(-2px); }
+	}
 
         /* Custom Scrollbar */
         .custom-scroll::-webkit-scrollbar { width: 6px; }
@@ -285,9 +316,7 @@
         
         /* Spin Animation for Sync */
         .fa-sync.spin, .fa-spinner.spin { animation: spin 1s linear infinite; }
-
-        /* --- NEW STYLES FOR INTEGRATION --- */
-        
+       
         /* Theme Toggle Switch */
         .theme-toggle {
             display: flex;
@@ -554,6 +583,33 @@
     </style>
 </head>
 <body>
+
+    <!-- 1. AUTHENTICATION OVERLAY -->
+    <div id="auth-overlay" class="fixed inset-0 z-[9999] bg-[#0f0f0f] flex flex-col items-center justify-center p-4 transition-opacity duration-500">
+        <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm w-full border border-yellow-500/20 shadow-2xl">
+            <!-- Branding -->
+            <h1 class="text-4xl font-bold text-yellow-500 brand-font tracking-wider mb-2">EJPC</h1>
+            <p class="text-gray-400 text-center text-sm">Authorized Staff Only</p>
+            
+            <!-- Status Message -->
+            <div id="auth-status" class="text-red-400 text-sm font-bold min-h-[20px] text-center"></div>
+    
+            <!-- Google Sign In Button -->
+            <button id="google-login-btn" onclick="signIn()" class="hidden w-full bg-white text-gray-900 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition-all active:scale-95">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5">
+                <span>Sign in with Google</span>
+            </button>
+    
+            <!-- Loading Spinner -->
+            <div id="auth-loading" class="block text-center">
+                <i class="fas fa-circle-notch fa-spin text-yellow-500 text-2xl"></i>
+                <span class="text-gray-500 text-xs block mt-2">Verifying ID...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- 2. THE VAULT (Wraps ALL your existing content) -->
+    <div id="protected-content" class="w-full h-full flex flex-col">
 
     <!-- PULL TO REFRESH SPINNER -->
     <div id="p2r-container">
@@ -845,7 +901,7 @@
                 <!-- Video Element -->
                 <video id="qr-video" class="absolute inset-0 w-full h-full object-cover opacity-80" playsinline muted autoplay></video>
                 
-                <!-- Error Message (Hidden by default) -->
+                <!-- Error Message -->
                 <div id="qr-error-msg" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-center p-6">
                      <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
                      <p class="text-white text-lg font-bold mb-2">Camera Unavailable</p>
@@ -867,7 +923,7 @@
                 </div>
             </div>
 
-            <!-- MANUAL INPUT VIEW (Hidden by default) -->
+            <!-- MANUAL INPUT VIEW -->
             <div id="qr-manual-view" class="hidden absolute inset-0 z-30 bg-black/90 flex flex-col items-center justify-center p-8 transition-colors">
                 <div class="w-full max-w-sm">
                     <label class="text-gray-400 text-sm font-bold uppercase tracking-wider mb-2 block">Enter Code Manually</label>
@@ -992,10 +1048,151 @@
         <span id="toast-msg">Action Successful</span>
     </div>
 
+    </div> <!-- End of protected-content -->
+
+    <script type="module">
+        // --- FIREBASE IMPORTS ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+        // --- FIREBASE CONFIGURATION ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyByNCxUrSQv_PjVcv0xXfcuap5_nEUZpns",    // <--- PASTE YOUR FIREBASE API KEY HERE
+            authDomain: "ejpc-vault.firebaseapp.com",
+            projectId: "ejpc-vault",
+            storageBucket: "ejpc-vault.firebasestorage.app",
+            messagingSenderId: "640002447814",
+            appId: "1:640002447814:web:4be6d2b288c539af8efac7"
+        };
+
+        // --- USERS DATABASE ---
+        // Paste the "Published to Web" CSV link here
+        const USERS_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?output=csv"; 
+
+        // --- 1. THE VAULT (Secure Storage) ---
+        let secureAppHTML = ""; 
+        const vault = document.getElementById('protected-content');
+        if (vault) {
+            secureAppHTML = vault.innerHTML;
+            vault.innerHTML = "";          
+            console.log("App secured in vault.");
+        }
+
+        // --- INITIALIZE FIREBASE ---
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        // --- HELPER: PARSE CSV ---
+        function parseUsersCSV(csvText) {
+            const lines = csvText.trim().split(/\r\n|\n/);
+            const emails = [];
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i];
+                const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);                 
+                const email = parts[1] ? parts[1].replace(/['"]+/g, '').trim().toLowerCase() : "";
+                if (email && email.includes("@")) {
+                    emails.push(email);
+                }
+            }
+            return emails;
+        }
+
+        // --- LOGIN FUNCTION ---
+        window.signIn = function() {
+            const btn = document.getElementById('google-login-btn');
+            const loading = document.getElementById('auth-loading');
+            const status = document.getElementById('auth-status');
+            
+            btn.classList.add('hidden');
+            loading.classList.remove('hidden');
+            status.innerText = "Connecting...";
+        
+            signInWithPopup(auth, provider).catch((error) => {
+                console.error(error);
+                status.innerText = "Login Failed.";
+                btn.classList.remove('hidden');
+                loading.classList.add('hidden');
+            });
+        };
+
+        // --- AUTH OBSERVER ---
+        onAuthStateChanged(auth, async (user) => {
+            const overlay = document.getElementById('auth-overlay');
+            const vaultElement = document.getElementById('protected-content');
+            const btn = document.getElementById('google-login-btn');
+            const loading = document.getElementById('auth-loading');
+            const status = document.getElementById('auth-status');
+        
+            if (user) {
+                status.innerHTML = "Verifying Userbase...<br><span class='text-xs text-gray-500'>Scanning Authorized Users</span>";
+                
+                try {                    
+                    const response = await fetch(USERS_SHEET_URL);	// Fetch from Google Sheets
+                    if (!response.ok) throw new Error("Userbase Unavailable");                    
+                    const csvText = await response.text();
+                    const allowedEmails = parseUsersCSV(csvText);                    
+                    const userEmail = user.email.toLowerCase().trim();
+                    
+                    if (allowedEmails.includes(userEmail)) { 		// Check Permission                    
+                        status.className = "text-green-400 text-sm font-bold mb-2";
+                        status.innerText = `Welcome, ${user.displayName}`;    // SUCCESS: ACCESS GRANTED
+                        
+                        if(vaultElement && vaultElement.innerHTML === "") {	// Restore App from Memory
+                            vaultElement.innerHTML = secureAppHTML;                        
+                            if (typeof window.init === "function") window.init();   // Start the App Logic
+                        }
+                     
+                        setTimeout(() => {
+                            overlay.style.opacity = '0';   //Remove Overlay
+                            setTimeout(() => overlay.style.display = 'none', 500);
+                        }, 800);
+
+                    } else {
+                        throw new Error("ACCESS NOT GRANTED");
+                    }
+
+                } catch (err) {
+                    // FAILURE
+                    console.warn(err);
+                    status.className = "text-red-500 text-sm font-bold text-center";
+                    status.innerHTML = `ACCESS DENIED.<br>${user.email} is not authorized.`;
+                    signOut(auth);
+                    
+                    btn.classList.remove('hidden');
+                    loading.classList.add('hidden');
+                    if(vaultElement) vaultElement.innerHTML = "";
+                }
+
+            } else {
+                // LOGGED OUT
+                if (overlay) {
+                    overlay.style.display = 'flex';
+                    overlay.style.opacity = '1';
+                }
+                if (btn) btn.classList.remove('hidden');
+                if (loading) loading.classList.add('hidden');                
+                
+                if(vaultElement) vaultElement.innerHTML = ""; // Empty the vault again just in case
+            }
+        });
+
+        // --- SECURITY WATCHDOG ---
+        setInterval(() => {
+            const overlay = document.getElementById('auth-overlay');
+            const user = auth.currentUser;           
+            if (!user) {
+                if (!overlay || overlay.style.display === 'none' || overlay.style.opacity === '0') {
+                    window.location.reload();  // If not logged in, but overlay is gone/hidden -> RELOAD
+                }
+            }
+        }, 1500);
+    </script>
+
     <script>
         // --- DATA MANAGEMENT ---
         let currentFetchedProduct = null;
-        let profitMargin = 25; // Default Profit Margin
+        let profitMargin = 20; // Default Profit Margin
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -2327,20 +2524,26 @@
             return 0;
         }
 
-	// ---- Silent Validation Helpers ----
-	function setHint(input, message) {
-    	    let hint = input.parentElement.querySelector('.input-hint');
-            if (!hint) {
-        	hint = document.createElement('div');
-	        hint.className = 'input-hint text-xs mt-1 text-gray-400';
-        	input.parentElement.appendChild(hint);
+	// ---- Silent Inline Icon Validation ----
+	function setIcon(input, message) {
+    	    let icon = input.parentElement.querySelector('.error-icon');
+            if (!icon) {
+        	icon = document.createElement('span');
+        	icon.className = 'error-icon';
+        	icon.innerHTML = '❗';
+        	icon.title = message || '';
+        	input.parentElement.appendChild(icon);
     	    }
-	    hint.textContent = message || '';
+    	    icon.title = message || '';
 	}
 
-	function clearHint(input) {
-    	    const hint = input.parentElement.querySelector('.input-hint');
-    	    if (hint) hint.textContent = '';
+	function clearIcon(input) {
+    	    const icon = input.parentElement.querySelector('.error-icon');
+    	    if (icon) {
+        	icon.style.color = '#6b7280'; // gray-500
+        	icon.classList.add('fade-out');
+        	setTimeout(() => icon.remove(), 150);
+    	    }
 	}
 
         function updateItem(id, field, value) {
@@ -2417,6 +2620,7 @@
 
         // Helper function to format input on blur
         function formatRowInput(id, input) {
+	    clearIcon(input);
             const item = items.find(i => i.id === id);
             if(!item) return;
             
@@ -2442,18 +2646,19 @@
 	function validateWeight(input) {
     	    const val = parseFloat(input.value);
 	    if (input.value === '') {
-        	setHint(input, 'Required');
+        	setIcon(input, 'Required');
         	return;
     	    }
 	    if (isNaN(val) || val <= 0) {
-        	setHint(input, 'Must be > 0');
+        	setIcon(input, 'Must be greater than 0');
         	return;
     	    }
-	    clearHint(input);
+	    clearIcon(input);
 	}
 
         // New Helper for Rounding Rate Input (Stones)
         function formatRateInput(id, input) {
+	    clearIcon(input);
             const item = items.find(i => i.id === id);
             if(!item) return;            
             let val = item.manualPrice;
@@ -2473,14 +2678,14 @@
 	function validateRate(input) {
     	    const val = parseFloat(input.value);
 	    if (input.value === '') {
-        	setHint(input, 'Rate missing');
+        	setIcon(input, 'Rate missing');
         	return;
     	    }
 	    if (isNaN(val) || val <= 0) {
-        	setHint(input, 'Invalid rate');
+        	setIcon(input, 'Invalid rate');
         	return;
     	    }
-	    clearHint(input);
+	    clearIcon(input);
 	}
 
         function renderRow(item) {
@@ -2911,7 +3116,7 @@
                 text += "No items added.\n";
             }
 
-            text += `--------------------------------\n`;            
+            text += `---------------------------------------------\n`;            
             text += `Gross Weight\t${grossWeight.toFixed(3)} g\n`;
             
             let runningTotal = total;
@@ -2981,9 +3186,6 @@
                 toast.style.transform = 'translate(-50%, 20px)';
             }, 3000);
         }
-
-        window.addEventListener('DOMContentLoaded', init);
-
     </script>
 </body>
 </html>
