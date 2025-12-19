@@ -753,7 +753,7 @@
                     <div class="flex items-center gap-2">
                         <span class="text-xs text-gray-500 font-bold uppercase tracking-wider">P%:</span>
                         <div class="flex items-center bg-gray-800 rounded border border-gray-700 p-0.5">
-                           <input type="number" id="profit-margin-input" value="25" class="w-8 bg-transparent text-white text-center font-mono text-sm focus:outline-none" onchange="updateProfitMargin(this.value)">
+                           <input type="number" id="profit-margin-input" value="15" class="w-8 bg-transparent text-white text-center font-mono text-sm focus:outline-none" onchange="updateProfitMargin(this.value)">
                         </div>
                     </div>
                     <button onclick="toggleSettings()" class="text-gray-400 hover:text-white transition-colors">
@@ -1192,7 +1192,7 @@
     <script>
         // --- DATA MANAGEMENT ---
         let currentFetchedProduct = null;
-        let profitMargin = 20; // Default Profit Margin
+        let profitMargin = 25; // Default Profit Margin
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -3189,3 +3189,4 @@
     </script>
 </body>
 </html>
+
