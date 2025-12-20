@@ -589,7 +589,7 @@
         <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm w-full border border-yellow-500/20 shadow-2xl">
             <!-- Branding -->
             <h1 class="text-4xl font-bold text-yellow-500 brand-font tracking-wider mb-2">EJPC</h1>
-            <p class="text-gray-400 text-center text-sm">Authorized Staff Only</p>
+            <p class="text-gray-400 text-center text-sm">Authorized Users Only</p>
             
             <!-- Status Message -->
             <div id="auth-status" class="text-red-400 text-sm font-bold min-h-[20px] text-center"></div>
@@ -603,7 +603,7 @@
             <!-- Loading Spinner -->
             <div id="auth-loading" class="block text-center">
                 <i class="fas fa-circle-notch fa-spin text-yellow-500 text-2xl"></i>
-                <span class="text-gray-500 text-xs block mt-2">Verifying Email ID...</span>
+                <span class="text-gray-500 text-xs block mt-2">Verifying Gmail ID...</span>
             </div>
         </div>
     </div>
@@ -1158,7 +1158,7 @@
                     const status = document.getElementById('auth-status');
                 
                     if (user) {
-                        status.innerHTML = "Scanning USERBASE...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users</span>";
+                        status.innerHTML = "Finding Access Key...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users.</span>";
                         
                         try {
                             // --- 2. FETCH USERBASE (With Proxy Fallback) ---
@@ -1678,6 +1678,13 @@
                     const proxyResponse = await fetch(proxyUrl);
                     if (!proxyResponse.ok) throw new Error('Corsproxy failed');
                     csvText = await proxyResponse.text();
+                    } catch (proxyError) {
+                     	console.warn("Corsproxy failed, trying allorigins...", proxyError);
+                     	const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUrl);
+                     	const backupResponse = await fetch(backupProxy);
+                     	if (!backupResponse.ok) throw new Error('All proxies failed');
+                     	csvText = await backupResponse.text();
+		    }
                 }
 
                 // 2. Parse and Find Product
