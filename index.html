@@ -3260,5 +3260,36 @@
             }, 3000);
         }
     </script>
+<div id="orientation-lock" class="fixed inset-0 z-[10000] bg-black hidden flex-col items-center justify-center text-center p-6">
+    <i class="fas fa-mobile-alt text-yellow-500 text-6xl mb-4 -rotate-90"></i>
+    <h2 class="text-white text-2xl font-bold mb-2">Portrait Mode Only</h2>
+    <p class="text-gray-400">Please Rotate your Phone to Continue !!!</p>
+</div>
+
+<script>
+    function checkOrientation() {
+        // Detect if device is likely a phone (width < 768px usually implies phone)
+        // AND if it is in landscape mode
+        const isPhone = window.innerWidth < 768 || window.innerHeight < 600; 
+        const isLandscape = window.innerWidth > window.innerHeight;
+        
+        const overlay = document.getElementById('orientation-lock');
+        
+        if (isPhone && isLandscape) {
+            overlay.classList.remove('hidden');
+            overlay.classList.add('flex');
+        } else {
+            overlay.classList.add('hidden');
+            overlay.classList.remove('flex');
+        }
+    }
+
+    // Listen for resize/orientation changes
+    window.addEventListener('resize', checkOrientation);
+    window.addEventListener('orientationchange', checkOrientation);
+    
+    // Initial check
+    checkOrientation();
+</script>
 </body>
 </html>
