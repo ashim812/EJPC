@@ -1666,7 +1666,7 @@
             const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();     // Timestamp to prevent caching
 
             try {
-                // 1. Fetch CSV
+                //Fetch CSV
                 let csvText = '';
                 try {
                     const response = await fetch(uniqueUrl);
@@ -1674,10 +1674,11 @@
                     csvText = await response.text();
                 } catch (directError) {
                     console.warn("Direct fetch failed, trying proxy...", directError);
-                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
-                    const proxyResponse = await fetch(proxyUrl);
-                    if (!proxyResponse.ok) throw new Error('Corsproxy failed');
-                    csvText = await proxyResponse.text();
+		    try {
+                    	const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
+                    	const proxyResponse = await fetch(proxyUrl);
+                    	if (!proxyResponse.ok) throw new Error('Corsproxy failed');
+                    	csvText = await proxyResponse.text();
                     } catch (proxyError) {
                      	console.warn("Corsproxy failed, trying allorigins...", proxyError);
                      	const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUrl);
@@ -2097,13 +2098,14 @@
                 if(isFlashOn) {
                     flashBtn.classList.add('text-yellow-400');
                     flashBtn.classList.remove('text-white');
-                    icon.classList.remove('fa-solid fa-lightbulb');
-                    icon.classList.add('"fa-solid fa-lightbulb" style="color: #ffc800;"'); // Visual feedback
+                    icon.classList.remove('fa-solid', 'fa-lightbulb');
+                    icon.className = "fas fa-lightbulb";
+		    icon.style.color = "#ffc800";  // Visual feedback
                 } else {
                     flashBtn.classList.remove('text-yellow-400');
                     flashBtn.classList.add('text-white');
-                    icon.classList.add('fa-solid fa-lightbulb');
-                    icon.classList.remove('"fa-solid fa-lightbulb" style="color: #ffc800;"');
+                    icon.className = "fas fa-lightbulb";
+		    icon.style.color = "";
                 }
             } else {
                 showToast("Flashlight not available");
