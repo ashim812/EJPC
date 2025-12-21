@@ -3024,8 +3024,7 @@
                 const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
-                    const baseRate = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-		    const cost = item.weight * baseRate;
+                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
                     
                     // Apply Profit Margin
                     const priceWithMargin = cost * (1 + profitMargin/100);
