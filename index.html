@@ -1024,6 +1024,32 @@
             </div>
         </div>
     </div>
+
+<div id="name-popup" class="modal fixed inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
+    <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col gap-5 p-6 shadow-2xl border border-gray-600 relative overflow-hidden">
+        
+        <h3 class="text-center text-[var(--text-main)] font-bold text-lg tracking-wide">Item Name</h3>
+        
+        <div class="relative w-full group">
+            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <i class="fas fa-search text-gray-500 group-focus-within:text-[var(--gold-primary)] transition-colors"></i>
+            </div>
+            <input type="text" id="popup-item-name" list="name-history-list" 
+                class="w-full bg-[var(--input-bg)] text-[var(--text-main)] border border-[var(--border-color)] rounded-full pl-10 pr-5 py-3 focus:outline-none focus:border-[var(--gold-primary)] focus:ring-1 focus:ring-[var(--gold-primary)] transition-all shadow-inner placeholder-gray-500 font-medium"
+                placeholder="Enter Item Name..." autocomplete="off">
+            <datalist id="name-history-list"></datalist>
+        </div>
+
+        <div class="flex justify-center gap-8 mt-1">
+             <button onclick="rejectName()" class="w-12 h-12 rounded-full border border-red-500/30 text-red-500 bg-red-500/5 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xl shadow-lg active:scale-90" title="Copy without Name">
+                <i class="fas fa-times"></i>
+            </button>
+             <button onclick="confirmName()" class="w-12 h-12 rounded-full border border-green-500/30 text-green-500 bg-green-500/5 hover:bg-green-500 hover:text-white transition-all flex items-center justify-center text-xl shadow-lg active:scale-90" title="Add Name & Copy">
+                <i class="fas fa-check"></i>
+            </button>
+        </div>
+    </div>
+</div>
     
     <div id="copy-settings-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col shadow-2xl border border-gray-700">
@@ -3189,6 +3215,8 @@
             container.innerHTML = html;
         }
 
+	let tempCopyString = "";
+
         function copySummary() {
             let text = "";
             let total = 0;
@@ -3256,7 +3284,74 @@
             }
 
             text += `Total Price: ₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
-            
+
+	// Store text and Open Name Modal
+        tempCopyString = text;
+        openNamePopup();
+    	}
+
+	// --- Name Popup Functions ---
+
+    function openNamePopup() {
+        const modal = document.getElementById('name-popup');
+        const input = document.getElementById('popup-item-name');
+        
+        loadNameHistory(); // Load previous inputs
+        input.value = '';  // Clear current input
+        
+        modal.classList.add('active');
+        
+        // Auto-focus input after transition
+        setTimeout(() => input.focus(), 100);
+    }
+
+    function closeNamePopup() {
+        document.getElementById('name-popup').classList.remove('active');
+    }
+
+    function confirmName() {
+        const input = document.getElementById('popup-item-name');
+        const name = input.value.trim();
+        
+        if (name) {
+            saveNameHistory(name);
+            // Add Name to the TOP of the text
+            const finalText = `${name}\n${tempCopyString}`;
+            finalizeCopyToClipboard(finalText);
+        } else {
+            // If empty, just copy the original text
+            finalizeCopyToClipboard(tempCopyString);
+        }
+        closeNamePopup();
+    }
+
+    function rejectName() {
+        // 'X' clicked: Copy text WITHOUT the name
+        finalizeCopyToClipboard(tempCopyString);
+        closeNamePopup();
+    }
+
+    // --- History Management (Local Storage) ---
+    function saveNameHistory(val) {
+        let history = JSON.parse(localStorage.getItem('itemNameHistory') || "[]");
+        // Remove if exists (to move to top)
+        history = history.filter(h => h !== val);
+        // Add to top
+        history.unshift(val);
+        // Limit to last 20 items
+        if(history.length > 20) history.pop();
+        
+        localStorage.setItem('itemNameHistory', JSON.stringify(history));
+    }
+
+    function loadNameHistory() {
+        const list = document.getElementById('name-history-list');
+        let history = JSON.parse(localStorage.getItem('itemNameHistory') || "[]");
+        list.innerHTML = history.map(h => `<option value="${h}">`).join('');
+    }
+
+    // --- Final Copy Helper ---
+    function finalizeCopyToClipboard(str) {            
             const textArea = document.createElement("textarea");
             textArea.value = text;
             textArea.style.position = "fixed";
@@ -3268,8 +3363,11 @@
             try {
                 document.execCommand('copy');
                 const feedback = document.getElementById('copy-feedback');
-                feedback.style.opacity = '1';
-                setTimeout(() => feedback.style.opacity = '0', 2000);
+		if(feedback) {
+                    feedback.style.opacity = '1';
+                    setTimeout(() => feedback.style.opacity = '0', 2000);
+		}
+		showToast("Copied Successfully!");
             } catch (err) {
                 showToast("Failed to copy text");
             }
