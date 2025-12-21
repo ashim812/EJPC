@@ -579,6 +579,36 @@
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             border: 1px solid var(--border-color);
         }
+
+	body.light #auth-overlay {
+	    background-color: #f3f4f6 !important;
+	}
+	body.light #auth-overlay h1 {
+	    color: #ca8a04 !important;
+	}
+	body.light #auth-overlay .glass-panel {
+	    background: rgba(255, 255, 255, 0.9);
+	    border: 1px solid #e5e7eb;
+	    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+	}
+	body.light #auth-overlay p, 
+	body.light #auth-overlay span, 
+	body.light #auth-overlay .text-gray-400,
+	body.light #auth-overlay .text-gray-500 {
+	    color: #4b5563 !important;
+	}
+	body.light #auth-overlay #auth-status.text-green-400 {
+	    color: #16a34a !important;
+	}
+	body.light #orientation-lock {
+	    background-color: #f3f4f6 !important;
+	}
+	body.light #orientation-lock h2 {
+	    color: #1f2937 !important;
+	}
+	body.light #orientation-lock p {
+	    color: #4b5563 !important;
+	}
         
     </style>
 </head>
@@ -930,7 +960,7 @@
                     <div class="flex flex-col gap-4">
                         <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-4 text-xl text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
                         <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-4 rounded-xl shadow-lg transition-transform active:scale-95">
-                            FETCH PRODUCT ID DETAILS
+                            FETCH PRODUCT DETAILS
                         </button>
                     </div>
                 </div>
@@ -1316,7 +1346,6 @@
             const toggle = document.getElementById('themeToggle');
             const circle = toggle.querySelector('.toggle-circle');
             const savedTheme = localStorage.getItem('theme');
-            const mediaQuery = window.matchMedia('(prefers-color-scheme: light)');
 
             const setTheme = (mode) => {
                 if (mode === 'light') {
@@ -1329,15 +1358,15 @@
                 localStorage.setItem('theme', mode);
             };
 
-            // 1. Check localStorage first
+            // Check localStorage first
             if (savedTheme) {
                 setTheme(savedTheme);
             } else {
                 // 2. Fallback to System Preference
-                setTheme(mediaQuery.matches ? 'light' : 'dark');
+                setTheme('light');
             }
 
-            // 3. Manual Toggle Handler
+            // Manual Toggle Handler
             toggle.addEventListener('click', () => {
                 if (document.body.classList.contains('light')) {
                     setTheme('dark');
@@ -1346,7 +1375,7 @@
                 }
             });
 
-            // 4. Listen for System Changes
+            // Listen for System Changes
             mediaQuery.addEventListener('change', (e) => {
                 if (!localStorage.getItem('theme')) {
                     setTheme(e.matches ? 'light' : 'dark');
@@ -1819,7 +1848,7 @@
             }
 
             if (loadedCount > 0) {
-                showToast("Product Loaded to Calculator");
+                showToast("Product Details Loaded");
                 closeProductModal();
             } else {
                 showToast("Could not match items to Rates");
@@ -1906,9 +1935,13 @@
                 <div>Product : ${p.item}</div>
                 <div>Dated : ${p.month}</div>
                 <div>${p.sourcing ? p.sourcing : 'Sourcing'} from ${p.origin ? p.origin : 'Origin'}</div>
-                <div>Gross Weight : ${p.grossWt} g</div>
-                <div>${p.metal} : ${p.netWt} g</div>
+                <div>Gross Weight : ${p.grossWt} g</div>                
             `;
+
+	    // Conditional Metal Row
+            if (parseFloat(p.netWt) > 0) {
+                html += `<div>${p.metal} : ${p.netWt} g</div>`;
+            }
 
             // Conditional Diamond Row
             if (parseFloat(p.diaWt) > 0) {
@@ -1916,7 +1949,7 @@
             }
 
             // Conditional Stone Row
-            if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {                // If Stone Name exists but weight is 0/empty, handle accordingly
+            if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {    // If Stone Name exists but weight is 0/empty, handle accordingly
                 const sName = p.stone || "Stone";
                 const sWt = p.stoneWt || "0";
                 const sRate = p.stoneRate || "0";
@@ -2991,13 +3024,17 @@
                 const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
-                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
+                    const baseRate = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
+		    const cost = item.weight * baseRate;
                     
                     // Apply Profit Margin
                     const priceWithMargin = cost * (1 + profitMargin/100);
                     total += priceWithMargin;
                     
                     const unit = item.type === 'metal' ? 'g' : 'ct';
+		    const baseRate = item.type === 'stone' ? (item.manualPrice || 0) : price;
+            	    const rateWithMargin = baseRate * (1 + profitMargin/100);
+            	    const displayRate = rateWithMargin / 1000;
 
                     if(item.type === 'metal') {
                         grossWeight += item.weight;
@@ -3009,7 +3046,7 @@
 
                     html += `
                     <div class="invoice-row">
-                        <span>${nameLabel} <span class="text-xs text-gray-500">(${item.weight}${unit})</span></span>
+                        <span>${nameLabel} <span class="text-xs text-gray-500">(${item.weight}${unit} / ${displayRate.toFixed(2)})</span></span>
                         <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>
                     </div>
                     `;
@@ -3017,7 +3054,7 @@
             });
 
             if(items.filter(i => i.weight > 0).length === 0) {
-                html += `<div class="text-center text-gray-500 py-4">No items added yet</div>`;
+                html += `<div class="text-center text-gray-500 py-4">No item added yet</div>`;
             }
 
             html += `<div class="invoice-divider"></div>`;
@@ -3263,7 +3300,7 @@
 <div id="orientation-lock" class="fixed inset-0 z-[10000] bg-black hidden flex-col items-center justify-center text-center p-6">
     <i class="fas fa-mobile-alt text-yellow-500 text-6xl mb-4"></i>
     <h2 class="text-white text-2xl font-bold mb-2">Portrait Mode Only</h2>
-    <p class="text-gray-400">Please Rotate your Phone to continue...</p>
+    <p class="text-gray-400">Please Rotate your Phone</p>
 </div>
 
 <script>
@@ -3293,4 +3330,3 @@
 </script>
 </body>
 </html>
-
