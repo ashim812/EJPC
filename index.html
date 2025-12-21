@@ -1224,7 +1224,7 @@
                             if (allowedEmails.includes(userEmail)) {
                                 // SUCCESS: ACCESS GRANTED
                                 status.className = "text-green-400 text-sm font-bold mb-2";
-                                status.innerText = `Welcome, ${user.displayName}`;
+                                status.innerText = `Welcome ${user.displayName}`;
                                 
                                 if(vaultElement && vaultElement.innerHTML === "") {
                                     vaultElement.innerHTML = secureAppHTML;                        
@@ -1373,14 +1373,7 @@
                 } else {
                     setTheme('light');
                 }
-            });
-
-            // Listen for System Changes
-            mediaQuery.addEventListener('change', (e) => {
-                if (!localStorage.getItem('theme')) {
-                    setTheme(e.matches ? 'light' : 'dark');
-                }
-            });
+            })
         }
 	// --- STEALTH LOCK ---
 	let isStealthMode = false;
