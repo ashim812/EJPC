@@ -3210,7 +3210,7 @@
                     }
                     
                     const nameLabel = rate.name || "Unnamed Item";
-                    text += `${nameLabel} (${item.weight}${unit}) :\t₹${priceWithMargin.toLocaleString('en-IN')}\n`;
+                    text += `${nameLabel} (${item.weight}${unit}) : ₹${priceWithMargin.toLocaleString('en-IN')}\n`;
                 }
             });
 
@@ -3218,8 +3218,8 @@
                 text += "No items added.\n";
             }
 
-            text += `----------------------------------------------------------------\n`;            
-            text += `G.Wt. :\t${grossWeight.toFixed(3)} g\n`;
+            text += `------------------------------------------------------------\n`;            
+            text += `G.Wt.: ${grossWeight.toFixed(3)} g\n`;
             
             let runningTotal = total;
 
@@ -3255,7 +3255,7 @@
                 runningTotal = rounded; // Always update the total to the rounded value
             }
 
-            text += `Total Price : \t₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+            text += `Total Price: ₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
             
             const textArea = document.createElement("textarea");
             textArea.value = text;
