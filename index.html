@@ -977,7 +977,7 @@
                         <div class="flex flex-col gap-3">
                             <input type="text" id="sold-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-lg text-white text-center focus:border-red-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
                             <button onclick="submitSoldCode()" class="w-full bg-red-900/50 hover:bg-red-800 border border-red-800 text-red-100 font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide">
-                                FETCH SOLD PRODUCT DETAILS
+                                FETCH SOLD ITEM DETAILS
                             </button>
                         </div>
                     </div>
@@ -2106,7 +2106,7 @@
 
         function renderSoldDetails(p) {
             const container = document.getElementById('product-details-content');
-            document.querySelector('#product-modal h2').innerText = "SOLD PRODUCT DETAILS";
+            document.querySelector('#product-modal h2').innerText = "SOLD ITEM DETAILS";
             
             let html = `
                 <div>Product ID : ${p.id}</div>
