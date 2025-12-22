@@ -609,6 +609,9 @@
 	body.light #orientation-lock p {
 	    color: #4b5563 !important;
 	}
+	#popup-item-name::-webkit-calendar-picker-indicator {
+	    display: none !important;
+	}
         
     </style>
 </head>
@@ -1027,19 +1030,12 @@
 
 <div id="name-popup" class="modal fixed inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
     <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col gap-5 p-6 shadow-2xl border border-gray-600 relative overflow-hidden">
-
-	<button onclick="closeNamePopup()" class="absolute top-3 right-3 text-gray-500 hover:text-white transition-colors p-2 z-10 rounded-full hover:bg-white/10">
-            <i class="fas fa-times text-lg"></i>
-        </button>
-        
+      
         <h3 class="text-center text-[var(--text-main)] font-bold text-lg tracking-wide">Item Name</h3>
         
         <div class="relative w-full group">
-            <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <i class="fas fa-search text-gray-500 group-focus-within:text-[var(--gold-primary)] transition-colors"></i>
-            </div>
             <input type="text" id="popup-item-name" list="name-history-list" 
-                class="w-full bg-[var(--input-bg)] text-[var(--text-main)] border border-[var(--border-color)] rounded-full pl-10 pr-5 py-3 focus:outline-none focus:border-[var(--gold-primary)] focus:ring-1 focus:ring-[var(--gold-primary)] transition-all shadow-inner placeholder-gray-500 font-medium"
+                class="w-full bg-[var(--input-bg)] text-[var(--text-main)] border border-[var(--border-color)] rounded-none pl-3 pr-5 py-3 focus:outline-none focus:border-[var(--gold-primary)] focus:ring-1 focus:ring-[var(--gold-primary)] transition-all shadow-inner placeholder-gray-500 font-medium"
                 placeholder="Enter Item Name..." autocomplete="off">
             <datalist id="name-history-list"></datalist>
         </div>
@@ -3247,7 +3243,7 @@
             });
 
             if(items.filter(i => i.weight > 0).length === 0) {
-                text += "No items added.\n";
+                text += "No item is added.\n";
             }
 
             text += `------------------------------------------------------------\n`;            
@@ -3260,7 +3256,7 @@
                 const discountedTotal = runningTotal - amountSaved;
                 
                 if(copyOptions.discount) {
-                    text += `Discount (${discountData.percentage}%)\t-₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `Discount (${discountData.percentage}%) : - ₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal = discountedTotal;
             }
@@ -3268,7 +3264,7 @@
             if(summaryState.tax) {
                 const tax = runningTotal * 0.03;
                 if(copyOptions.tax) {
-                    text += `Tax (3%)\t+₹${tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `Tax (3%) : + ₹${tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal += tax;
             }
@@ -3281,7 +3277,7 @@
                 if (!summaryState.roundRowHidden && copyOptions.roundOff) {
                     const diff = rounded - runningTotal;
                     const sign = diff >= 0 ? '+' : '';
-                    text += `Round Off\t${sign}₹${diff.toFixed(2)}\n`;
+                    text += `Round Off : ${sign}₹${diff.toFixed(2)}\n`;
                 }
                 
                 runningTotal = rounded; // Always update the total to the rounded value
@@ -3329,8 +3325,7 @@
         closeNamePopup();
     }
 
-    function rejectName() {
-        // 'X' clicked: Copy text WITHOUT the name
+    function rejectName() {        // 'X' clicked: Copy text WITHOUT the name
         finalizeCopyToClipboard(tempCopyString);
         closeNamePopup();
     }
