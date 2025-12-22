@@ -1100,7 +1100,7 @@
     <!-- PRODUCT DETAILS POPUP BOX -->
     <div id="product-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-sm rounded-[32px] flex flex-col shadow-2xl border border-red-500 relative overflow-hidden text-center p-8 gap-4 backdrop-blur-md transition-colors">
-             <button onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
+             <button id="prod-modal-x" onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
              <h2 class="text-2xl font-bold italic mb-2 font-serif text-[var(--text-main)] mt-2">PRODUCT DETAILS</h2>
              <div id="product-details-content" class="text-left space-y-1.5 text-[var(--text-main)] text-[15px] font-sans font-medium leading-relaxed">
                   <!-- Dynamic Content -->
@@ -1698,7 +1698,7 @@
             const errorDiv = document.getElementById('product-error');
             const actionBtn = document.getElementById('prod-action-btn');
             
-            // Reset Button State
+            document.getElementById('prod-modal-x').classList.remove('hidden');
             actionBtn.innerText = "LOAD";
             actionBtn.onclick = closeProductModal;
 
@@ -2019,7 +2019,7 @@
 
                 if(product) {
                     renderSoldDetails(product);
-                    // Update Action Button to just Close
+                    document.getElementById('prod-modal-x').classList.add('hidden');
                     actionBtn.innerText = "CLOSE";
                     actionBtn.onclick = closeProductModal;
                 } else {
@@ -2106,7 +2106,7 @@
 
         function renderSoldDetails(p) {
             const container = document.getElementById('product-details-content');
-            document.querySelector('#product-modal h2').innerText = "SOLD ITEM DETAILS";
+            document.querySelector('#product-modal h2').innerText = "SOLD PRODUCT DETAILS";
             
             let html = `
                 <div>Product ID : ${p.id}</div>
