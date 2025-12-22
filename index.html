@@ -1491,12 +1491,12 @@
             const threshold = 150; // Drag distance needed
             
             body.addEventListener('touchstart', (e) => {
-                // Check for active modals - if any modal is active, DISABLE P2R
-                if (document.querySelector('.modal.active')) return;
+                if (document.querySelector('.modal.active')) return;// Check for active modals - if any modal is active, DISABLE P2R
 		// Ignore if touching a button (prevents accidental triggers)
-        	if (e.target.closest('button')) return;
-                // Only enable if at the very top of page
-                if (window.scrollY === 0) {
+        	if (e.target.closest('button, input, select, textarea, .add-chip, .rate-cube, .nav-btn, .invoice-pill')) {
+		    return;
+		}
+                if (window.scrollY === 0) {  // Only enable if at the very top of page
                     // Check if we are inside a scrollable element that is NOT at top
                     const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');
                     if (scrollable && scrollable.scrollTop > 0) {
