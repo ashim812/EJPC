@@ -1970,10 +1970,11 @@
             const input = document.getElementById('sold-code-input');
             const code = input.value.trim();
             if(code.length > 1) {
+		closeQRScanner();
                 fetchSoldDetails(code);
-                input.value = ""; // Clear input
+                input.value = "E";
             } else {
-                showToast("Please enter a Sold ID");
+                showToast("Please enter a Product Code");
             }
         }
 
@@ -2104,11 +2105,11 @@
             document.querySelector('#product-modal h2').innerText = "SOLD ITEM DETAILS";
             
             let html = `
-                <div class="text-xs text-gray-400 mb-2">ID: ${p.id}</div>
-                <div class="text-lg font-bold text-white mb-1">${p.item}</div>
-                <div class="text-sm text-gray-400 mb-3">Dated: ${p.month}</div>
-                <div class="border-t border-gray-700 my-2"></div>
-                <div>Gross Wt : ${p.grossWt} g</div>
+                <div>Product ID : ${p.id}</div>
+                <div>Product : ${p.item}</div>
+                <div>Dated : ${p.month}</div>
+                <div>${p.sourcing ? p.sourcing : 'Sourcing'} from ${p.origin ? p.origin : 'Origin'}</div>
+                <div>Gross Weight : ${p.grossWt} g</div> 
             `;
 
             if (parseFloat(p.netWt) > 0) html += `<div>${p.metal} : ${p.netWt} g</div>`;
@@ -2361,7 +2362,7 @@
                 handleScannedCode(code);
                 input.value = "E"; // Reset
             } else {
-                showToast("Please enter a code");
+                showToast("Please enter a Product Code");
             }
         }
 
