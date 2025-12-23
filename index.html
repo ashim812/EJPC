@@ -621,7 +621,13 @@
 	#popup-item-name::-webkit-calendar-picker-indicator {
 	    display: none !important;
 	}
-        
+        /* TABLET OVERRIDE: Force full usage of screen on devices wider than 768px */
+        @media (min-width: 768px) {
+            :root {
+                --safe-top: 0px !important;
+                --safe-bottom: 0px !important;
+            }
+        }
     </style>
 </head>
 <body>
