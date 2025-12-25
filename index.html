@@ -1818,13 +1818,7 @@
         }
         
         function loadProductToCalculator() {
-            if (!currentFetchedProduct) return;
-            
-            // --- CLEAR PREVIOUS SELECTIONS ---
-            items = [];
-            renderCalculator();
-            calculateTotals(); // Reset totals to 0
-            
+            if (!currentFetchedProduct) return;       
             const p = currentFetchedProduct;
             let loadedCount = 0;
 
