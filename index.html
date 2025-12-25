@@ -733,19 +733,14 @@
 
     <main id="app-main" class="flex-grow flex flex-col p-2 gap-2 overflow-hidden w-full relative transition-transform duration-100 ease-out">
         
-	<div onclick="togglePriceVisibility()" class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group cursor-pointer active:scale-95 transition-transform duration-100">
-	    <div class="absolute inset-0 bg-yellow-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
-    
-	    <div class="flex items-center justify-center gap-2 mb-1 relative w-full">
-	        <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest">Valuation</span>
-	        <i id="price-eye-icon" class="fas fa-eye text-[10px] text-gray-600 absolute right-2 opacity-50"></i>
-	    </div>
-
-	    <div id="price-display-wrapper" class="text-xl md:text-3xl font-bold text-yellow-400 brand-font transition-all duration-300 blur-md select-none">
-	        ₹<span id="display-total-price">0.00</span>
-	    </div>
-	</div>
-
+        <div class="flex-none grid grid-cols-2 gap-2 w-full">
+            <div class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group">
+                <div class="absolute inset-0 bg-yellow-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
+                <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest mb-1">Valuation</span>
+                <div class="text-xl md:text-3xl font-bold text-yellow-400 brand-font">
+                    ₹<span id="display-total-price">0.00</span>
+                </div>
+            </div>
             <div class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden">
                 <div class="absolute inset-0 bg-blue-500 opacity-5"></div>
                 <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest mb-1">Gross Weight</span>
@@ -1619,20 +1614,6 @@
                 currentY = 0;
             });
         }
-
-	function togglePriceVisibility() {
-	    const wrapper = document.getElementById('price-display-wrapper');
-	    const icon = document.getElementById('price-eye-icon');
-	    if (wrapper.classList.contains('blur-md')) {    // Check if hidden (contains blur class)
-	        wrapper.classList.remove('blur-md', 'select-none'); // Remove blur and allow selection
-	        icon.classList.remove('fa-eye', 'text-gray-600', 'opacity-50');
-	        icon.classList.add('fa-eye-slash', 'text-yellow-500', 'opacity-100');
-	    } else {
-	        wrapper.classList.add('blur-md', 'select-none'); // Add blur back
-	        icon.classList.remove('fa-eye-slash', 'text-yellow-500', 'opacity-100');
-	        icon.classList.add('fa-eye', 'text-gray-600', 'opacity-50'); // Reset icon
-	    }
-	}
         
         function updateProfitMargin(val) {
             const num = parseFloat(val);
