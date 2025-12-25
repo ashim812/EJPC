@@ -1505,6 +1505,11 @@
 	}
 
         function init() {
+            if (/Android/i.test(navigator.userAgent)) {
+	        const root = document.documentElement;
+	        root.style.setProperty('--safe-top', '0px');
+	        root.style.setProperty('--safe-bottom', '0px');
+	    }
             initTheme();
             initCurrencyConverter();
             initPullToRefresh();
