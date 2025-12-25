@@ -1037,6 +1037,10 @@
                 <i class="fas fa-times text-xl"></i>
             </button>
 
+	    <button id="stealth-btn" onclick="toggleStealthMode()" class="absolute bottom-12 left-1/2 transform -translate-x-1/2 text-gray-500 hover:text-yellow-500 transition-colors z-50 p-4" title="Presentation Mode">
+                <i class="fas fa-desktop text-2xl"></i>
+            </button>
+
             <div class="flex flex-col items-center w-full max-w-md animate-[slideIn_0.3s_ease-out]">
                 
                 <div id="summary-header-pill" class="invoice-pill select-none cursor-pointer">APPROXIMATE COST</div>
@@ -1449,7 +1453,7 @@
         
         	timer = setTimeout(() => {
             	    toggleStealthMode();
-        	}, 2000); // 2 Seconds Hold to Toggle
+        	}, 3000); // 3 Seconds Hold to Toggle
     	    };
 
     	    // Helper to cancel if finger moves or releases
@@ -1473,12 +1477,13 @@
     
     	    const closeBtn = document.getElementById('summary-close-btn');
     	    const settingsBtn = document.getElementById('summary-settings-btn');
+	    const stealthBtn = document.getElementById('stealth-btn');
     
     	    // Hide/Show Buttons
     	    if(closeBtn) closeBtn.style.display = isStealthMode ? 'none' : 'flex';
      	    if(settingsBtn) settingsBtn.style.display = isStealthMode ? 'none' : 'block';
-    	    generateSummary();
-    	    // Provide Feedback
+	    if(stealthBtn) stealthBtn.style.display = isStealthMode ? 'none' : 'block';
+    	    generateSummary();    	    
     	    if(isStealthMode) {
         	if(navigator.vibrate) navigator.vibrate([50, 50, 50]);  // Vibrate to let the owner know it locked
     	    } else {
