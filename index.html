@@ -868,22 +868,16 @@
             <div class="flex flex-col gap-2">
                 <label class="text-sm text-yellow-500 font-bold uppercase tracking-wider">Metal Margin %</label>
                 <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-3">
-                    <input type="number" id="margin-metal-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none" 
-                           onchange="updateMargin('metal', this.value)" placeholder="0" value="5">
+                    <input type="number" id="margin-metal-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none" value="5" onchange="updateMargin('metal', this.value)">
                 </div>
             </div>
 
             <div class="flex flex-col gap-2">
                 <label class="text-sm text-blue-400 font-bold uppercase tracking-wider">Stone Margin %</label>
                 <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-3">
-                    <input type="number" id="margin-stone-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none" 
-                           onchange="updateMargin('stone', this.value)" placeholder="0" value="25">
+                    <input type="number" id="margin-stone-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none" value="25" onchange="updateMargin('stone', this.value)">
                 </div>
             </div>
-            
-            <button onclick="toggleMarginModal()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black py-3 rounded-xl text-sm font-bold tracking-wider transition-colors shadow-lg uppercase mt-2">
-                Done
-            </button>
         </div>
     </div>
 </div>
@@ -1545,11 +1539,13 @@
 	    initStealthMode(); 
             
             // Load Profit Margin
-            const storedMargins = localStorage.getItem('profitMargin');
+            const storedMargins = localStorage.getItem('profitMargins');
 	    if (storedMargins) {
 	        try {
 	            profitMargins = JSON.parse(storedMargins);
 	        } catch(e) { console.error("Error parsing margins", e); }
+	    } else {
+	        localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
 	    }
           
             renderCalculator();
