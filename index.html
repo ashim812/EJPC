@@ -1389,7 +1389,7 @@
     <script>
         // --- DATA MANAGEMENT ---
         let currentFetchedProduct = null;
-        let profitMargin = { metal: 5, stone: 25 }; // Default Profit Margin
+        let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1546,7 +1546,7 @@
 	    initStealthMode(); 
             
             // Load Profit Margin
-            const storedMargin = localStorage.getItem('profitMargin');
+            const storedMargins = localStorage.getItem('profitMargin');
 	    if (storedMargins) {
 	        try {
 	            profitMargins = JSON.parse(storedMargins);
