@@ -963,65 +963,63 @@
     </div>
     
     <!-- QR SCANNER INTERFACE -->
-    <div id="qr-interface" class="fixed inset-0 z-[100] bg-black hidden flex flex-col font-sans transition-opacity duration-300 opacity-0 pointer-events-none">
+	<div id="qr-interface" class="fixed inset-0 z-[100] bg-black hidden flex flex-col font-sans transition-opacity duration-300 opacity-0 pointer-events-none">
+    	    <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
+	    <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
     
-    <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
-    <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
-    
-    <div id="qr-top-bar" class="flex-none flex items-center justify-between px-4 pt-4 pb-2 bg-black/40 z-50 absolute top-0 w-full backdrop-blur-sm transition-colors">
-        <button onclick="closeQRScanner()" class="text-white p-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition">
-            <i class="fas fa-times text-lg"></i>
-        </button>
-        <h2 class="text-white font-medium tracking-wide">Scan QR Code</h2>
-        <div class="w-10"></div> 
-    </div>
+	    <div id="qr-top-bar" class="flex-none flex items-center justify-between px-4 pt-4 pb-2 bg-black/40 z-50 absolute top-0 w-full backdrop-blur-sm transition-colors">
+	        <button onclick="closeQRScanner()" class="text-white p-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition">
+	            <i class="fas fa-times text-lg"></i>
+	        </button>
+	        <h2 class="text-white font-medium tracking-wide">Fetch Product Details</h2>
+	        <div class="w-10"></div> 
+	    </div>
 
-    <div class="flex-grow relative flex flex-col w-full h-full bg-[#111]">
+	    <div class="flex-grow relative flex flex-col w-full h-full bg-[#111]">
         
-        <div id="qr-scanner-view" class="absolute inset-0 w-full h-full">
-            <video id="qr-video" class="absolute inset-0 w-full h-full object-cover opacity-80" playsinline muted autoplay></video>
+	        <div id="qr-scanner-view" class="hidden absolute inset-0 w-full h-full">
+	            <video id="qr-video" class="absolute inset-0 w-full h-full object-cover opacity-80" playsinline muted autoplay></video>
+	            <div id="qr-error-msg" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-center p-6">
+	                 <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
+	                 <p class="text-white text-lg font-bold mb-2">Camera Unavailable</p>
+	            </div>
+	        </div>
+
+	        <div id="qr-manual-view" class="hidden flex-grow relative z-30 bg-black/90 flex flex-col items-center justify-center p-8 transition-colors overflow-y-auto">
+	            <div class="w-full max-w-sm flex flex-col gap-6">
+	                <div>
+	                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block">Search Inventory</label>
+	                    <div class="flex flex-col gap-3">
+	                        <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-lg text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
+        	                <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide">FETCH PRODUCT DETAILS</button>
+	                    </div>
+	                </div>
+	                <div class="w-full h-px bg-gray-800 border-t border-gray-700 border-dashed"></div>
+	                <div>
+	                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block text-red-400">Search Sold Items</label>
+	                    <div class="flex flex-col gap-3">
+	                        <input type="text" id="sold-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-lg text-white text-center focus:border-red-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
+	                        <button onclick="submitSoldCode()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide">FETCH SOLD ITEM DETAILS</button>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+        
+	        <div id="qr-bottom-bar" class="flex-none h-24 bg-black flex items-center justify-between px-12 z-40 transition-colors border-t border-gray-800">
+	            <button onclick="triggerGallery()" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Scan Image">
+	                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
+	                    <i class="far fa-image text-lg"></i>
+	                </div>
+	            </button>
             
-            <div id="qr-error-msg" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-center p-6">
-                 <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-                 <p class="text-white text-lg font-bold mb-2">Camera Unavailable</p>
-            </div>
-
-            </div>
-
-        <div id="qr-manual-view" class="hidden absolute inset-0 z-30 bg-black/90 flex flex-col items-center justify-center p-8 transition-colors overflow-y-auto">
-            <div class="w-full max-w-sm flex flex-col gap-6">
-                <div>
-                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block">Search Inventory</label>
-                    <div class="flex flex-col gap-3">
-                        <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-lg text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
-                        <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide">FETCH PRODUCT DETAILS</button>
-                    </div>
-                </div>
-                <div class="w-full h-px bg-gray-800 border-t border-gray-700 border-dashed"></div>
-                <div>
-                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block text-red-400">Search Sold Items</label>
-                    <div class="flex flex-col gap-3">
-                        <input type="text" id="sold-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-lg text-white text-center focus:border-red-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
-                        <button onclick="submitSoldCode()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide">FETCH SOLD ITEM DETAILS</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-    <div id="qr-bottom-bar" class="flex-none h-24 bg-black flex items-center justify-between px-12 z-20 transition-colors">
-        <button onclick="triggerGallery()" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Scan Image">
-            <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
-                <i class="far fa-image text-lg"></i>
-            </div>
-        </button>
-        
-        <button onclick="triggerCamera()" id="camera-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Take Photo">
-            <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
-                 <i class="fas fa-camera text-lg"></i>
-            </div>
-        </button>
-    </div>
-</div>
+	            <button onclick="triggerCamera()" id="camera-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Take Photo">
+	                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
+	                     <i class="fas fa-camera text-lg"></i>
+	                </div>
+	            </button>
+	        </div>
+	    </div>
+	</div>
 
     <div id="summary-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm p-4">
         <div class="w-full h-full flex flex-col items-center justify-center relative">
@@ -2237,12 +2235,19 @@
 
         function openQRScanner() {
             const ui = document.getElementById('qr-interface');
+	    const scanView = document.getElementById('qr-scanner-view');
+            const manualView = document.getElementById('qr-manual-view');
+            const bottomBar = document.getElementById('qr-bottom-bar');
             
             ui.classList.remove('hidden');
             setTimeout(() => {
                 ui.classList.remove('opacity-0', 'pointer-events-none');
             }, 10);            // Small delay to allow display block to apply before opacity transition            
-            switchQRMode('scan');            // Reset to Scan Mode by default
+	    scanView.classList.add('hidden');
+            manualView.classList.remove('hidden');
+            bottomBar.classList.remove('hidden');
+            bottomBar.classList.add('flex');
+            stopCamera();
         }
 
         function closeQRScanner() {
@@ -2359,33 +2364,7 @@
                 qrScanner = null;
             }
         }
-        
-        function switchQRMode(mode) {
-            const scanView = document.getElementById('qr-scanner-view');
-            const manualView = document.getElementById('qr-manual-view');
-            const hintText = document.getElementById('qr-hint-text');
-            const manualInput = document.getElementById('manual-code-input');
-            const bottomBar = document.getElementById('qr-bottom-bar');
-
-            if (mode === 'scan') {
-                scanView.classList.remove('hidden');
-                manualView.classList.add('hidden');
-                hintText.classList.remove('hidden');
-                bottomBar.classList.remove('hidden');
-                bottomBar.classList.add('flex');
-                                
-                startCamera();
-            } else {
-                scanView.classList.add('hidden');
-                manualView.classList.remove('hidden');
-                hintText.classList.add('hidden');
-                bottomBar.classList.add('hidden');
-                bottomBar.classList.remove('flex');
-                
-                stopCamera();
-            }
-        }
-        
+               
         // --- Gallery Scan & Camera Input Logic ---        
         function triggerGallery() {
             document.getElementById('qr-image-input').click();
