@@ -967,6 +967,7 @@
         
         <!-- HIDDEN INPUT FOR GALLERY SCAN -->
         <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
+	<input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
         
         <!-- Top Bar -->
         <div id="qr-top-bar" class="flex-none flex items-center justify-between px-4 pt-4 pb-2 bg-black/40 z-50 absolute top-0 w-full backdrop-blur-sm transition-colors">
@@ -1057,9 +1058,9 @@
             </button>
             
             <!-- Flash Toggle -->
-            <button onclick="toggleFlash()" id="flash-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Toggle Flash">
-                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
-                     <i class="fas fa-solid fa-lightbulb text-lg"></i>
+            <button onclick="toggleCamera()" id="camera-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Take Photo">
+	        <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
+                     <i class="fas fa-solid fa-camera text-lg"></i>
                 </div>
             </button>
         </div>
@@ -2371,11 +2372,6 @@
                         });
                     });
                 }
-
-                qrScanner.hasFlash().then(hasFlash => {  // Check if flash is available
-                     const flashBtn = document.getElementById('flash-btn');
-                     if(!hasFlash) flashBtn.style.opacity = '0.3';
-                });
             }).catch(err => {
                 console.warn("Camera start failed:", err);
                 
@@ -2452,6 +2448,11 @@
         function triggerGallery() {
             document.getElementById('qr-image-input').click();
         }
+
+	function triggerCamera() {
+	    document.getElementById('qr-camera-input').click();
+	}
+
         async function handleImageScan(e) {
             const file = e.target.files[0];
             if (!file) return;
@@ -2464,30 +2465,6 @@
                 showToast("No QR code found in selected image");
             }
             e.target.value = ''; // Reset input so same file can be selected again
-        }
-        
-        async function toggleFlash() {
-            if (qrScanner && await qrScanner.hasFlash()) {
-                await qrScanner.toggleFlash();
-                const flashBtn = document.getElementById('flash-btn');
-                const icon = flashBtn.querySelector('i');
-                const isFlashOn = await qrScanner.isFlashOn();
-                
-                if(isFlashOn) {
-                    flashBtn.classList.add('text-yellow-400');
-                    flashBtn.classList.remove('text-white');
-                    icon.classList.remove('fa-solid', 'fa-lightbulb');
-                    icon.className = "fas fa-lightbulb";
-		    icon.style.color = "#ffc800";  // Visual feedback
-                } else {
-                    flashBtn.classList.remove('text-yellow-400');
-                    flashBtn.classList.add('text-white');
-                    icon.className = "fas fa-lightbulb";
-		    icon.style.color = "";
-                }
-            } else {
-                showToast("Flashlight not available");
-            }
         }
 
         function handleScannedCode(code) {
