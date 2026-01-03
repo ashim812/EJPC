@@ -2323,27 +2323,48 @@
                 qrScanner = null;
             }
 
-            // 2. Explicitly set Worker Path (Fixes standalone execution issues)
+            // 2. Explicitly set Worker Path
             QrScanner.WORKER_PATH = 'qr-scanner-worker.min.js';
 
             qrScanner = new QrScanner(            // Using QrScanner Library
                 videoElem,
                 result => handleScannedCode(result.data),
                 {
-                    onDecodeError: error => {
-                        // console.log(error); // Verbose
-                    },
+                    onDecodeError: error => { /* verbose off */ },
                     highlightScanRegion: false,
                     highlightCodeOutline: false,
                     returnDetailedScanResult: true,
-            // 3. Force environment (back) camera
-                    preferredCamera: 'environment'
+                    preferredCamera: 'environment', // Always use Back Camera
+		    maxScansPerSecond: 25           // Scan faster
                 }
             );
 
             qrScanner.start().then(() => {
                 console.log("QR Scanner started");
-                qrScanner.hasFlash().then(hasFlash => {                // Check if flash is available on start to update UI if needed
+
+                const stream = videoElem.srcObject; // Force 4K Resolution & Focus
+                if (stream) {
+                    const track = stream.getVideoTracks()[0];
+                    
+                    // Attempt 1: Try 4K (Ultra HD)
+                    track.applyConstraints({
+                        advanced: [{ 
+                            width: 3840, height: 2160, 
+                            focusMode: 'continuous' 
+                        }] 
+                    }).catch(err => {
+                        console.log("4K not supported, trying 1080p...");
+                        // Attempt 2: Fallback to 1080p (Full HD)
+                        track.applyConstraints({
+                            advanced: [{ 
+                                width: 1920, height: 1080, 
+                                focusMode: 'continuous' 
+                            }] 
+                        });
+                    });
+                }
+
+                qrScanner.hasFlash().then(hasFlash => {  // Check if flash is available on start to update UI if needed
                      const flashBtn = document.getElementById('flash-btn');
                      if(!hasFlash) flashBtn.style.opacity = '0.3';
                 });
