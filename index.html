@@ -971,20 +971,12 @@
 	        <button onclick="closeQRScanner()" class="text-white p-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition">
 	            <i class="fas fa-times text-lg"></i>
 	        </button>
-	        <h2 class="text-white font-medium tracking-wide">Fetch Product Details</h2>
+	        <h2 class="text-white font-medium tracking-wide">Fetch Product QR Code</h2>
 	        <div class="w-10"></div> 
 	    </div>
 
 	    <div class="flex-grow relative flex flex-col w-full h-full bg-[#111]">
         
-	        <div id="qr-scanner-view" class="hidden absolute inset-0 w-full h-full">
-	            <video id="qr-video" class="absolute inset-0 w-full h-full object-cover opacity-80" playsinline muted autoplay></video>
-	            <div id="qr-error-msg" class="hidden absolute inset-0 z-30 flex flex-col items-center justify-center bg-black/90 text-center p-6">
-	                 <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-	                 <p class="text-white text-lg font-bold mb-2">Camera Unavailable</p>
-	            </div>
-	        </div>
-
 	        <div id="qr-manual-view" class="hidden flex-grow relative z-30 bg-black/90 flex flex-col items-center justify-center p-8 transition-colors overflow-y-auto">
 	            <div class="w-full max-w-sm flex flex-col gap-6">
 	                <div>
@@ -1580,7 +1572,7 @@
             body.addEventListener('touchstart', (e) => {
                 if (document.querySelector('.modal.active')) return;// Check for active modals - if any modal is active, DISABLE P2R
 		// Ignore if touching a button (prevents accidental triggers)
-        	if (e.target.closest('button, input, select, textarea, .add-chip, .rate-cube, .nav-btn, .invoice-pill')) {
+        	if (e.target.closest('button, input, select, textarea, .add-chip, .rate-cube, .nav-btn, .invoice-pill, .glass-panel, .item-row, .sold-card')) {
 		    return;
 		}
                 if (window.scrollY === 0) {  // Only enable if at the very top of page
@@ -2230,24 +2222,17 @@
             container.innerHTML = html;
         }
         
-        // --- QR SCANNER LOGIC ---        
+        // --- QR/MANUAL INTERFACE LOGIC ---        
         let qrScanner = null;
 
         function openQRScanner() {
             const ui = document.getElementById('qr-interface');
-	    const scanView = document.getElementById('qr-scanner-view');
-            const manualView = document.getElementById('qr-manual-view');
-            const bottomBar = document.getElementById('qr-bottom-bar');
-            
+
             ui.classList.remove('hidden');
             setTimeout(() => {
                 ui.classList.remove('opacity-0', 'pointer-events-none');
-            }, 10);            // Small delay to allow display block to apply before opacity transition            
-	    scanView.classList.add('hidden');
-            manualView.classList.remove('hidden');
-            bottomBar.classList.remove('hidden');
-            bottomBar.classList.add('flex');
-            stopCamera();
+            }, 10);            // Small delay to allow display block to apply before opacity transition
+	    setTimeout(() => manualInput.focus(), 7000);
         }
 
         function closeQRScanner() {
@@ -2257,112 +2242,6 @@
                 ui.classList.add('hidden');
                 stopCamera();
             }, 300);
-        }
-
-        function startCamera() {
-            const videoElem = document.getElementById('qr-video');
-            const errorElem = document.getElementById('qr-error-msg');
-            
-            // 1. Protocol Check
-            if (window.location.protocol === 'file:') {
-                 errorElem.innerHTML = `
-                    <div class="flex flex-col items-center max-w-xs text-center">
-                        <i class="fas fa-server text-red-500 text-4xl mb-4"></i>
-                        <p class="text-white text-lg font-bold mb-2">Security Restriction</p>
-                        <p class="text-gray-400 text-sm mb-3">Browsers block camera access on local files.</p>
-                        <p class="text-yellow-500 text-xs bg-yellow-500/10 p-2 rounded border border-yellow-500/20">
-                            <strong>Fix:</strong> Use a local server (like "Live Server" in VS Code) or host this file on a website (https).
-                        </p>
-                    </div>
-                 `;
-                 errorElem.classList.remove('hidden');
-                 showToast("Camera blocked by browser security (file://).");
-                 return;
-            }
-            errorElem.classList.add('hidden');
-            if (qrScanner) {
-                qrScanner.destroy();
-                qrScanner = null;
-            }
-
-            // 2. Explicitly set Worker Path
-            QrScanner.WORKER_PATH = 'qr-scanner-worker.min.js';
-
-            qrScanner = new QrScanner(            // Using QrScanner Library
-                videoElem,
-                result => handleScannedCode(result.data),
-                {
-                    onDecodeError: error => { /* verbose off */ },
-                    highlightScanRegion: false,
-                    highlightCodeOutline: false,
-                    returnDetailedScanResult: true,
-                    preferredCamera: 'environment', // Always use Back Camera
-		    maxScansPerSecond: 30,  // Maximize frame rate
-                    inversionAttempts: 'dontInvert', // Disable "Inverted" scan check.
-                    calculateScanRegion: (video) => {    // "Sniper Focus"
-                        const smallestDim = Math.min(video.videoWidth, video.videoHeight);
-                        const scanSize = Math.round(smallestDim * 0.5); // Focus on center 50% box
-
-                        return {
-                            x: Math.round((video.videoWidth - scanSize) / 2),
-                            y: Math.round((video.videoHeight - scanSize) / 2),
-                            width: scanSize,
-                            height: scanSize,
-                            downScaledWidth: scanSize,  // Prevent internal downscaling. 
-                            downScaledHeight: scanSize, // Tells engine to process pixels 1:1.
-                        };
-                    }
-                }
-            );
-
-            qrScanner.start().then(() => {
-                console.log("QR Scanner started");
-
-                const stream = videoElem.srcObject; // Force 4K Resolution & Focus
-                if (stream) {
-                    const track = stream.getVideoTracks()[0];               
-                    track.applyConstraints({     // Try 4K (Ultra HD)
-                        advanced: [{ 
-                            width: 3840, height: 2160, 
-                            focusMode: 'continuous' 
-                        }] 
-                    }).catch(err => {
-                        console.log("4K not supported, trying 1080p...");
-                        track.applyConstraints({  // Fallback to 1080p (Full HD)
-                            advanced: [{ width: 1920, height: 1080, focusMode: 'continuous' }] 
-                        });
-                    });
-                }
-            }).catch(err => {
-                console.warn("Camera start failed:", err);
-                
-                let msg = "Please allow camera access.";
-                let subMsg = "Check your browser settings.";
-                
-                if(err.name === 'NotAllowedError') {
-                    msg = "Permission Denied";
-                    subMsg = "You blocked camera access. Please reset permissions for this site.";
-                } else if(err.name === 'NotFoundError') {
-                    msg = "No Camera Found";
-                    subMsg = "We couldn't find a camera on this device.";
-                }
-
-                errorElem.innerHTML = `
-                     <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-                     <p class="text-white text-lg font-bold mb-2">${msg}</p>
-                     <p class="text-gray-400 text-sm">${subMsg}</p>
-                `;
-                errorElem.classList.remove('hidden');
-                showToast(msg);
-            });
-        }
-
-        function stopCamera() {
-            if (qrScanner) {
-                qrScanner.stop();
-                qrScanner.destroy();
-                qrScanner = null;
-            }
         }
                
         // --- Gallery Scan & Camera Input Logic ---        
