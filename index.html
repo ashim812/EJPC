@@ -2301,7 +2301,7 @@
             const videoElem = document.getElementById('qr-video');
             const errorElem = document.getElementById('qr-error-msg');
             
-            // 1. Check for File Protocol (Browsers block camera on file://)
+            // 1. Protocol Check
             if (window.location.protocol === 'file:') {
                  errorElem.innerHTML = `
                     <div class="flex flex-col items-center max-w-xs text-center">
@@ -2335,7 +2335,21 @@
                     highlightCodeOutline: false,
                     returnDetailedScanResult: true,
                     preferredCamera: 'environment', // Always use Back Camera
-		    maxScansPerSecond: 25           // Scan faster
+		    maxScansPerSecond: 30,  // Maximize frame rate
+                    inversionAttempts: 'dontInvert', // Disable "Inverted" scan check.
+                    calculateScanRegion: (video) => {    // "Sniper Focus"
+                        const smallestDim = Math.min(video.videoWidth, video.videoHeight);
+                        const scanSize = Math.round(smallestDim * 0.5); // Focus on center 50% box
+
+                        return {
+                            x: Math.round((video.videoWidth - scanSize) / 2),
+                            y: Math.round((video.videoHeight - scanSize) / 2),
+                            width: scanSize,
+                            height: scanSize,
+                            downScaledWidth: scanSize,  // Prevent internal downscaling. 
+                            downScaledHeight: scanSize, // Tells engine to process pixels 1:1.
+                        };
+                    }
                 }
             );
 
@@ -2344,27 +2358,21 @@
 
                 const stream = videoElem.srcObject; // Force 4K Resolution & Focus
                 if (stream) {
-                    const track = stream.getVideoTracks()[0];
-                    
-                    // Attempt 1: Try 4K (Ultra HD)
-                    track.applyConstraints({
+                    const track = stream.getVideoTracks()[0];               
+                    track.applyConstraints({     // Try 4K (Ultra HD)
                         advanced: [{ 
                             width: 3840, height: 2160, 
                             focusMode: 'continuous' 
                         }] 
                     }).catch(err => {
                         console.log("4K not supported, trying 1080p...");
-                        // Attempt 2: Fallback to 1080p (Full HD)
-                        track.applyConstraints({
-                            advanced: [{ 
-                                width: 1920, height: 1080, 
-                                focusMode: 'continuous' 
-                            }] 
+                        track.applyConstraints({  // Fallback to 1080p (Full HD)
+                            advanced: [{ width: 1920, height: 1080, focusMode: 'continuous' }] 
                         });
                     });
                 }
 
-                qrScanner.hasFlash().then(hasFlash => {  // Check if flash is available on start to update UI if needed
+                qrScanner.hasFlash().then(hasFlash => {  // Check if flash is available
                      const flashBtn = document.getElementById('flash-btn');
                      if(!hasFlash) flashBtn.style.opacity = '0.3';
                 });
