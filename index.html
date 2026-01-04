@@ -1615,14 +1615,6 @@
             });
         }
         
-        function updateProfitMargin(val) {
-            const num = parseFloat(val);
-            if(!isNaN(num) && num >= 0) {
-                profitMargin = num;
-                localStorage.setItem('profitMargin', profitMargin);
-            }
-        }
-
         function saveRates() {
             localStorage.setItem('jewelleryRates', JSON.stringify(rates));
             renderAddMenus(); 
@@ -2212,16 +2204,6 @@
 	    const cameraInput = document.getElementById('qr-camera-input');
             if(cameraInput) {
                 cameraInput.click();
-            } else {
-                console.error("Camera Input Element not found!"); // Fallback creation if missing
-                const newInput = document.createElement('input');
-                newInput.type = 'file';
-                newInput.accept = 'image/*';
-                newInput.capture = 'environment';
-                newInput.hidden = true;
-                newInput.onchange = handleImageScan;
-                document.body.appendChild(newInput);
-                newInput.click();
             }
 	}
 
@@ -3539,4 +3521,3 @@
 </script>
 </body>
 </html>
-
