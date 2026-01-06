@@ -699,7 +699,7 @@
                         </svg>
                     </button>
 
-                    <button onclick="toggleSettings()" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
+                    <button id="nav-settings-btn" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
                             <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.06-.94l2.03-1.58a.49.49 0 0 0 .12-.61l-1.92-3.32a.488.488 0 0 0-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 0 0-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.56-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.3-.06.61-.06.94s.02.64.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
                         </svg>
@@ -828,6 +828,10 @@
     <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col shadow-2xl border border-yellow-600">
         <div class="flex justify-between items-center p-4 border-b border-gray-700">
             <h3 class="text-lg font-bold text-white">Profit %</h3>
+	    <div class="flex items-center gap-[3px]">
+		<button onclick="resetMargins()" class="bg-red-600 hover:bg-red-700 text-white w-7 h-7 rounded-lg shadow-lg flex items-center justify-center transition-colors" title="Reset to Default Margins">
+                    <i class="fas fa-undo text-xs"></i>
+                </button>
             <button onclick="toggleMarginModal()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
         </div>
         
@@ -1446,6 +1450,48 @@
     	    pill.addEventListener('mouseleave', cancelPress);
 	}
 
+	function initSettingsLongPress() {
+	    const btn = document.getElementById('nav-settings-btn');
+            if (!btn) return;
+
+            let timer;
+            let isLongPress = false;
+
+            const start = () => {
+                isLongPress = false;
+                timer = setTimeout(() => {
+                    isLongPress = true;
+                    if (navigator.vibrate) navigator.vibrate([50, 50]);
+                    toggleMarginModal();
+                }, 5000); // 5 Seconds Trigger
+            };
+
+            const end = () => clearTimeout(timer);
+
+            const click = (e) => {
+                if (isLongPress) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                } else {
+                    toggleSettings();
+                }
+            };
+
+            // Touch Events
+            btn.addEventListener('touchstart', start, { passive: true });
+            btn.addEventListener('touchend', end);
+            btn.addEventListener('touchcancel', end);
+
+            // Mouse Events
+            btn.addEventListener('mousedown', start);
+            btn.addEventListener('mouseup', end);
+            btn.addEventListener('mouseleave', end);
+
+            // Click & Context Handling
+            btn.addEventListener('click', click);
+            btn.addEventListener('contextmenu', e => e.preventDefault());
+        }
+
 	function toggleStealthMode() {
     	    isStealthMode = !isStealthMode;
     
@@ -1475,7 +1521,8 @@
 	    initBackdropClosing();
             initCurrencyConverter();
             initPullToRefresh();
-	    initStealthMode(); 
+	    initStealthMode();
+	    initSettingsLongPress(); 
             
             // Load Profit Margin
             const storedMargins = localStorage.getItem('profitMargins');
@@ -1522,6 +1569,21 @@
 	    profitMargins[type] = num;
 	    localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
 	}
+
+	function resetMargins() {
+            if(confirm("Reset margins to default (Metal: 5%, Stone: 25%)?")) {
+                profitMargins = { metal: 5, stone: 25 };
+            
+                const mInput = document.getElementById('margin-metal-input');
+                const sInput = document.getElementById('margin-stone-input');
+            
+                if(mInput) mInput.value = 5;
+                if(sInput) sInput.value = 25;
+            
+                localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
+                showToast("Margins reset to Defaults");
+            }
+        }
 
 	function initBackdropClosing() {
 	    const modals = [
