@@ -3548,7 +3548,9 @@
 	        name: defaultName,
 	        date: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'}),
 	        total: totalVal,
-	        items: JSON.parse(JSON.stringify(items)) 
+	        items: JSON.parse(JSON.stringify(items)),
+		margins: JSON.parse(JSON.stringify(profitMargins)),
+	        discountPercent: discountData.percentage || 0
 	    };
 
 	    quotationHistory.unshift(quote);
@@ -3618,6 +3620,27 @@
 	    if(quote) {
 	        if(confirm(`Load "${quote.name}"? Current data will be replaced.`)) {
 	            items = JSON.parse(JSON.stringify(quote.items));
+		    if(quote.margins) {
+	                profitMargins = quote.margins;
+	                localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
+	                const metalInput = document.getElementById('margin-metal-input');
+	                const stoneInput = document.getElementById('margin-stone-input');
+	                if(metalInput) metalInput.value = profitMargins.metal;
+	                if(stoneInput) stoneInput.value = profitMargins.stone;
+	            }
+
+	            const savedDiscount = quote.discountPercent || 0;
+	            const discountInput = document.getElementById('calc-percent');
+
+	            if(discountInput) discountInput.value = savedDiscount;
+            
+	            discountData = {
+	                percentage: savedDiscount,
+	                amount: 0,
+	                discountedTotal: 0,
+	                active: savedDiscount > 0
+	            };
+
 	            renderCalculator();
 	            calculateTotals();
 	            toggleHistory();
