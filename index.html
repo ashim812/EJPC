@@ -939,13 +939,20 @@
 	        <div class="flex justify-between items-center p-6 border-b border-gray-700">
 		<div class="flex items-center gap-3">
 	            <h2 class="text-2xl text-white font-bold">History</h2>
-		    <button onclick="clearHistory()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-xl shadow-lg text-[10px] font-bold tracking-wider transition-transform active:scale-95 flex items-center justify-center" style="color: white !important;" title="Delete All History">
+		    <button onclick="clearHistory()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md shadow-lg text-[10px] font-bold tracking-wider transition-transform active:scale-95 flex items-center justify-center" style="color: white !important;" title="Delete All History">
                         Clear ALL
                     </button>
                 </div>
 	            <button onclick="toggleHistory()" class="text-gray-400 hover:text-white"><i class="fas fa-times text-2xl"></i></button>
 	        </div>
-        
+	    <div id="history-search-container" class="px-6 py-3 border-b border-gray-700 bg-black/20 hidden flex-none">
+                <div class="relative w-full group">
+                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs group-focus-within:text-yellow-500 transition-colors"></i>
+                    <input type="text" id="history-search-input" oninput="filterHistory()" placeholder="Search saved quotes..." 
+                        class="w-full bg-gray-900 border border-gray-600 rounded-lg pl-9 pr-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 placeholder-gray-600 transition-all shadow-inner" autocomplete="on">
+                </div>
+            </div>
+
 	        <div id="history-list" class="flex-grow overflow-y-auto p-4 custom-scroll space-y-3">
 	        </div>
             </div>
@@ -3621,23 +3628,71 @@
 	    showToast("Quotation Saved!");
 	}
 
-	function renderHistory() {
-	    const list = document.getElementById('history-list');
-	    list.innerHTML = '';
+	function filterHistory() {
+	    const input = document.getElementById('history-search-input');
+	    const term = input.value.toLowerCase().trim();
 
-	    if(quotationHistory.length === 0) {
+	    if (term === '') {
+	        renderHistoryList(quotationHistory); // Show all if empty
+	        return;
+	    }
+
+	    const filtered = quotationHistory.filter(q => {
+	        if ((q.name && q.name.toLowerCase().includes(term)) ||	        // A. Search Top-Level Info (Name, Date, Total)
+	            (q.date && q.date.toLowerCase().includes(term)) ||
+	            (String(q.total).includes(term))) {
+	            return true;
+	        }
+
+	        if (q.items && q.items.length > 0) {	        // B. Search Inside Items (e.g. "Diamond", "Gold")
+	            return q.items.some(item => {
+	                // Resolve Rate Name from ID
+	                const rate = rates.find(r => r.id === item.rateId);
+	                const itemName = rate ? rate.name.toLowerCase() : '';
+	                return itemName.includes(term);
+	            });
+	        }
+	        return false;
+	    });
+
+	    renderHistoryList(filtered);
+	}
+
+	function renderHistory() {
+	    const searchContainer = document.getElementById('history-search-container');
+	    const searchInput = document.getElementById('history-search-input');
+	    const list = document.getElementById('history-list');
+
+	    if (searchInput) searchInput.value = '';	    // Clear search input on open
+
+	    if (quotationHistory.length === 0) {
+	        // Hide search if no history
+	        if (searchContainer) searchContainer.classList.add('hidden');
 	        list.innerHTML = `<div class="text-gray-500 text-center mt-10 italic text-sm">No saved quotations</div>`;
 	        return;
 	    }
 
-	    quotationHistory.forEach(q => {
+	    if (searchContainer) searchContainer.classList.remove('hidden');	    // Show search and render all items
+	    renderHistoryList(quotationHistory);
+	}
+
+	function renderHistoryList(data) {
+	    const list = document.getElementById('history-list');
+	    list.innerHTML = '';
+
+	    if (data.length === 0) {
+	        list.innerHTML = `<div class="text-gray-500 text-center mt-4 text-xs italic">No matching results found</div>`;
+	        return;
+	    }
+
+	    data.forEach(q => {
 	        const metalCount = q.items.filter(i => i.type === 'metal').length;
 	        const stoneCount = q.items.filter(i => i.type === 'stone').length;
-	        const displayName = q.name || `Quote ${q.date}`; 
+	        const displayName = q.name || `Quote ${q.date}`;
 
 	        const div = document.createElement('div');
-	        div.className = "bg-gray-800/50 quote-card border border-gray-700 p-3 rounded-xl flex items-center gap-3 hover:border-yellow-500/50 transition-colors group";
-        
+	        div.className = "bg-gray-800/50 quote-card border border-gray-700 p-3 rounded-xl flex items-center gap-3 hover:border-yellow-500/50 transition-colors group animate-[slideIn_0.2s_ease-out]";
+
 	        div.innerHTML = `
 	            <div class="flex-grow cursor-pointer" onclick="loadQuotation(${q.id})">
 	                <div class="flex justify-between items-start">
