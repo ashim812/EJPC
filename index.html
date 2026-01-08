@@ -3691,8 +3691,7 @@
 	        const displayName = q.name || `Quote ${q.date}`;
 
 	        const div = document.createElement('div');
-            // CHANGED: Reduced padding (p-3 -> p-2.5) for tighter fit
-	        div.className = "bg-gray-800/50 quote-card border border-gray-700 p-2.5 rounded-xl flex items-center gap-3 hover:border-yellow-500/50 transition-colors group animate-[slideIn_0.2s_ease-out]";
+	        div.className = "bg-gray-800/50 quote-card border border-gray-700 p-1.5 rounded-xl flex items-center gap-3 hover:border-yellow-500/50 transition-colors group animate-[slideIn_0.2s_ease-out]";
 
 	        div.innerHTML = `
 	            <div class="flex-grow cursor-pointer min-w-0" onclick="loadQuotation(${q.id})">
