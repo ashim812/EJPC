@@ -532,6 +532,22 @@
             border-color: var(--gold-primary);
         }
 
+	/* History Card Expansion Styles */
+	.history-details {
+	    max-height: 0;
+	    overflow: hidden;
+	    transition: max-height 0.3s ease-out;
+	    background: rgba(0, 0, 0, 0.2);
+	    border-radius: 8px;
+	    margin-top: 0;
+	}
+	.history-details.expanded {
+	    max-height: 500px;
+	    margin-top: 12px;
+	    padding: 12px;
+	    border-top: 1px solid rgba(255, 255, 255, 0.1);
+	}
+
         /* --- PULL TO REFRESH STYLES --- */
         #p2r-container {
             position: absolute;
@@ -3595,6 +3611,11 @@
 	    modal.classList.toggle('active');
 	    if(modal.classList.contains('active')) {
 	        renderHistory();
+	    } else {
+	        setTimeout(() => {
+	             const allDetails = document.querySelectorAll('.history-details');
+	             allDetails.forEach(el => el.classList.remove('expanded'));
+	        }, 300);
 	    }
 	}
 
@@ -3690,11 +3711,41 @@
 	        const stoneCount = q.items.filter(i => i.type === 'stone').length;
 	        const displayName = q.name || `Quote ${q.date}`;
 
+		// 1. Generate Items Detail HTML
+	        let detailsHtml = '<div class="flex flex-col gap-2 text-sm text-gray-300">';
+	        q.items.forEach(item => {
+        	     // Find rate name logic similar to calculator
+	             const rate = rates.find(r => r.id === item.rateId);
+	             const name = rate ? rate.name : 'Unknown';
+	             const unit = item.type === 'metal' ? 'g' : 'ct';
+             
+	             // Calculate cost for display (approx)
+	             const price = rate ? (rate.price || 0) : 0;
+	             const baseRate = item.type === 'stone' ? (item.manualPrice || 0) : price;
+	             const cost = item.weight * baseRate;
+
+	             detailsHtml += `
+	                <div class="flex justify-between border-b border-gray-700/50 pb-1">
+	                    <span>${name} <span class="text-[10px] text-gray-500">(${item.weight}${unit})</span></span>
+	                    <span class="font-mono text-yellow-500/80">₹${Math.round(cost)}</span>
+	                </div>`;
+	        });
+        
+	        // Add Close Button inside details
+	        detailsHtml += `
+	            <div class="pt-2 flex justify-center">
+	                <button onclick="collapseCard('details-${q.id}', event)" class="text-xs text-red-400 hover:text-white uppercase tracking-wider font-bold py-1 px-3 border border-red-900 rounded bg-red-900/20">
+	                    <i class="fas fa-chevron-up mr-1"></i> Close
+	                </button>
+	            </div>
+        	</div>`;
+
 	        const div = document.createElement('div');
-	        div.className = "bg-gray-800/50 quote-card border border-gray-700 p-1.5 rounded-xl flex items-center gap-3 hover:border-yellow-500/50 transition-colors group animate-[slideIn_0.2s_ease-out]";
+	        div.className = "bg-gray-800/50 quote-card border border-gray-700 p-1.5 rounded-xl flex flex-col hover:border-yellow-500/50 transition-colors group animate-[slideIn_0.2s_ease-out] select-none";
 
 	        div.innerHTML = `
-	            <div class="flex-grow cursor-pointer min-w-0" onclick="loadQuotation(${q.id})">
+		<div class="flex items-center gap-3 w-full">
+	            <div class="flex-grow cursor-pointer min-w-0" id="trigger-${q.id}">
                     <div class="flex justify-between items-start gap-2">
                         <div class="text-white font-bold text-base leading-tight whitespace-normal break-words flex-1 min-w-0" title="${displayName}">${displayName}</div>
                         <div class="text-yellow-500 font-mono text-sm whitespace-nowrap flex-none pt-0.5">₹${q.total}</div>
@@ -3712,9 +3763,68 @@
 	                    <i class="fas fa-trash text-xs"></i>
 	                </button>
 	            </div>
+
+		<div id="details-${q.id}" class="history-details">
+	                ${detailsHtml}
+	            </div>
 	        `;
 	        list.appendChild(div);
+		const triggerArea = document.getElementById(`trigger-${q.id}`);
+	        setupHistoryInteraction(triggerArea, q.id);
 	    });
+	}
+
+	// --- INTERACTION HELPER FUNCTIONS ---
+
+	function setupHistoryInteraction(element, id) {
+	    let timer;
+	    let isLongPress = false;
+	    const longPressDuration = 1500; // 1.5 Seconds
+	
+	    const startPress = (e) => {
+        	isLongPress = false;
+        
+	        timer = setTimeout(() => {
+        	    isLongPress = true;
+	            if (navigator.vibrate) navigator.vibrate([50]); // Feedback
+	            expandCard(`details-${id}`);
+	        }, longPressDuration);
+	    };	
+
+	    const cancelPress = () => {
+        	clearTimeout(timer);
+	    };
+
+	    const endPress = (e) => {
+	        clearTimeout(timer);
+	        if (!isLongPress) {
+	            loadQuotation(id);
+	        }
+	        isLongPress = false;
+	    };
+
+	    // Touch Events
+	    element.addEventListener('touchstart', startPress, {passive: true});
+	    element.addEventListener('touchmove', cancelPress, {passive: true});
+	    element.addEventListener('touchend', endPress);
+
+	    // Mouse Events (Desktop)
+	    element.addEventListener('mousedown', startPress);
+	    element.addEventListener('mouseleave', cancelPress);
+	    element.addEventListener('mouseup', endPress);
+	}	
+
+	function expandCard(elementId) {
+	    document.querySelectorAll('.history-details').forEach(el => el.classList.remove('expanded'));
+
+	    const el = document.getElementById(elementId);
+	    if(el) el.classList.add('expanded');
+	}
+
+	function collapseCard(elementId, event) {
+	    if(event) event.stopPropagation();
+	    const el = document.getElementById(elementId);
+	    if(el) el.classList.remove('expanded');
 	}
 
 	function editQuotationName(e, id) {
