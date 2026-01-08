@@ -960,7 +960,7 @@
 
 	<div id="quote-details-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
 	    <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-blue-500/50">
-	        <div class="flex justify-between items-center p-2 border-b border-gray-700 rounded-t-2xl">
+	        <div class="flex justify-between items-center p-4 border-b border-gray-700 rounded-t-2xl">
 	            <h3 class="text-lg font-bold text-white flex items-center gap-2">
 	                <i class="fas fa-info-circle text-blue-400"></i> Saved Quotation Details
 	            </h3>
@@ -3809,6 +3809,8 @@
 	            const cost = item.weight * price;
 	            const final = cost * (1 + margin/100);
 
+		    grossTotal += final;
+
 	            html += `
 	                <div class="flex justify-between items-center p-2 rounded">
 	                    <div class="flex flex-col">
@@ -3821,13 +3823,16 @@
 	        });
 
 	        html += `</div>`;
+
+		const discountPercent = quote.discountPercent || 0;
+	        const discountAmount = grossTotal * (discountPercent / 100);
         
 	        // Footer Totals
 	        html += `
 	            <div class="mt-4 pt-3 flex flex-col gap-1">
 	                <div class="flex justify-between text-xs text-gray-400">
 	                    <span>Discount (${quote.discountPercent || 0}%)</span>
-	                    <span>included</span>
+	                    <span class="text-orange-450">-₹${discountAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
 	                </div>
 	                 <div class="flex justify-between text-xs text-gray-400">
 	                    <span>Margins</span>
