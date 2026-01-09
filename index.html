@@ -1013,9 +1013,11 @@
 	                    <i class="far fa-image text-lg"></i>
 	                </div>
 	            </button>
-		    <button id="scan-mode-btn" onclick="toggleScanMode()" class="px-5 py-2.5 rounded-full bg-gray-900 border border-gray-700 flex items-center gap-3 transition-all active:scale-95 shadow-lg select-none">
-		        <div id="scan-mode-dot" class="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)] transition-colors"></div>
-		        <span id="scan-mode-text" class="text-[10px] font-bold text-gray-300 tracking-[0.2em] pt-0.5">SINGLE</span>
+		    <button id="scan-mode-btn" onclick="toggleScanMode()" class="w-28 py-2 rounded-full bg-gray-900 border border-gray-700 flex flex-row-reverse items-center justify-between px-2 transition-all active:scale-95 shadow-lg select-none">    
+			<div id="scan-mode-icon" class="w-8 h-8 rounded-full bg-gray-800 border border-gray-600 flex items-center justify-center text-yellow-500 shadow-[0_0_10px_rgba(234,179,8,0.5)] transition-all text-xl pb-0.5 leading-none">
+			    •
+			</div>
+			<span id="scan-mode-text" class="text-[10px] font-bold text-gray-400 tracking-widest mx-auto">SINGLE</span>
 		    </button>            
 	            <button onclick="triggerCamera()" id="camera-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Take Photo">
 	                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
@@ -2322,26 +2324,32 @@
 	function toggleScanMode() {
 	    const btn = document.getElementById('scan-mode-btn');
 	    const text = document.getElementById('scan-mode-text');
-	    const dot = document.getElementById('scan-mode-dot');
+	    const dot = document.getElementById('scan-mode-icon');
     
 	    if (scanMode === 'single') {
 	        scanMode = 'multi';
+		btn.classList.remove('flex-row-reverse');
+	        btn.classList.add('flex-row');
 	        text.innerText = 'MULTI';
-	        text.classList.replace('text-gray-300', 'text-white');
-	        dot.classList.replace('bg-yellow-500', 'bg-green-500');
-	        dot.classList.replace('shadow-[0_0_8px_rgba(234,179,8,0.8)]', 'shadow-[0_0_8px_rgba(74,222,128,0.8)]');
-	        btn.classList.replace('border-gray-700', 'border-green-900');
+	        text.classList.replace('text-gray-400', 'text-white');
+		icon.innerHTML = '⁙';
+	        icon.classList.replace('bg-yellow-500', 'text-green-500');
+	        icon.classList.replace('shadow-[0_0_10px_rgba(234,179,8,0.5)]', 'shadow-[0_0_10px_rgba(74,222,128,0.5)]');
+		icon.classList.replace('border-gray-600', 'border-green-600');
+	        btn.classList.replace('border-gray-700', 'border-green-900/50');
 	        if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
-	        showToast("Multiple Scanning Activated");
 	    } else {
 	        scanMode = 'single';
+		btn.classList.remove('flex-row');
+	        btn.classList.add('flex-row-reverse');
 	        text.innerText = 'SINGLE';
-	        text.classList.replace('text-white', 'text-gray-300');
-	        dot.classList.replace('bg-green-500', 'bg-yellow-500');
-	        dot.classList.replace('shadow-[0_0_8px_rgba(74,222,128,0.8)]', 'shadow-[0_0_8px_rgba(234,179,8,0.8)]');
-	        btn.classList.replace('border-green-900', 'border-gray-700');
+	        text.classList.replace('text-white', 'text-gray-400');
+		icon.innerHTML = '•';
+	        icon.classList.replace('bg-green-500', 'bg-yellow-500');
+	        icon.classList.replace('shadow-[0_0_10px_rgba(74,222,128,0.5)]', 'shadow-[0_0_10px_rgba(234,179,8,0.5)]');
+		icon.classList.replace('border-green-600', 'border-gray-600');
+	        btn.classList.replace('border-green-900/50', 'border-gray-700');
 	        if(navigator.vibrate) navigator.vibrate(500);
-	        showToast("Single Scanning Activated");
 	    }
 	}
                
