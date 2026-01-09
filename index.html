@@ -1013,7 +1013,10 @@
 	                    <i class="far fa-image text-lg"></i>
 	                </div>
 	            </button>
-            
+		    <button id="scan-mode-btn" onclick="toggleScanMode()" class="px-5 py-2.5 rounded-full bg-gray-900 border border-gray-700 flex items-center gap-3 transition-all active:scale-95 shadow-lg select-none">
+		        <div id="scan-mode-dot" class="w-2 h-2 rounded-full bg-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.8)] transition-colors"></div>
+		        <span id="scan-mode-text" class="text-[10px] font-bold text-gray-300 tracking-[0.2em] pt-0.5">SINGLE</span>
+		    </button>            
 	            <button onclick="triggerCamera()" id="camera-btn" class="p-3 text-white opacity-80 hover:opacity-100 transition-opacity flex flex-col items-center gap-1" title="Take Photo">
 	                <div class="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center border border-gray-600">
 	                     <i class="fas fa-camera text-lg"></i>
@@ -1348,6 +1351,7 @@
         // --- DATA MANAGEMENT ---
         let currentFetchedProduct = null;
         let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
+	let scanMode = 'single';
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1914,7 +1918,12 @@
         }
         
         function loadProductToCalculator() {
-            if (!currentFetchedProduct) return;       
+            if (!currentFetchedProduct) return;
+	    if (scanMode === 'single') {
+	         items = []; // Clear existing items
+	         renderCalculator(); // Clear UI rows
+	         calculateTotals(); // Reset totals
+	    }       
             const p = currentFetchedProduct;
             let loadedCount = 0;
 
@@ -2309,6 +2318,32 @@
                 ui.classList.add('hidden');
             }, 300);
         }
+
+	function toggleScanMode() {
+	    const btn = document.getElementById('scan-mode-btn');
+	    const text = document.getElementById('scan-mode-text');
+	    const dot = document.getElementById('scan-mode-dot');
+    
+	    if (scanMode === 'single') {
+	        scanMode = 'multi';
+	        text.innerText = 'MULTI';
+	        text.classList.replace('text-gray-300', 'text-white');
+	        dot.classList.replace('bg-yellow-500', 'bg-green-500');
+	        dot.classList.replace('shadow-[0_0_8px_rgba(234,179,8,0.8)]', 'shadow-[0_0_8px_rgba(74,222,128,0.8)]');
+	        btn.classList.replace('border-gray-700', 'border-green-900');
+	        if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
+	        showToast("Multiple Scanning Activated");
+	    } else {
+	        scanMode = 'single';
+	        text.innerText = 'SINGLE';
+	        text.classList.replace('text-white', 'text-gray-300');
+	        dot.classList.replace('bg-green-500', 'bg-yellow-500');
+	        dot.classList.replace('shadow-[0_0_8px_rgba(74,222,128,0.8)]', 'shadow-[0_0_8px_rgba(234,179,8,0.8)]');
+	        btn.classList.replace('border-green-900', 'border-gray-700');
+	        if(navigator.vibrate) navigator.vibrate(500);
+	        showToast("Single Scanning Activated");
+	    }
+	}
                
         // --- Gallery Scan & Camera Input Logic ---        
         function triggerGallery() {
