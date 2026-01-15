@@ -1349,7 +1349,7 @@
     <script>
         // --- DATA MANAGEMENT ---
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 0, stone: 25 }; // Default Profit Margin
+        let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
 	let scanMode = 'single';
 
         const DEFAULT_RATES = [
@@ -1596,17 +1596,17 @@
 	}
 
 	function resetMargins() {
-            if(confirm("Reset margins to default (Metal: 0%, Stone: 25%)?")) {
-                profitMargins = { metal: 0, stone: 25 };
+            if(confirm("Reset margins to default (Metal: 5%, Stone: 25%)?")) {
+                profitMargins = { metal: 5, stone: 25 };
             
                 const mInput = document.getElementById('margin-metal-input');
                 const sInput = document.getElementById('margin-stone-input');
             
-                if(mInput) mInput.value = 0;
+                if(mInput) mInput.value = 5;
                 if(sInput) sInput.value = 25;
             
                 localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
-                showToast("Margins reset to Defaults");
+                showToast("Margins reset to Default %");
             }
         }
 
@@ -3969,11 +3969,9 @@
             overlay.classList.remove('flex');
         }
     }
-
     // Listen for resize/orientation changes
     window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-    
+    window.addEventListener('orientationchange', checkOrientation);    
     // Initial check
     checkOrientation();
 </script>
