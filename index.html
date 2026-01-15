@@ -2817,32 +2817,27 @@
         
         // --- STONE PRICE DECODING LOGIC ---        
         function decodePrice(inputStr) {
-            // 1. Clean input
-            if(!inputStr) return 0;
+            if(!inputStr) return 0;    //Clean input
             const cleanStr = inputStr.toString().toUpperCase().trim();
 
-            // 2. Check if it's already a pure number
-            if (!isNaN(parseFloat(cleanStr)) && isFinite(cleanStr)) {
+            if (!isNaN(parseFloat(cleanStr)) && isFinite(cleanStr)) {    //Check if it's already a pure number
                 return parseFloat(cleanStr);
             }
 
-            // 3. Define Map
             const encodingMap = {'B':1, 'R':2, 'I':3, 'J':4, 'M':5, 'O':6, 'H':7, 'A':8, 'N':9, 'X':0};
-
-            // 4. Validate and Decode
             let decodedNumStr = "";
             for (let char of cleanStr) {
                 if (encodingMap.hasOwnProperty(char)) {
                     decodedNumStr += encodingMap[char];
+		} else if (char === '.') {
+                    decodedNumStr += '.';
                 } else {
-                    // Invalid character found, assume 0
                     return 0;
                 }
             }
 
-            // 5. Apply Multiplier (*1000)
-            if (decodedNumStr.length > 0) {
-                return parseInt(decodedNumStr) * 1000;
+            if (decodedNumStr.length > 0) {   //Apply Multiplier (*1000)
+                return parseFloat(decodedNumStr) * 1000;
             }
 
             return 0;
@@ -3969,9 +3964,11 @@
             overlay.classList.remove('flex');
         }
     }
+
     // Listen for resize/orientation changes
     window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);    
+    window.addEventListener('orientationchange', checkOrientation);
+    
     // Initial check
     checkOrientation();
 </script>
