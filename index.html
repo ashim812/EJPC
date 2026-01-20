@@ -923,11 +923,17 @@
                         <span id="conv-status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
                         <span id="conv-updated">Fetching...</span>
                     </div>
+		
+		    <div class="flex items-center gap-3">
+		        <button id="btn-currency-toggle" onclick="toggleCurrencyAdd()" class="px-3 py-1 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center transition-all active:scale-90 shadow-lg select-none h-9">
+		            <span id="currency-toggle-text" class="text-[10px] font-bold text-gray-300 tracking-widest">ADD</span>
+		        </button>
                     
                     <button id="conv-refresh" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
                         Rates <i class="fas fa-sync-alt"></i>
                     </button>
                 </div>
+		</div>
 
             </div>
         </div>
@@ -1406,7 +1412,10 @@
         let storedRates = JSON.parse(localStorage.getItem('jewelleryRates'));
         
         let rates = (storedRates && storedRates.length > 0) ? storedRates : JSON.parse(JSON.stringify(DEFAULT_RATES));
-        let items = []; 
+        let items = [];
+	let currencyAddActive = false;
+	let globalExchangeRate = 0;
+	let globalTargetCode = 'USD';
 
         // --- THEME LOGIC ---
         function initTheme() {
@@ -2471,6 +2480,8 @@
                     
                     if(rate) {
                         rateINRtoTarget = rate;
+			globalExchangeRate = rate;
+                        globalTargetCode = targetCurrency;
                         const symbol = currencySymbols[targetCurrency] || targetCurrency;
 
                         // Calculate reverse rate for 1 Target = X INR
@@ -3197,6 +3208,20 @@
             summaryState.taxSplit = !summaryState.taxSplit;
             generateSummary();
         }
+
+	function toggleCurrencyAdd() {
+	    currencyAddActive = !currencyAddActive;    
+	    const btn = document.getElementById('btn-currency-toggle');
+	    const text = document.getElementById('currency-toggle-text');
+    
+	    if (currencyAddActive) {
+	        text.innerText = 'REMOVE';
+	        if(navigator.vibrate) navigator.vibrate(100);
+	    } else {
+	        text.innerText = 'ADD';
+		if(navigator.vibrate) navigator.vibrate(30);
+	    }
+	}
         
         // --- COPY SETTINGS FUNCTIONS ---
         function toggleCopyOption(option) {
@@ -3413,6 +3438,20 @@
                 <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
             </div>
             `;
+
+	// Currency Row
+            if (currencyAddActive && globalExchangeRate > 0) {
+                const convertedAmt = runningTotal * globalExchangeRate;
+                
+                html += `
+                <div class="invoice-row">
+                    <div class="flex items-center gap-2">
+                        <span class="text-gray-400 text-sm">Est. in ${globalTargetCode}</span>
+                    </div>
+                    <span class="invoice-val text-gray-300">${convertedAmt.toLocaleString('en-US', {style: 'currency', currency: globalTargetCode}).replace(/([^\d\s])(\d)/, '$1 $2')}</span>
+                </div>
+                `;
+            }
             container.innerHTML = html;
         }
 
