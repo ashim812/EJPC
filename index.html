@@ -997,7 +997,7 @@
 	        <button onclick="closeQRScanner()" class="text-white p-2 w-10 h-10 flex items-center justify-center rounded-full hover:bg-white/10 transition">
 	            <i class="fas fa-times text-lg"></i>
 	        </button>
-	        <h2 class="text-white font-medium tracking-wide">Fetch Product Info</h2>
+	        <h2 class="text-white font-medium tracking-wide">Scan QR/ProdCode Info</h2>
 	        <div class="w-10"></div> 
 	    </div>
         
@@ -1007,15 +1007,15 @@
 	                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block">Search Inventory</label>
 	                    <div class="flex flex-col gap-3">
 	                        <input type="text" id="manual-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-lg text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
-        	                <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide">FETCH PRODUCT DETAILS</button>
+        	                <button onclick="submitManualCode()" class="w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide" style="color: white !important;">FETCH PRODUCT DETAILS</button>
 	                    </div>
 	                </div>
 	                <div class="w-full h-px bg-gray-800 border-t border-gray-700 border-dashed"></div>
 	                <div>
-	                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block text-red-400">Search Sold Items</label>
+	                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block text-red-400" style="color: red !important;">Search Sold Items</label>
 	                    <div class="flex flex-col gap-3">
 	                        <input type="text" id="sold-code-input" class="w-full bg-gray-800 border border-gray-700 rounded-xl p-3 text-lg text-white text-center focus:border-red-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
-	                        <button onclick="submitSoldCode()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide">FETCH SOLD ITEM DETAILS</button>
+	                        <button onclick="submitSoldCode()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide" style="color: white !important;">FETCH SOLD ITEM DETAILS</button>
 	                    </div>
 	                </div>
 	            </div>
