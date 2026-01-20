@@ -452,6 +452,15 @@
             display: inline-flex;
             align-items: center;
         }
+
+	@keyframes blink-full {
+	    0%, 100% { opacity: 1; }
+	    50% { opacity: 0; }
+	}
+
+	.blink-active {
+	    animation: blink-full 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+	}
         
         /* Navigation Button Styles */
         .nav-btn { 
@@ -2490,7 +2499,7 @@
                         
                         updatedEl.textContent = 'LIVE';
                         statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
-			statusDot.classList.add('animate-pulse');
+			statusDot.classList.add('blink-active');
                         updateConv('INR');
                     }
                 } catch(e) {
