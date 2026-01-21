@@ -1070,10 +1070,10 @@
 			</button>
 
                         <div class="flex items-center gap-4">
-			     <button id="summary-settings-btn" onclick="toggleCopySettings()" class="text-gray-500 hover:text-white transition-colors" title="Share Settings">
+			     <button id="summary-settings-btn" onclick="toggleShareSettings()" class="text-gray-500 hover:text-white transition-colors" title="Share Settings">
                                 <i class="fas fa-cog text-xs"></i>
                              </button>
-                             <button onclick="copySummary()" class="text-blue-400 hover:text-blue-200 text-lg font-bold flex items-center gap-2 transition-colors" title="Share">
+                             <button onclick="shareSummary()" class="text-blue-400 hover:text-blue-200 text-lg font-bold flex items-center gap-2 transition-colors" title="Share">
                                 <i class="fas fa-share-from-square"></i>
                              </button>
                         </div>
@@ -1102,40 +1102,40 @@
         </div>
 
         <div class="flex justify-center gap-8 mt-1">
-             <button onclick="rejectName()" class="w-12 h-12 rounded-full border border-red-500/30 text-red-500 bg-red-500/5 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xl shadow-lg active:scale-90" title="Copy without Name">
+             <button onclick="rejectName()" class="w-12 h-12 rounded-full border border-red-500/30 text-red-500 bg-red-500/5 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xl shadow-lg active:scale-90" title="Share without Name">
                 <i class="fas fa-times"></i>
             </button>
-             <button onclick="confirmName()" class="w-12 h-12 rounded-full border border-green-500/30 text-green-500 bg-green-500/5 hover:bg-green-500 hover:text-white transition-all flex items-center justify-center text-xl shadow-lg active:scale-90" title="Add Name & Copy">
+             <button onclick="confirmName()" class="w-12 h-12 rounded-full border border-green-500/30 text-green-500 bg-green-500/5 hover:bg-green-500 hover:text-white transition-all flex items-center justify-center text-xl shadow-lg active:scale-90" title="Add Name & Share">
                 <i class="fas fa-check"></i>
             </button>
         </div>
     </div>
 </div>
     
-    <div id="copy-settings-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
+    <div id="share-settings-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col shadow-2xl border border-gray-700">
             <div class="flex justify-between items-center p-4 border-b border-gray-700">
-                <h3 class="text-lg font-bold text-white">Copy Settings</h3>
-                <button onclick="toggleCopySettings()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
+                <h3 class="text-lg font-bold text-white">Share Settings</h3>
+                <button onclick="toggleShareSettings()" class="text-gray-400 hover:text-white"><i class="fas fa-times"></i></button>
             </div>
             
             <div class="p-6 flex flex-col gap-4 items-center">
                 
                 <div class="flex items-center justify-center gap-3 w-full">
-                    <button onclick="toggleCopyOption('discount')" id="btn-copy-discount" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
+                    <button onclick="toggleShareOption('discount')" id="btn-share-discount" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
                         <span class="text-xs font-bold uppercase">Discount</span>
                     </button>
 
-                    <button onclick="toggleCopyOption('tax')" id="btn-copy-tax" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
+                    <button onclick="toggleShareOption('tax')" id="btn-share-tax" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
                         <span class="text-xs font-bold uppercase">Tax</span>
                     </button>
 
-                    <button onclick="toggleCopyOption('roundOff')" id="btn-copy-round" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
+                    <button onclick="toggleShareOption('roundOff')" id="btn-share-round" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
                         <span class="text-xs font-bold uppercase">Round Off</span>
                     </button>
                 </div>
 
-                <button onclick="toggleAllCopyOptions()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black py-3 rounded-xl text-sm font-bold tracking-wider transition-colors shadow-lg uppercase">
+                <button onclick="toggleAllShareOptions()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black py-3 rounded-xl text-sm font-bold tracking-wider transition-colors shadow-lg uppercase">
                     Select All
                 </button>
             </div>
@@ -1420,8 +1420,8 @@
             roundRowHidden: true
         };
         
-        // Copy Settings State
-        let copyOptions = {
+        // Share Settings State
+        let shareOptions = {
             discount: false,
             tax: false,
             roundOff: false
@@ -1589,7 +1589,7 @@
             renderCalculator();
             renderSettings();
             renderAddMenus();
-            renderCopySettings(); // Init checkbox states
+            renderShareSettings();
 
             // --- AUTO SYNC RATES: Every 1 Hour ---
             setInterval(() => {
@@ -1643,7 +1643,7 @@
 	        { id: 'discount-modal', close: toggleDiscount },
 	        { id: 'currency-modal', close: toggleCurrency },
 	        { id: 'product-modal', close: closeProductModal },
-	        { id: 'copy-settings-modal', close: toggleCopySettings },
+	        { id: 'share-settings-modal', close: toggleShareSettings },
 	        { id: 'name-popup', close: closeNamePopup },
 		{ id: 'history-modal', close: toggleHistory },
 		{ id: 'quote-details-modal', close: closeQuoteDetails },
@@ -1777,12 +1777,11 @@
         function toggleSettings() { if(toggleModal('settings-modal')) renderSettings(); }
         function toggleSummary() { if(toggleModal('summary-modal')) generateSummary(); }
         
-        // New Toggle for Copy Settings
-        function toggleCopySettings() {
-             const modal = document.getElementById('copy-settings-modal');
+        function toggleShareSettings() {
+             const modal = document.getElementById('share-settings-modal');
              modal.classList.toggle('active');
              if(modal.classList.contains('active')) {
-                 renderCopySettings();
+                 renderShareSettings();
              }
         }
         
@@ -3188,7 +3187,7 @@
             }
         }
 
-        // --- SUMMARY & COPY LOGIC ---
+        // --- SUMMARY & SHARE LOGIC ---
         function toggleSummary() {
             const modal = document.getElementById('summary-modal');
             modal.classList.toggle('active');
@@ -3235,25 +3234,25 @@
 	    generateSummary();
 	}
         
-        // --- COPY SETTINGS FUNCTIONS ---
-        function toggleCopyOption(option) {
-            copyOptions[option] = !copyOptions[option];
-            renderCopySettings();
+        // --- SHARE SETTINGS FUNCTIONS ---
+        function toggleShareOption(option) {
+            shareOptions[option] = !shareOptions[option];
+            renderShareSettings();
         }
         
-        function toggleAllCopyOptions() {
-            const allTrue = copyOptions.discount && copyOptions.tax && copyOptions.roundOff;   // Check if all individual options are currently true
+        function toggleAllShareOptions() {
+            const allTrue = shareOptions.discount && shareOptions.tax && shareOptions.roundOff;   // Check if all individual options are currently true
             
             // Toggle to opposite
             const newState = !allTrue;
-            copyOptions.discount = newState;
-            copyOptions.tax = newState;
-            copyOptions.roundOff = newState;
+            shareOptions.discount = newState;
+            shareOptions.tax = newState;
+            shareOptions.roundOff = newState;
             
-            renderCopySettings();
+            renderShareSettings();
         }
         
-        function renderCopySettings() {
+        function renderShareSettings() {
             const updateBtn = (id, active) => {    // Update Buttons State
                 const btn = document.getElementById(id);
                 if(active) {
@@ -3265,9 +3264,9 @@
                 }
             };
 
-            updateBtn('btn-copy-discount', copyOptions.discount);
-            updateBtn('btn-copy-tax', copyOptions.tax);
-            updateBtn('btn-copy-round', copyOptions.roundOff);
+            updateBtn('btn-share-discount', shareOptions.discount);
+            updateBtn('btn-share-tax', shareOptions.tax);
+            updateBtn('btn-share-round', shareOptions.roundOff);
         }
 
         function generateSummary() {
@@ -3480,9 +3479,9 @@
 	    }
         }
 
-	let tempCopyString = "";
+	let tempShareString = "";
 
-        function copySummary() {
+        function shareSummary() {
             let text = "";
             let total = 0;
             let grossWeight = 0;
@@ -3521,7 +3520,7 @@
                 const amountSaved = runningTotal * (discountData.percentage / 100);   // Calc discount relative to running total (inclusive of margin)
                 const discountedTotal = runningTotal - amountSaved;
                 
-                if(copyOptions.discount) {
+                if(shareOptions.discount) {
                     text += `Discount (${discountData.percentage}%) : - ₹${amountSaved.toLocaleString('en-IN', {maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal = discountedTotal;
@@ -3529,7 +3528,7 @@
 
             if(summaryState.tax) {
                 const tax = runningTotal * 0.03;
-                if(copyOptions.tax) {
+                if(shareOptions.tax) {
                     text += `GST (3%) : + ₹${tax.toLocaleString('en-IN', {maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal += tax;
@@ -3539,8 +3538,8 @@
                 const m = summaryState.roundOffMode;
                 const rounded = Math.round(runningTotal / m) * m;
                 
-                // Only add the Round Off line if the row is visible AND user opted to copy it
-                if (!summaryState.roundRowHidden && copyOptions.roundOff) {
+                // Only add the Round Off line if the row is visible AND user opted to share it
+                if (!summaryState.roundRowHidden && shareOptions.roundOff) {
                     const diff = rounded - runningTotal;
                     const sign = diff >= 0 ? '+' : '';
                     text += `Round Off : ${sign}₹${diff.toFixed(2)}\n`;
@@ -3552,7 +3551,7 @@
             text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
 
 	// Store text and Open Name Modal
-        tempCopyString = text;
+        tempShareString = text;
         openNamePopup();
     	}
 
@@ -3578,21 +3577,22 @@
     function confirmName() {
         const input = document.getElementById('popup-item-name');
         const name = input.value.trim();
+
+	let shareTitle = "EJPC Sharing";
+        let finalString = tempShareString;
         
         if (name) {
             saveNameHistory(name);
-            // Add Name to the TOP of the text
-            const finalText = `${name}\n${tempCopyString}`;
-            finalizeCopyToClipboard(finalText);
-        } else {
-            // If empty, just copy the original text
-            finalizeCopyToClipboard(tempCopyString);
+            finalText = `${name}\n${tempShareString}`;  // Add Name to the TOP of the text
+            finalizeShare(finalText, name);
+        } else {            
+            finalizeShare(tempShareString, "EJPC Sharing");// If empty, just share the original title
         }
-        closeNamePopup();
+	closeNamePopup();
     }
 
-    function rejectName() {        // 'X' clicked: Copy text WITHOUT the name
-        finalizeCopyToClipboard(tempCopyString);
+    function rejectName() {
+        finalizeShare(tempShareString, "EJPC Sharing");
         closeNamePopup();
     }
 
@@ -3615,74 +3615,21 @@
         list.innerHTML = history.map(h => `<option value="${h}">`).join('');
     }
 
-    // --- Final Copy Helper ---
-    async function finalizeCopyToClipboard(str) {
-        // 1. Try Modern Async API
-        if (navigator.clipboard && navigator.clipboard.writeText) {
+    // --- Final Share Helper ---
+    async function finalizeShare(text, shareTitle) {
+	if (navigator.share) {
             try {
-                await navigator.clipboard.writeText(str);
-                showSuccessFeedback();
-		if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: 'EJPC Quotation',
-                            text: str
-                        });
-                    } catch (err) {
-                        if (err.name !== 'AbortError') console.error('Share failed:', err);
-                    }
-                }
-                return;
+                await navigator.share({
+                    title: sharetitle,
+                    text: text
+                });
+                showToast("Shared Successfully!"); 
             } catch (err) {
-                console.warn("Clipboard API failed, switching to fallback...", err);
+                if (err.name !== 'AbortError') console.error('Share failed:', err);
             }
+        } else {
+            showToast("Sharing not supported on this device");
         }
-
-        // Fallback: robust 'TextArea Hack'
-        const textArea = document.createElement("textarea");
-        textArea.value = str;
-        textArea.style.position = "fixed"; 
-        textArea.style.bottom = "0";
-        textArea.style.right = "0";
-        textArea.style.width = "2rem";
-        textArea.style.height = "2rem";
-        textArea.style.padding = "0";
-        textArea.style.border = "none";
-        textArea.style.outline = "none";
-        textArea.style.boxShadow = "none";
-        textArea.style.background = "transparent";
-        textArea.style.opacity = "0";
-        textArea.contentEditable = "true"; 
-        textArea.readOnly = false; 
-
-        document.body.appendChild(textArea);
-        
-        textArea.focus();
-        textArea.select();
-        textArea.setSelectionRange(0, 999999); 
-
-        try {
-            const successful = document.execCommand('copy');
-            if(successful) {
-                showSuccessFeedback();
-		if (navigator.share) {
-                    try {
-                        await navigator.share({
-                            title: 'EJPC Quotation',
-                            text: str
-                        });
-                    } catch (err) {
-                         if (err.name !== 'AbortError') console.error('Share failed:', err);
-                    }
-                }
-            } else {
-                showToast("Copy failed (Browser restriction)");
-            }
-        } catch (err) {
-            showToast("Failed to copy text");
-        }
-        
-        document.body.removeChild(textArea);
     }
 
         function showToast(msg) {
