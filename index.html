@@ -3577,22 +3577,19 @@
     function confirmName() {
         const input = document.getElementById('popup-item-name');
         const name = input.value.trim();
-
-	let shareTitle = "EJPC Sharing";
-        let finalString = tempShareString;
         
         if (name) {
             saveNameHistory(name);
-            finalText = `${name}\n${tempShareString}`;  // Add Name to the TOP of the text
-            finalizeShare(finalText, name);
+            const finalText = `${name}\n${tempShareString}`;  // Add Name to the TOP of the text
+            finalizeShare(finalText);
         } else {            
-            finalizeShare(tempShareString, "EJPC Sharing");// If empty, just share the original title
+            finalizeShare(tempShareString);
         }
 	closeNamePopup();
     }
 
     function rejectName() {
-        finalizeShare(tempShareString, "EJPC Sharing");
+        finalizeShare(tempShareString);
         closeNamePopup();
     }
 
@@ -3616,12 +3613,12 @@
     }
 
     // --- Final Share Helper ---
-    async function finalizeShare(text, shareTitle) {
+    async function finalizeShare(str) {
 	if (navigator.share) {
             try {
                 await navigator.share({
-                    title: shareTitle,
-                    text: text
+                    title: 'EJPC Sharing',
+                    text: str
                 });
                 showToast("Shared Successfully!"); 
             } catch (err) {
