@@ -319,6 +319,7 @@
        
         /* Theme Toggle Switch */
         .theme-toggle {
+	    position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -674,10 +675,6 @@
                 </button>
             </div>
             <div class="flex items-center gap-2">
-                <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
-                    <div class="toggle-circle">☾</div>
-                </div>
-
                 <div class="flex items-center gap-0.5">
                     <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -761,9 +758,12 @@
 
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
-            <div class="flex justify-between items-center p-6 pb-2 border-b border-gray-700/50 flex-shrink-0">
-                <div>
-                    <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">Rates</h2>
+            <div class="flex justify-between items-center p-4 pb-0.5 border-b border-gray-700/50 flex-shrink-0">
+                <div class="flex items-center gap-4">
+                    <h2 class="text-3xl md:text-4xl text-white font-bold">Rates</h2>
+		    <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
+                    	<div class="toggle-circle">☀</div>
+                    </div>
                 </div>
                 
                 <div class="flex items-center gap-[40px]">
@@ -773,7 +773,7 @@
                 </div>
             </div>
             
-            <div class="p-6 overflow-y-auto custom-scroll flex-grow">
+            <div class="p-3 overflow-y-auto custom-scroll flex-grow">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
                     <div class="bg-gray-900 bg-opacity-40 p-4 rounded-xl border border-gray-800 flex flex-col">
                         <div class="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
@@ -1467,7 +1467,6 @@
             if (savedTheme) {
                 setTheme(savedTheme);
             } else {
-                // 2. Fallback to System Preference
                 setTheme('light');
             }
 
