@@ -1817,42 +1817,35 @@
             return total;
         }
 
-        function toggleDiscount() { 
-            // Get total using the Margin logic to match Summary Modal
-            const totalVal = calculateTotalWithMargin();
+        function toggleDiscount() {
+	    if (toggleModal('discount-modal')) {           
+	        const totalVal = calculateTotalWithMargin(); // Get total using the Margin logic to match Summary Modal
             
-            if(!isNaN(totalVal) && totalVal > 0) {
-                document.getElementById('calc-original').value = totalVal.toFixed(2);
-                // Auto calculate with existing percentage (or 0)
-                runDiscountCalc();
+        	if(!isNaN(totalVal) && totalVal > 0) {
+	            document.getElementById('calc-original').value = totalVal.toFixed(2);               
+	            runDiscountCalc(); // Auto calculate with existing percentage (or 0)
+        	}
+	    } else {            
+                generateSummary();
             }
-
-            toggleModal('discount-modal'); 
         }
 
         function toggleCurrency() { 
-            if(toggleModal('currency-modal')) {
-                // Pre-fill Logic: Calculate current Total (with discount/tax/rounding/margin)
-                
-                // 1. Get Base Total with Margin
-                let runningTotal = calculateTotalWithMargin();
-                
-                // 2. Discount
-                if(discountData.active) {
-                    // Recalculate discount based on current margin-inclusive total
-                    const amountSaved = runningTotal * (discountData.percentage / 100);
+            if(toggleModal('currency-modal')) {    // Pre-fill Logic: Calculate current Total (with discount/tax/rounding/margin)                
+                let runningTotal = calculateTotalWithMargin();    // Get Base Total with Margin      
+
+                if(discountData.active) {	// Discount
+                    const amountSaved = runningTotal * (discountData.percentage / 100);  // Recalculate discount based on current margin-inclusive total
                     runningTotal = runningTotal - amountSaved;
-                }
-                
-                // 3. Tax
+                }                
+            
                 if(summaryState.tax) {
-                    runningTotal += (runningTotal * 0.03);
+                    runningTotal += (runningTotal * (typeof taxConfig !== 'undefined' ? taxConfig.rate/100 : 0.03));    // Tax
                 }
 
-                // 4. Round Off
                 if(summaryState.roundOffMode > 0) {
                     const m = summaryState.roundOffMode;
-                    runningTotal = Math.round(runningTotal / m) * m;
+                    runningTotal = Math.round(runningTotal / m) * m;    // Round Off
                 }
 
                 const convInr = document.getElementById('conv-inr');
@@ -1860,6 +1853,8 @@
                     convInr.value = runningTotal.toFixed(2);
                     convInr.dispatchEvent(new Event('input'));
                 }
+	    } else {
+                generateSummary();
             }
         }
 
@@ -3609,7 +3604,7 @@
             }
 
             if(summaryState.tax) {
-                const tax = runningTotal * 0.03;
+                const tax = runningTotal * (typeof taxConfig !== 'undefined' ? taxConfig.rate/100 : 0.03);
                 if(shareOptions.tax) {
                     text += `GST (3%) : + ₹${tax.toLocaleString('en-IN', {maximumFractionDigits: 2})}\n`;
                 }
