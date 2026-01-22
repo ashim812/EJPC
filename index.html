@@ -3457,9 +3457,7 @@
 	            <span class="invoice-val text-yellow-500">+₹${taxAmount.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
 	        </div>
                 `;
-                }
-
-                runningTotal += taxAmount;
+                 runningTotal += taxAmount;
             } else {
                 // Disabled Tax Row
                 html += `
