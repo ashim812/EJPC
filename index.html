@@ -47,7 +47,6 @@
             --bg-gradient-2: #000000;
             --icon-color: #d1d5db; /* gray-300 default */
             --safe-top: env(safe-area-inset-top, 0px);
-            --safe-bottom: env(safe-area-inset-bottom, 0px);
         }
 
         body.light {
@@ -653,10 +652,9 @@
         </div>
     </div>
 
-    <nav class="flex-none h-16 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
-        <div class="w-full h-full px-4 flex justify-between items-center">
-            <div class="flex items-center gap-2">
-		<h1 class="text-2xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
+    <nav class="flex-none h-12 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
+        <div class="w-full h-full px-3 flex justify-between items-center">
+            <div class="flex items-center gap-4">		
                 <button onclick="openQRScanner()" class="nav-btn hover-red p-2 rounded-full" title="Scan QR">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Corners -->
@@ -668,14 +666,17 @@
                         <rect x="7" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
                         <rect x="14" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
                         <rect x="7" y="14" width="3" height="3" rx="0.5" stroke-width="2"></rect>
-                        <!-- BR Pattern Detail -->
                         <path d="M14.5 14.5h.5v.5h-.5z" stroke-width="2.5"></path>
                         <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
                     </svg>
                 </button>
+		<button onclick="toggleHistory()" class="nav-btn hover-purple p-2 rounded-full" title="Quotation History">
+                    <i class="fas fa-clock-rotate-left text-2xl"></i>
+                </button> 
             </div>
+	    <h1 class="text-2xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
             <div class="flex items-center gap-3">
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -685,11 +686,6 @@
 			    <line x1="8" y1="11.5" x2="16" y2="11.5"></line> == $0
                         </svg>
                     </button>
-		
-		    <button onclick="toggleHistory()" class="nav-btn hover-purple p-2 rounded-full" title="Quote History">
-                        <i class="fas fa-clock-rotate-left text-2xl"></i>
-                    </button>    
-
                     <button id="nav-settings-btn" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
                         <i class="fas fa-gear text-2xl"></i>
                     </button>
@@ -698,7 +694,7 @@
         </div>
     </nav>
 
-    <main id="app-main" class="flex-grow flex flex-col p-2 gap-2 overflow-hidden w-full relative transition-transform duration-100 ease-out">
+    <main id="app-main" class="flex-grow flex flex-col p-1 gap-2 overflow-hidden w-full relative transition-transform duration-100 ease-out">
         
         <div class="flex-none grid grid-cols-2 gap-2 w-full">
 		<div onclick="togglePrivacy()" class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group cursor-pointer">
@@ -760,8 +756,8 @@
 
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
-            <div class="flex justify-between items-center p-4 pb-0.5 border-b border-gray-700/50 flex-shrink-0">
-                <div class="flex items-center gap-4">
+            <div class="flex justify-between items-center p-4 pt-3 pb-1 border-b border-gray-700/50 flex-shrink-0">
+                <div class="flex items-center gap-5">
                     <h2 class="text-3xl md:text-4xl text-white font-bold">Rates</h2>
 		    <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
                     	<div class="toggle-circle">☀</div>
@@ -930,8 +926,8 @@
     <!--PRICE QUOTATION HISTORY-->    
 	<div id="history-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
 	    <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border border-gray-700">
-	        <div class="flex justify-between items-center pt-3 pb-1 pl-3 pr-3 border-gray-700">
-		<div class="flex items-center gap-3">
+	        <div class="flex justify-between items-center p-3 pb-0.5 border-gray-700">
+		<div class="flex items-center gap-5">
 	            <h2 class="text-2xl text-white font-bold">History</h2>
 		    <button onclick="clearHistory()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md shadow-lg text-[10px] font-bold tracking-wider transition-transform active:scale-95 flex items-center justify-center" style="color: white !important;" title="Delete All History">
                         Clear ALL
@@ -1578,11 +1574,6 @@
 	}
 
         function init() {
-            if (/Android/i.test(navigator.userAgent)) {
-	        const root = document.documentElement;
-	        root.style.setProperty('--safe-top', '0px');
-	        root.style.setProperty('--safe-bottom', '0px');
-	    }
             initTheme();
 	    initBackdropClosing();
             initCurrencyConverter();
@@ -4069,4 +4060,3 @@
 </script>
 </body>
 </html>
-
