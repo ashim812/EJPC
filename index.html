@@ -3532,7 +3532,7 @@
                 text += "No item is added.\n";
             }
 
-            text += `------------------------------------------------------------\n`;            
+            text += `----------------------------------------------------------\n`;            
             text += `G.Wt. : ${grossWeight.toFixed(3)} g\n`;
             
             let runningTotal = total;
@@ -3569,6 +3569,11 @@
             }
 
             text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+
+	    if (currencyAddActive && globalExchangeRate > 0) {
+                const convertedAmt = runningTotal * globalExchangeRate;
+                text += `\nEst. in ${globalTargetCode} : ${convertedAmt.toLocaleString('en-US', {style: 'currency', currency: globalTargetCode}).replace(/([^\d\s])(\d)/, '$1 $2')}`;
+            }
 	
         tempShareString = text;
         openNamePopup(); // Store text and Open Name Modal
@@ -3598,7 +3603,7 @@
         
         if (name) {
             saveNameHistory(name);
-            const finalText = `${name}\n${tempShareString}`;  // Add Name to the TOP of the text
+            const finalText = `${name}\n\n${tempShareString}`;  // Add Name to the TOP of the text
             finalizeShare(finalText);
         } else {            
             finalizeShare(tempShareString);
