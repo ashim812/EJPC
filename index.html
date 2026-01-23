@@ -607,11 +607,10 @@
 	#popup-item-name::-webkit-calendar-picker-indicator {
 	    display: none !important;
 	}
-        /* TABLET OVERRIDE: Force full usage of screen on devices wider than 768px */
+        /* TABLET OVERRIDE
         @media (min-width: 768px) {
             :root {
                 --safe-top: 0px !important;
-                --safe-bottom: 0px !important;
             }
         }
     </style>
@@ -1178,7 +1177,6 @@
     </div> <!-- End of protected-content -->
 
     <script type="module">
-        // --- FIREBASE IMPORTS ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
@@ -1189,7 +1187,7 @@
         // USER DATABASE URL - PASTE YOUR AUTHENTICATION SHEET CSV URL HERE
         const USERS_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=0&single=true&output=csv"; 
 
-        // --- THE VAULT (Secure Storage) ---
+        // VAULT
         let secureAppHTML = ""; 
         const vault = document.getElementById('protected-content');
         if (vault) {
@@ -1198,7 +1196,7 @@
             console.log("App secured in vault.");
         }
 
-        // --- HELPER: PARSE CSV ---
+        // PARSE CSV HELPER
         function parseUsersCSV(csvText) {
             const lines = csvText.trim().split(/\r\n|\n/);
             const emails = [];
@@ -1213,10 +1211,10 @@
             return emails;
         }
 
-	// --- ASYNC INITIALIZATION ---
+	// ASYNC INITIALIZATION
         (async function startSystem() {
             try {
-                // --- 1. FETCH API KEY (With Proxy Fallback) ---
+                // FETCH API KEY
                 let keyText = "";
                 const uniqueKeyUrl = API_KEY_SHEET_URL + (API_KEY_SHEET_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
 
@@ -1253,12 +1251,12 @@
                     appId: "1:640002447814:web:4be6d2b288c539af8efac7"
                 };
 
-                // --- INITIALIZE FIREBASE ---
+                // INITIALIZE FIREBASE
                 const app = initializeApp(firebaseConfig);
                 const auth = getAuth(app);
                 const provider = new GoogleAuthProvider();
 
-                // --- LOGIN FUNCTION ---
+                // LOGIN FUNCTION
                 window.signIn = function() {
                     const btn = document.getElementById('google-login-btn');
                     const loading = document.getElementById('auth-loading');
@@ -1276,7 +1274,7 @@
                     });
                 };
 
-                // --- AUTH OBSERVER ---
+                // AUTH OBSERVER
                 onAuthStateChanged(auth, async (user) => {
                     const overlay = document.getElementById('auth-overlay');
                     const vaultElement = document.getElementById('protected-content');
@@ -1288,26 +1286,26 @@
                         status.innerHTML = "Finding Access Key...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users.</span>";
                         
                         try {
-                            // --- 2. FETCH USERBASE (With Proxy Fallback) ---
+                            // FETCH USERBASE
                             let csvText = "";
                             const uniqueUserUrl = USERS_SHEET_URL + (USERS_SHEET_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
 
                             try {
-                                // Attempt 1: Direct
+                                // Direct Attempt
                                 const response = await fetch(uniqueUserUrl);
                                 if (!response.ok) throw new Error("Direct fetch failed");
                                 csvText = await response.text();
                             } catch (directErr) {
                                 console.warn("Userbase direct fetch failed, trying proxy...", directErr);
                                 try {
-                                    // Attempt 2: CorsProxy
+                                    // CorsProxy Attempt
                                     const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUserUrl);
                                     const proxyResponse = await fetch(proxyUrl);
                                     if (!proxyResponse.ok) throw new Error("Corsproxy failed");
                                     csvText = await proxyResponse.text();
                                 } catch (proxyErr) {
                                     console.warn("Userbase corsproxy failed, trying allorigins...", proxyErr);
-                                    // Attempt 3: AllOrigins
+                                    // AllOrigins Attempt 
                                     const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUserUrl);
                                     const backupResponse = await fetch(backupProxy);
                                     if (!backupResponse.ok) throw new Error("All proxies failed");
@@ -1318,10 +1316,9 @@
                             const allowedEmails = parseUsersCSV(csvText);                    
                             const userEmail = user.email.toLowerCase().trim();
                             
-                            if (allowedEmails.includes(userEmail)) {
-                                // SUCCESS: ACCESS GRANTED
+                            if (allowedEmails.includes(userEmail)) {                                
                                 status.className = "text-green-400 text-sm font-bold mb-2";
-                                status.innerText = `Welcome ${user.displayName}`;
+                                status.innerText = `Welcome ${user.displayName}`; // SUCCESS: ACCESS GRANTED
                                 
                                 if(vaultElement && vaultElement.innerHTML === "") {
                                     vaultElement.innerHTML = secureAppHTML;                        
@@ -1348,8 +1345,7 @@
                             if(vaultElement) vaultElement.innerHTML = "";
                         }
 
-                    } else {
-                        // LOGGED OUT
+                    } else {                       
                         if (overlay) {
                             overlay.style.display = 'flex';
                             overlay.style.opacity = '1';
@@ -1357,15 +1353,14 @@
                         if (btn) btn.classList.remove('hidden');
                         if (loading) loading.classList.add('hidden');                
                         
-                        if(vaultElement) vaultElement.innerHTML = "";
+                        if(vaultElement) vaultElement.innerHTML = ""; // LOGGED OUT
                     }
                 });
-
-                // --- SECURITY WATCHDOG ---
+             
                 setInterval(() => {
                     const overlay = document.getElementById('auth-overlay');
                     const user = auth.currentUser;           
-                    if (!user) {
+                    if (!user) {   // SECURITY WATCHDOG
                         if (!overlay || overlay.style.display === 'none' || overlay.style.opacity === '0') {
                             window.location.reload();
                         }
@@ -1381,7 +1376,7 @@
     </script>
 
     <script>
-        // --- DATA MANAGEMENT ---
+        // DATA MANAGEMENT
         let currentFetchedProduct = null;
         let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
 	let scanMode = 'single';
@@ -1403,15 +1398,15 @@
             { id: 's_def_8', name: 'Moonstone', type: 'stone', price: '' }
         ];
 
-        // --- CONFIGURATION ---
-        // 1. RATES DATABASE URL - PASTE YOUR RATES SHEET CSV URL HERE
+        // CONFIGURATION
+        // RATES DATABASE URL - PASTE YOUR RATES SHEET CSV URL HERE
         const GOOGLE_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNqsuqZA8a-qejlcJWu3ad_F9_TS_1-2OwznvetGZsUWUdANQIfnkiEskSDY393MB-taoW2dHuvYNu/pub?output=csv"; 
         
-        // 2. PRODUCT DATABASE URL - PASTE YOUR INVENTORY SHEET CSV URL HERE
+        // PRODUCT DATABASE URL - PASTE YOUR INVENTORY SHEET CSV URL HERE
         // It must have columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
         const PRODUCT_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMTBu_R4YiqvjuYo_m-pi8FyKd0voRh6_RJmLnVVDcAJHjzcni6eF6InH0yULCM7jPly3-l95FSpgX/pub?gid=0&single=true&output=csv";
 
-	// 3. SOLD DATABASE URL - PASTE YOUR SOLD ITEMS SHEET CSV URL HERE
+	// SOLD DATABASE URL - PASTE YOUR SOLD ITEMS SHEET CSV URL HERE
         // It must have columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, Sold Price
 	const SOLD_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMTBu_R4YiqvjuYo_m-pi8FyKd0voRh6_RJmLnVVDcAJHjzcni6eF6InH0yULCM7jPly3-l95FSpgX/pub?gid=565644560&single=true&output=csv";
      
@@ -1427,10 +1422,9 @@
             roundOffMode: 1000, // 0: None, 1: Round Integer, 10: Round 10, 100: Round 100, 1000
             showRoundOptions: false,
             roundRowHidden: true
-        };
-        
-        // Share Addons State
-        let shareOptions = {
+        };        
+       
+        let shareOptions = { // Share Addons State
             discount: false,
             tax: false,
             roundOff: false
@@ -1444,7 +1438,7 @@
 	let globalExchangeRate = 0;
 	let globalTargetCode = 'USD';
 
-        // --- THEME LOGIC ---
+        // THEME LOGIC
         function initTheme() {
             const toggle = document.getElementById('themeToggle');
             const circle = toggle.querySelector('.toggle-circle');
@@ -1461,14 +1455,12 @@
                 localStorage.setItem('theme', mode);
             };
 
-            // Check localStorage first
             if (savedTheme) {
                 setTheme(savedTheme);
             } else {
                 setTheme('light');
             }
 
-            // Manual Toggle Handler
             toggle.addEventListener('click', () => {
                 if (document.body.classList.contains('light')) {
                     setTheme('dark');
@@ -1477,25 +1469,22 @@
                 }
             })
         }
-	// --- STEALTH LOCK ---
+	// STEALTH MODE LOCK
 	let isStealthMode = false;
 
 	function initStealthMode() {
     	    const pill = document.getElementById('summary-header-pill');
     	    let timer;
-
-    	    // Helper to start the 2-second timer
-    	    const startPress = (e) => {
-        	// Prevent default browser context menu on long press
-        	if(e.type === 'touchstart') e.stopPropagation(); 
+  
+    	    const startPress = (e) => {    // Helper to start the 2-second timer        
+        	if(e.type === 'touchstart') e.stopPropagation();  // Prevent default browser context menu on long press
         
         	timer = setTimeout(() => {
             	    toggleStealthMode();
         	}, 2000); // 2 Seconds Hold to Toggle
     	    };
-
-    	    // Helper to cancel if finger moves or releases
-    	    const cancelPress = () => {
+    	  
+    	    const cancelPress = () => {  // Helper to cancel if finger moves or releases
         	clearTimeout(timer);
     	    };
 
@@ -1574,15 +1563,18 @@
 	}
 
         function init() {
+	    if (/Android/i.test(navigator.userAgent)) {
+                const root = document.documentElement;
+                root.style.setProperty('--safe-top', '0px');
+            }
             initTheme();
 	    initBackdropClosing();
             initCurrencyConverter();
             initPullToRefresh();
 	    initStealthMode();
-	    initSettingsLongPress(); 
-            
-            // Load Profit Margin
-            const storedMargins = localStorage.getItem('profitMargins');
+	    initSettingsLongPress();             
+       
+            const storedMargins = localStorage.getItem('profitMargins');     // Load Profit Margin
 	    if (storedMargins) {
 	        try {
 	            profitMargins = JSON.parse(storedMargins);
@@ -1595,19 +1587,17 @@
             renderSettings();
             renderAddMenus();
             renderShareAddons();
-
-            // --- AUTO SYNC RATES: Every 1 Hour ---
+        
             setInterval(() => {
                 console.log("Triggering Auto-Sync for Rates...");
                 syncRates(); 
-            }, 3600000);
+            }, 3600000);    // AUTO SYNC RATES: Every Hour
         }
 
 	function toggleMarginModal() {
 	    const modal = document.getElementById('margin-modal');
 	    modal.classList.toggle('active');
-	    if (modal.classList.contains('active')) {
-	        // Load current values into inputs when opening
+	    if (modal.classList.contains('active')) {   // Load current values into inputs when opening
 	        document.getElementById('margin-metal-input').value = profitMargins.metal;
 	        document.getElementById('margin-stone-input').value = profitMargins.stone;
 	    }
@@ -1668,7 +1658,7 @@
 	    });
 	}
         
-        // --- PULL TO REFRESH LOGIC ---
+        // PULL-TO-REFRESH LOGIC
         function initPullToRefresh() {
             const body = document.body;
             const main = document.getElementById('app-main');
@@ -1679,17 +1669,15 @@
             let startY = 0;
             let currentY = 0;
             let isPulling = false;
-            const threshold = 150; // Drag distance needed
+            const threshold = 150; // Drag PULL distance
             
             body.addEventListener('touchstart', (e) => {
-                if (document.querySelector('.modal.active')) return;// Check for active modals - if any modal is active, DISABLE P2R
-		// Ignore if touching a button (prevents accidental triggers)
-        	if (e.target.closest('button, input, select, textarea, .add-chip, .rate-cube, .nav-btn, .invoice-pill, .glass-panel, .item-row, .sold-card')) {
+                if (document.querySelector('.modal.active')) return; // Check for active modals - if any modal is active, DISABLE P2R		
+        	if (e.target.closest('button, input, select, textarea, .add-chip, .rate-cube, .nav-btn, .invoice-pill, .glass-panel, .item-row, .sold-card')) {  // Ignore if touching a button (prevents accidental triggers)
 		    return;
 		}
-                if (window.scrollY === 0) {  // Only enable if at the very top of page
-                    // Check if we are inside a scrollable element that is NOT at top
-                    const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');
+                if (window.scrollY === 0) {  // Only enable if at the very top of page                 
+                    const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');   // Check if we are inside a scrollable element that is NOT at top
                     if (scrollable && scrollable.scrollTop > 0) {
                         return; // Let internal scroll happen
                     }
@@ -1704,25 +1692,22 @@
                 
                 const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');
                 if (scrollable && scrollable.scrollTop > 0) {
-                    isPulling = false; // Cancel if we started scrolling down internally
+                    isPulling = false; // Cancel if started scrolling down internally
                     return;
                 }
 
                 currentY = e.touches[0].clientY;
-                const diff = currentY - startY;
-                
-                // Only handle pull down
-                if (diff > 0) {
-                    // Resistance formula
-                    const move = Math.min(diff * 0.4, 180); 
+                const diff = currentY - startY;                
+           
+                if (diff > 0) {     // Only handle pull down                 
+                    const move = Math.min(diff * 0.4, 180); // Resistance formula
                     
-                    if (diff > 10) {                      // Visual Feedback
+                    if (diff > 10) {  // Visual Feedback
                         p2rContainer.style.opacity = '1';
                         p2rContainer.style.transform = `translateY(${move - 20}px)`; // -20 offset from CSS
-                        main.style.transform = `translateY(${move}px)`;
-                        
-                        // Rotate arrow
-                        const rotate = Math.min(diff * 2, 180);
+                        main.style.transform = `translateY(${move}px)`;                        
+                  
+                        const rotate = Math.min(diff * 2, 180);      // Rotate arrow
                         icon.style.transform = `rotate(${rotate}deg)`;
                         
                         if (diff > threshold) {
@@ -1741,27 +1726,22 @@
                 isPulling = false;
                 const diff = currentY - startY;
                 
-                if (diff > threshold) {
-                    // Trigger Refresh
+                if (diff > threshold) {   // Trigger Refresh                   
                     iconI.classList.add('fa-spin'); // Spin
                     p2rContainer.style.transform = `translateY(40px)`;
-                    main.style.transform = `translateY(60px)`;
-                    
-                    // Vibration feedback if available
-                    if (navigator.vibrate) navigator.vibrate(50);
+                    main.style.transform = `translateY(60px)`;                
+                    if (navigator.vibrate) navigator.vibrate(50);   // Vibration feedback if available
                     
                     setTimeout(() => {
                         window.location.reload();
                     }, 500);
-                } else {
-                    // Reset
-                    p2rContainer.style.opacity = '0';
+                } else {            
+                    p2rContainer.style.opacity = '0';   // Reset
                     p2rContainer.style.transform = 'translateY(-20px)';
                     main.style.transform = 'translateY(0)';
-                }
-                
-                // Reset vars
-                startY = 0;
+                }               
+              
+                startY = 0;  // Reset vars
                 currentY = 0;
             });
         }
@@ -1773,7 +1753,7 @@
             calculateTotals();
         }
 
-        // --- MODAL TOGGLES ---
+        // MODAL TOGGLES
         function toggleModal(id) {
             const modal = document.getElementById(id);
             modal.classList.toggle('active');
@@ -1850,7 +1830,7 @@
             }
         }
 
-        // --- PRODUCT DETAILS MODAL LOGIC ---
+        // PRODUCT DETAILS MODAL LOGIC
         function openProductModal(loading = true) {
             const modal = document.getElementById('product-modal');
             const content = document.getElementById('product-details-content');
@@ -1891,11 +1871,10 @@
 
             const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();     // Timestamp to prevent caching
 
-            try {
-                //Fetch CSV
+            try {              
                 let csvText = '';
                 try {
-                    const response = await fetch(uniqueUrl);
+                    const response = await fetch(uniqueUrl);  //Fetch CSV
                     if (!response.ok) throw new Error('Direct fetch failed');
                     csvText = await response.text();
                 } catch (directError) {
@@ -1913,24 +1892,20 @@
                      	csvText = await backupResponse.text();
 		    }
                 }
-
-                // 2. Parse and Find Product
-                const product = parseProductCSV(csvText, upperCode);
-
+            
+                const product = parseProductCSV(csvText, upperCode);    // Parse and Find Product
                 const actionBtn = document.getElementById('prod-action-btn');
 
                 if(product) {
                     currentFetchedProduct = product; // Store it
-                    renderProductDetails(product);
-                    // Success State
+                    renderProductDetails(product);                
                     actionBtn.innerText = "LOAD";
-                    actionBtn.onclick = loadProductToCalculator;
+                    actionBtn.onclick = loadProductToCalculator;    // Success State
                 } else {
                     document.getElementById('product-details-content').innerHTML = ""; // Clear loader
                     document.getElementById('err-prod-id').textContent = upperCode;
-                    document.getElementById('product-error').classList.remove('hidden');
-                    // Error State -> Retry
-                    actionBtn.innerText = "RETRY";
+                    document.getElementById('product-error').classList.remove('hidden');                 
+                    actionBtn.innerText = "RETRY";   // Error State -> Retry
                     actionBtn.onclick = retryScan;
                 }
 
@@ -1967,8 +1942,8 @@
                 }
             };
 
-            // 1. Load Metal
-            if (p.metal && parseFloat(p.netWt) > 0) {                // Simple heuristic: find rate where rate name contains the metal string or vice versa
+            // Load Metal
+            if (p.metal && parseFloat(p.netWt) > 0) {                // Find rate where rate name contains the metal string or vice versa
                 const normalize = s => s.toLowerCase().replace(/gold/g, '').replace(/silver/g, '').trim();// Normalizing: remove 'Gold', spaces, case insensitive
                 const pMetalClean = normalize(p.metal);      
                 const metalRate = rates.find(r => r.type === 'metal' && normalize(r.name).includes(pMetalClean));
@@ -1996,7 +1971,7 @@
                 }
             }
 
-            // 2. Load Diamond
+            // Load Diamond
             if (parseFloat(p.diaWt) > 0) {
                 const diaRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes('diamond')); // Look for "Diamond" in rates
                 if (diaRate) {
@@ -2013,12 +1988,11 @@
                 }
             }
 
-            // 3. Load Other Stone
+            // Load Stone
             if ((p.stone && p.stone !== '-') && parseFloat(p.stoneWt) > 0) {
                 let stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase())); // fuzzy match stone name
-                
-                // --- NEW: If no match found, create dynamic rate for display ---
-                if (!stoneRate) {             
+                             
+                if (!stoneRate) {    // If no match found, create dynamic rate for display            
                     stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase() === p.stone.toLowerCase());    // Check purely by name exact match now.
                     
                     if (!stoneRate) {
@@ -2069,7 +2043,7 @@
                     matches.push(val);
                     if (regex.lastIndex === match.index) regex.lastIndex++;
                 }
-                if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) matches.pop();                // Handle empty trailing comma
+                if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) matches.pop();   // Handle empty trailing comma
                 return matches;
             };
 
@@ -2123,7 +2097,7 @@
             return null;
         }
 
-	// --- SOLD ITEM LOGIC ---
+	// SOLD ITEM LOGIC
         function submitSoldCode() {
             const input = document.getElementById('sold-code-input');
             const code = input.value.trim();
@@ -2151,15 +2125,13 @@
 
             const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
 
-            try {
-                // Fetch CSV
+            try {             
                 let csvText = '';
                 try {
-                    const response = await fetch(uniqueUrl);
+                    const response = await fetch(uniqueUrl);   // Fetch CSV
                     if (!response.ok) throw new Error('Direct fetch failed');
                     csvText = await response.text();
                 } catch (directError) {
-                    // Proxy Fallback Logic
                     try {
                         const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
                         const proxyResponse = await fetch(proxyUrl);
@@ -2170,9 +2142,8 @@
                          csvText = await backupResponse.text();
                     }
                 }
-
-                // Parse
-                const product = parseSoldCSV(csvText, upperCode);
+             
+                const product = parseSoldCSV(csvText, upperCode);   // Parsing
                 const actionBtn = document.getElementById('prod-action-btn');
 
                 if(product) {
@@ -2214,10 +2185,8 @@
                 return matches;
             };
 
-            const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());
-            // Map columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, Sold Price
-            
-            const getIdx = (name) => headers.indexOf(name.toLowerCase());
+            const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());            
+            const getIdx = (name) => headers.indexOf(name.toLowerCase()); // Map columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt, Sold Price
             
             const idx = {
                 id: getIdx('prod id'),
@@ -2303,19 +2272,16 @@
                 <div>${p.sourcing ? p.sourcing : 'Sourcing'} from ${p.origin ? p.origin : 'Origin'}</div>
                 <div>Gross Weight : ${p.grossWt} g</div>                
             `;
-
-	    // Conditional Metal Row
-            if (parseFloat(p.netWt) > 0) {
+	
+            if (parseFloat(p.netWt) > 0) {    // Conditional Metal Row
                 html += `<div>${p.metal} : ${p.netWt} g</div>`;
             }
-
-            // Conditional Diamond Row
-            if (parseFloat(p.diaWt) > 0) {
+        
+            if (parseFloat(p.diaWt) > 0) {    // Conditional Diamond Row
                 html += `<div>Dia : ${p.diaWt} ct @ ₹${p.diaRate}/ct</div>`;
             }
 
-            // Conditional Stone Row
-            if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {    // If Stone Name exists but weight is 0/empty, handle accordingly
+            if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {    // Conditional Stone Row (If Stone Name exists but weight is 0/empty, handle accordingly)
                 const sName = p.stone || "Stone";
                 const sWt = p.stoneWt || "0";
                 const sRate = p.stoneRate || "0";
@@ -2325,7 +2291,7 @@
             container.innerHTML = html;
         }
         
-        // --- QR/MANUAL INTERFACE LOGIC ---        
+        // QR/MANUAL INTERFACE LOGIC       
         let qrScanner = null;
 
         function openQRScanner() {
@@ -2334,7 +2300,7 @@
             ui.classList.remove('hidden');
             requestAnimationFrame(() => {
                 ui.classList.remove('opacity-0', 'pointer-events-none');
-            }, 10);            // Small delay to allow display block to apply before opacity transition
+            }, 10);  // Small delay to allow display block to apply before opacity transition
         }
 
         function closeQRScanner() {
@@ -2364,7 +2330,7 @@
 	    }
 	}
                
-        // --- Gallery Scan & Camera Input Logic ---        
+        // Gallery Scan & Camera Scan Logic     
         function triggerGallery() {
             document.getElementById('qr-image-input').click();
         }
@@ -2411,7 +2377,7 @@
             }
         }
 
-        // --- DISCOUNT CALCULATOR LOGIC ---
+        // DISCOUNT CALCULATOR LOGIC
         function runDiscountCalc() {
             const originalPrice = parseFloat(document.getElementById('calc-original').value);
             const discountPercentage = parseFloat(document.getElementById('calc-percent').value);
@@ -2425,9 +2391,8 @@
 
             const amountSaved = originalPrice * (discountPercentage / 100);
             const discountedPrice = originalPrice - amountSaved;
-
-            // Update Global Discount Data
-            discountData = {
+        
+            discountData = {    // Update Global Discount Data
                 percentage: discountPercentage,
                 amount: amountSaved,
                 discountedTotal: discountedPrice,
@@ -2441,7 +2406,7 @@
             `;
         }
 
-        // --- CURRENCY CONVERTER LOGIC ---
+        // CURRENCY CONVERTER LOGIC
         function initCurrencyConverter() {
             const inrEl = document.getElementById('conv-inr');
             const outEl = document.getElementById('conv-out');
@@ -2500,10 +2465,8 @@
                         rateINRtoTarget = rate;
 			globalExchangeRate = rate;
                         globalTargetCode = targetCurrency;
-                        const symbol = currencySymbols[targetCurrency] || targetCurrency;
-
-                        // Calculate reverse rate for 1 Target = X INR
-                        const oneTargetToInr = 1 / rate;
+                        const symbol = currencySymbols[targetCurrency] || targetCurrency;                    
+                        const oneTargetToInr = 1 / rate;    // Calculate reverse rate for 1 Target = X INR
 
                         if(rateLabel2) rateLabel2.textContent = `1 ${symbol} = ${oneTargetToInr.toFixed(2)} INR`;
                         
@@ -2551,27 +2514,25 @@
         }
 
 
-        // --- GOOGLE SHEET SYNC LOGIC (RATES) ---
+        // SETTINGS RATES SYNC LOGIC
         async function syncRates() {
             const btn = document.getElementById('sync-btn');
             const icon = document.getElementById('sync-icon');            
 
-            let url = GOOGLE_SHEET_URL;            // Use the constant directly            
+            let url = GOOGLE_SHEET_URL;            
             if (!url) {
                 showToast("Please set GOOGLE_SHEET_CSV_URL in code");
                 return;
             }
-
-            // Cache Buster: Force new fetch by adding timestamp
-            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
-
+        
+            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();    // Cache Buster: Force new fetch by adding timestamp
             // UI Loading State
             btn.disabled = true;
             icon.classList.add('spin');
             btn.classList.add('opacity-50');
 
             try {
-                // 1. Try Direct Fetch first with cache busting
+                // Try Direct Fetch first with cache busting
                 let csvText = '';
                 try {
                     const response = await fetch(uniqueUrl);
@@ -2580,7 +2541,7 @@
                 } catch (directError) {
                     console.warn("Direct fetch failed, trying proxy...", directError);
                     
-                    // 2. Fallback to Proxy (corsproxy.io is often faster/more reliable than allorigins)
+                    // Fallback to corsproxy.io
                     try {
                         const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
                         const proxyResponse = await fetch(proxyUrl);
@@ -2588,16 +2549,15 @@
                         csvText = await proxyResponse.text();
                     } catch (proxyError) {
                          console.warn("Corsproxy failed, trying allorigins...", proxyError);
-                         // 3. Last resort fallback
+                         // Fallback to api.allorigins
                          const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUrl);
                          const backupResponse = await fetch(backupProxy);
                          if (!backupResponse.ok) throw new Error('All proxies failed');
                          csvText = await backupResponse.text();
                     }
                 }
-
-                // 4. Parse Data
-                const newRates = parseCSV(csvText);                
+         
+                const newRates = parseCSV(csvText); // Parse Data             
                 if (newRates.length > 0) {
 
                     items.forEach(item => {   // MIGRATION: Preserve item links by mapping old rate IDs to new stable IDs based on name
@@ -2721,7 +2681,7 @@
             return Array.from(uniqueMap.values());    // Convert Map values back to array
         }
 
-        // --- RENDER ADD MENUS & SORTING ---        
+        // RENDER ADD MENUS & SORTING      
         // Sorting logic for Metals: Gold > Silver > Others
         function sortMetals(a, b) {
             const nameA = a.name.toLowerCase();
@@ -2817,7 +2777,7 @@
             }
         }
 
-        // --- CALCULATOR LOGIC ---
+        // CALCULATOR LOGIC
         function addItem(type, specificRateId) {
             const id = 'item_' + Date.now() + Math.random().toString(36).substr(2, 9);
             const rateToUse = rates.find(r => r.id === specificRateId);
@@ -2845,7 +2805,7 @@
             }
         }
         
-        // --- STONE PRICE DECODING LOGIC ---        
+        // STONE PRICE DECODING LOGIC      
         function decodePrice(inputStr) {
             if(!inputStr) return 0;    //Clean input
             const cleanStr = inputStr.toString().toUpperCase().trim();
@@ -2873,7 +2833,7 @@
             return 0;
         }
 
-	// ---- Silent Inline Icon Validation ----
+	// Inline Icon Validation
 	function setIcon(input, message) {
     	    let icon = input.parentElement.querySelector('.error-icon');
             if (!icon) {
@@ -2889,7 +2849,7 @@
 	function clearIcon(input) {
     	    const icon = input.parentElement.querySelector('.error-icon');
     	    if (icon) {
-        	icon.style.color = '#6b7280'; // gray-500
+        	icon.style.color = '#6b7280';
         	icon.classList.add('fade-out');
         	setTimeout(() => icon.remove(), 150);
     	    }
@@ -2965,7 +2925,7 @@
             if (el) el.classList.toggle('revealed');
         }
 
-        // --- RENDERING ---
+        // RENDERING CALCULATOR
         function renderCalculator() {
             document.getElementById('metal-list').innerHTML = '';
             document.getElementById('stone-list').innerHTML = '';
@@ -3010,7 +2970,7 @@
 	    clearIcon(input);
 	}
 
-        // New Helper for Rounding Rate Input (Stones)
+        // Helper for Rounding Rate Input (Stones)
         function formatRateInput(id, input) {
 	    clearIcon(input);
             const item = items.find(i => i.id === id);
@@ -3095,7 +3055,7 @@
             updateRowDisplay(item);
         }
 
-        // --- SETTINGS / VAULT LOGIC ---
+        // SETTINGS LOGIC
         function toggleSettings() {
             const modal = document.getElementById('settings-modal');
             modal.classList.toggle('active');
@@ -3122,15 +3082,11 @@
             div.className = `rate-cube ${rate.type} p-3 rounded-lg flex flex-col gap-2 relative group`;
             const placeholderPrice = rate.type === 'metal' ? 'Rate/g' : 'Rate/ct';
             const isStone = rate.type === 'stone';
-            
-	    // Check if synced
-    	    const isSynced = rate.isSynced === true;
+    	    const isSynced = rate.isSynced === true;    // Check if synced
             const readOnlyAttr = isSynced ? 'readonly' : '';
             const inputClass = isSynced ? 'text-gray-400 cursor-not-allowed' : 'text-gray-100 font-bold';
-            const priceClass = isSynced ? 'text-gray-500 cursor-not-allowed' : 'text-gray-300';
-    
-    	    // Delete Button Logic: Hide if synced
-    	    const deleteBtn = isSynced ? 
+            const priceClass = isSynced ? 'text-gray-500 cursor-not-allowed' : 'text-gray-300';    	
+    	    const deleteBtn = isSynced ?     // Delete Button Logic: Hide if synced
         	`<div class="delete-btn-corner text-gray-600"><i class="fas fa-lock"></i></div>` : 
 	        `<button onclick="deleteRate('${rate.id}')" class="delete-btn-corner text-gray-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-times"></i></button>`;
 
@@ -3188,7 +3144,7 @@
             }
         }
 
-        // --- SUMMARY & SHARE LOGIC ---
+        // SUMMARY & SHARE LOGIC
         function toggleSummary() {
             const modal = document.getElementById('summary-modal');
             modal.classList.toggle('active');
@@ -3229,7 +3185,7 @@
 	    generateSummary();
 	}
         
-        // --- SHARE ADDONS FUNCTIONS ---
+        // SHARE ADDONS FUNCTIONS
         function toggleShareOption(option) {
             shareOptions[option] = !shareOptions[option];
             renderShareAddons();
@@ -3420,7 +3376,7 @@
                 `;
             }
 
-            // --- Tax Logic ---
+            // Tax Logic
             let taxAmount = 0;
 
             if (summaryState.tax) {
@@ -3451,13 +3407,12 @@
                 `;
             }
 
-            // --- Round Off Logic ---
+            // Round Off Logic
             let roundOffAmount = 0;
             let roundLabel = "Round Off";
-            let roundDiffClass = "text-gray-500";
-            
-            // Calculate if active (Calculation happens regardless of visibility)
-            if (summaryState.roundOffMode > 0) {
+            let roundDiffClass = "text-gray-500";            
+          
+            if (summaryState.roundOffMode > 0) {  // Calculate if active (Calculation happens regardless of visibility)
                 const mode = summaryState.roundOffMode;
                 const rounded = Math.round(runningTotal / mode) * mode;
                 roundOffAmount = rounded - runningTotal;
@@ -3466,13 +3421,10 @@
             }
 
             const sign = roundOffAmount >= 0 ? '+' : '';
-            const displayDiff = summaryState.roundOffMode > 0 ? `${sign}₹${roundOffAmount.toFixed(2)}` : '';
-
-            // Info Button Style
-            const infoBtnClass = summaryState.showRoundOptions ? 'text-yellow-500' : 'text-gray-400';
-            
-            // Render Row ONLY if not hidden AND not in stealth mode
-            if (!summaryState.roundRowHidden && !isStealthMode) {
+            const displayDiff = summaryState.roundOffMode > 0 ? `${sign}₹${roundOffAmount.toFixed(2)}` : '';         
+            const infoBtnClass = summaryState.showRoundOptions ? 'text-yellow-500' : 'text-gray-400';   // Info Button Style
+                
+            if (!summaryState.roundRowHidden && !isStealthMode) {      // Render Row ONLY if not hidden AND not in stealth mode
                 html += `
                 <div class="flex flex-col">
                     <div class="invoice-row items-center">
@@ -3605,10 +3557,9 @@
 
             if(summaryState.roundOffMode > 0) {
                 const m = summaryState.roundOffMode;
-                const rounded = Math.round(runningTotal / m) * m;
-                
-                // Only add the Round Off line if the row is visible AND user opted to share it
-                if (!summaryState.roundRowHidden && shareOptions.roundOff) {
+                const rounded = Math.round(runningTotal / m) * m;                
+             
+                if (!summaryState.roundRowHidden && shareOptions.roundOff) {   // Only add the Round Off line if the row is visible AND user opted to share it
                     const diff = rounded - runningTotal;
                     const sign = diff >= 0 ? '+' : '';
                     text += `Round Off : ${sign}₹${diff.toFixed(2)}\n`;
@@ -3618,14 +3569,12 @@
             }
 
             text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
-
-	// Store text and Open Name Modal
+	
         tempShareString = text;
-        openNamePopup();
+        openNamePopup(); // Store text and Open Name Modal
     	}
 
-	// --- Name Popup Functions ---
-
+	// Name Popup Functions
     function openNamePopup() {
         const modal = document.getElementById('name-popup');
         const input = document.getElementById('popup-item-name');
@@ -3662,16 +3611,12 @@
         closeNamePopup();
     }
 
-    // --- History Management (Local Storage) ---
+    // History Management (Local Storage)
     function saveNameHistory(val) {
-        let history = JSON.parse(localStorage.getItem('itemNameHistory') || "[]");
-        // Remove if exists (to move to top)
-        history = history.filter(h => h !== val);
-        // Add to top
-        history.unshift(val);
-        // Limit to last 20 items
-        if(history.length > 20) history.pop();
-        
+        let history = JSON.parse(localStorage.getItem('itemNameHistory') || "[]");     
+        history = history.filter(h => h !== val);   // Remove if exists (to move to top)    
+        history.unshift(val);    // Add to top 
+        if(history.length > 20) history.pop();       // Limit to last 20 items        
         localStorage.setItem('itemNameHistory', JSON.stringify(history));
     }
 
@@ -3681,7 +3626,7 @@
         list.innerHTML = history.map(h => `<option value="${h}">`).join('');
     }
 
-    // --- Final Share Helper ---
+    // Final Share Helper
     async function finalizeShare(str) {
 	if (navigator.share) {
             try {
@@ -3711,7 +3656,7 @@
             }, 3000);
         }
 
-	// --- QUOTATION HISTORY LOGIC ---
+	// QUOTATION HISTORY LOGIC
 	let quotationHistory = JSON.parse(localStorage.getItem('ejpc_quotations') || "[]");
 
 	function toggleHistory() {
@@ -3770,9 +3715,8 @@
 	        }
 
 	        if (q.items && q.items.length > 0) {	        // B. Search Inside Items (e.g. "Diamond", "Gold")
-	            return q.items.some(item => {
-	                // Resolve Rate Name from ID
-	                const rate = rates.find(r => r.id === item.rateId);
+	            return q.items.some(item => {	            
+	                const rate = rates.find(r => r.id === item.rateId);    // Resolve Rate Name from ID
 	                const itemName = rate ? rate.name.toLowerCase() : '';
 	                return itemName.includes(term);
 	            });
@@ -3790,8 +3734,7 @@
 
 	    if (searchInput) searchInput.value = '';	    // Clear search input on open
 
-	    if (quotationHistory.length === 0) {
-	        // Hide search if no history
+	    if (quotationHistory.length === 0) {    // Hide search if no history	    
 	        if (searchContainer) searchContainer.classList.add('hidden');
 	        list.innerHTML = `<div class="text-gray-500 text-center mt-10 italic text-sm">No saved quotations</div>`;
 	        return;
@@ -3847,15 +3790,14 @@
 	    });
 	}
 
-	// --- LONG PRESS HANDLER ---
+	// LONG PRESS HANDLER
 	    function attachLongPressLogic(element, id) {
 	        let timer;
 	        let isLongPress = false;
 	        const DURATION = 1500; // 1.5 Seconds
 
-	        const start = (e) => {
-	            // Only left click or touch
-	            if (e.type === 'mousedown' && e.button !== 0) return;
+	        const start = (e) => {	        
+	            if (e.type === 'mousedown' && e.button !== 0) return;    // Only left click or touch
             
 	            isLongPress = false;
 	            timer = setTimeout(() => {
@@ -3892,7 +3834,7 @@
 	        element.addEventListener('click', click);
 	    }
 
-	    // --- SHOW DETAILS MODAL LOGIC ---
+	    // SHOW DETAILS MODAL LOGIC
 	    function showQuoteDetails(id) {
 	        const quote = quotationHistory.find(q => q.id === id);
 	        if (!quote) return;
@@ -4034,12 +3976,9 @@
 </div>
 
 <script>
-    function checkOrientation() {
-        // Detect if device is likely a phone (width < 768px usually implies phone)
-        // AND if it is in landscape mode
-        const isPhone = window.innerWidth < 768 || window.innerHeight < 600; 
-        const isLandscape = window.innerWidth > window.innerHeight;
-        
+    function checkOrientation() {   
+        const isPhone = window.innerWidth < 768 || window.innerHeight < 600;  // Detect if device is likely a phone (width < 768px usually implies phone)
+        const isLandscape = window.innerWidth > window.innerHeight;    // AND if it is in landscape mode        
         const overlay = document.getElementById('orientation-lock');
         
         if (isPhone && isLandscape) {
@@ -4050,13 +3989,9 @@
             overlay.classList.remove('flex');
         }
     }
-
-    // Listen for resize/orientation changes
-    window.addEventListener('resize', checkOrientation);
-    window.addEventListener('orientationchange', checkOrientation);
-    
-    // Initial check
-    checkOrientation();
+    window.addEventListener('resize', checkOrientation);    // Listen for resize changes
+    window.addEventListener('orientationchange', checkOrientation);    // Listen for orientation changes
+    checkOrientation();    // Initial check
 </script>
 </body>
 </html>
