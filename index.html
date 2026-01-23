@@ -349,35 +349,8 @@
             color: #f59e0b;
             transform: rotate(360deg);
         }
-        
-        /* QR SCANNER STYLES */
-        body.light #qr-top-bar {
-            background-color: rgba(255, 255, 255, 0.9);
-            border-bottom: 1px solid rgba(0,0,0,0.1);
-        }
-        body.light #qr-top-bar h2 { color: #1f2937; }
-        body.light #qr-top-bar button { color: #374151; }
-        body.light #qr-top-bar button:hover { background-color: rgba(0,0,0,0.05); }
-
-        body.light #qr-bottom-bar {
-            background-color: #ffffff;
-            border-top: 1px solid rgba(0,0,0,0.1);
-        }
-        body.light #qr-bottom-bar button { color: #374151; }
-        
-        body.light #qr-manual-view {
-            background-color: rgba(255, 255, 255, 0.96);
-            backdrop-filter: blur(5px);
-        }
-        body.light #qr-manual-view label { color: #4b5563; }
-        body.light #qr-manual-view input {
-            background-color: #f3f4f6;
-            border-color: #d1d5db;
-            color: #111;
-        }
-        body.light #qr-manual-view input:focus { border-color: #4ade80;        
-        }
-	body.light .sold-card {
+              
+       	body.light .sold-card {
 	    background-color: #fee2e2 !important;
 	    border-color: #ef4444 !important;
 	}
@@ -654,8 +627,8 @@
     <nav class="flex-none h-12 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-3 flex justify-between items-center">
             <div class="flex items-center gap-4">		
-                <button onclick="openQRScanner()" class="nav-btn hover-red p-2 rounded-full" title="Scan QR">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <button onclick="toggleScanner()" class="nav-btn hover-red p-2 rounded-full" title="Scan QR">
+                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Corners -->
                         <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
                         <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
@@ -964,21 +937,19 @@
 	</div>
 
     	<!-- QR SCANNER MODAL -->
-	<div id="qr-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4 transition-opacity duration-300 opacity-0 pointer-events-none hidden">        
+	<div id="qr-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4 transition-opacity duration-300 opacity-0 pointer-events-none">        
         <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
         <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
 
-        <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden relative">
-            
-            <div class="flex-none flex items-center justify-between p-4 border-b border-gray-700 bg-black/10">
-                <h2 class="text-xl text-[var(--text-main)] font-bold tracking-wide">Scan QR / Enter Code</h2>
-                <button onclick="closeQRScanner()" class="text-gray-400 hover:text-red-500 w-8 h-8 flex items-center justify-center rounded-full transition-colors">
-                    <i class="fas fa-times text-xl"></i>
+        <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden relative">            
+            <div class="flex-none flex items-center justify-between px-4 pt-3">
+                <h2 class="text-2xl text-[var(--text-main)] font-bold tracking-wide">Scan QR / Enter Code</h2>
+                <button onclick="toggleScanner()" class="text-gray-400 hover:text-red-500 w-8 h-8 flex items-center justify-center rounded-full transition-colors">
+                    <i class="fas fa-times text-2xl"></i>
                 </button> 
             </div>
             
-            <div class="flex-grow flex flex-col items-center justify-center p-6 gap-6 overflow-y-auto custom-scroll">
-                
+            <div class="flex-grow flex flex-col items-center justify-center p-4 gap-5 overflow-y-auto custom-scroll">                
                 <div class="w-full">
                     <label class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 block">Search Inventory</label>
                     <div class="flex flex-col gap-3">
@@ -1003,21 +974,21 @@
 
             </div>
         
-            <div class="flex-none p-4 border-t border-gray-700 bg-black/20 flex items-center justify-around">
+            <div class="flex-none p-6 pt-2 flex items-center justify-around">
                 
                 <button onclick="triggerGallery()" class="flex flex-col items-center gap-1 group" title="Scan from Gallery">
-                    <div class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-700 flex items-center justify-center transition-all shadow-lg">
-                        <i class="far fa-image text-lg text-white"></i>
+                    <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-700 flex items-center justify-center transition-all shadow-lg">
+                        <i class="far fa-image text-lg"></i>
                     </div>
                 </button>
 
-                <button id="scan-mode-btn" onclick="toggleScanMode()" class="px-3 py-1 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center transition-all active:scale-95 shadow-lg select-none hover:border-gray-500">
-                    <span id="scan-mode-text" class="text-[10px] font-bold text-gray-300 tracking-wider">SINGLE</span>
+                <button id="scan-mode-btn" onclick="toggleScanMode()" class="px-2 py-0.5 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center transition-all active:scale-95 shadow-lg select-none hover:border-gray-500">
+                    <span id="scan-mode-text" class="text-[10px] font-bold text-white tracking-wider">SINGLE</span>
                 </button>            
 
-                <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Scan from Photo">
-                    <div class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-700 flex items-center justify-center transition-all shadow-lg">
-                         <i class="fas fa-camera text-lg text-white"></i>
+                <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Scan with Camera">
+                    <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-700 flex items-center justify-center transition-all shadow-lg">
+                         <i class="fas fa-camera text-lg"></i>
                     </div>
                 </button>
 
@@ -1028,8 +999,8 @@
     <div id="summary-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm p-4">
         <div class="w-full h-full flex flex-col items-center justify-center relative">
             
-            <button id="summary-close-btn" onclick="toggleSummary()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-gray-800 rounded-full w-12 h-12 flex items-center justify-center z-50">
-                <i class="fas fa-times text-xl"></i>
+            <button id="summary-close-btn" onclick="toggleSummary()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center z-50">
+                <i class="fas fa-times text-2xl"></i>
             </button>
 
             <div class="flex flex-col items-center w-full max-w-md animate-[slideIn_0.3s_ease-out]">
@@ -1653,7 +1624,7 @@
 	        { id: 'share-addons-modal', close: toggleShareAddons },
 	        { id: 'name-popup', close: closeNamePopup },
 		{ id: 'history-modal', close: toggleHistory },
-		{ id: 'qr-modal', close: closeQRScanner },
+		{ id: 'qr-modal', close: toggleScanner },
 		{ id: 'quote-details-modal', close: closeQuoteDetails },
 	        { id: 'margin-modal', close: toggleMarginModal }
 	    ];
@@ -1866,7 +1837,7 @@
         
         function retryScan() {
             closeProductModal();
-            openQRScanner();
+            toggleScanner();
         }
 
         async function fetchProductDetails(code) {
@@ -2114,7 +2085,7 @@
             const input = document.getElementById('sold-code-input');
             const code = input.value.trim();
             if(code.length > 1) {
-		closeQRScanner();
+		toggleScanner();
                 fetchSoldDetails(code);
                 input.value = "E";
             } else {
@@ -2303,22 +2274,22 @@
             container.innerHTML = html;
         }
         
-        // QR/MANUAL INTERFACE LOGIC
-        function openQRScanner() {
-            const ui = document.getElementById('qr-modal');
-            ui.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                ui.classList.add('active');
-            });
-        }
+        // SCANNER LOGIC
+        function toggleScanner() {
+	    const modal = document.getElementById('qr-interface');
+	    if (!modal) return;
+    	    modal.classList.toggle('active');
+	    if (modal.classList.contains('active')) {
+		renderScanner();
+	    }
+	}
 
-        function closeQRScanner() {
-            const ui = document.getElementById('qr-modal');            
-            ui.classList.remove('active');            
-            setTimeout(() => {
-                ui.classList.add('hidden');
-            });
-        }
+	function renderScanner() {
+	    const manInput = document.getElementById('manual-code-input');
+	    const soldInput = document.getElementById('sold-code-input');
+	    if(manInput) manInput.value = 'E';
+	    if(soldInput) soldInput.value = 'E';
+	}
 
 	function toggleScanMode() {
 	    const btn = document.getElementById('scan-mode-btn');
@@ -2327,14 +2298,10 @@
 	    if (scanMode === 'single') {
 	        scanMode = 'multi';
 	        text.innerText = 'MULTI';
-	        text.classList.replace('text-gray-300', 'text-white');
-	        btn.classList.replace('border-gray-700', 'border-green-900');
 	        if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
 	    } else {
 	        scanMode = 'single';
 	        text.innerText = 'SINGLE';
-	        text.classList.replace('text-white', 'text-gray-300');
-	        btn.classList.replace('border-green-900', 'border-gray-700');
 	        if(navigator.vibrate) navigator.vibrate(500);
 	    }
 	}
@@ -2369,7 +2336,7 @@
             if(code) {
                 const upperCode = code.toUpperCase();
                 console.log("Code Scanned:", upperCode);
-                closeQRScanner();
+                toggleScanner();
                 fetchProductDetails(upperCode);
             }
         }
