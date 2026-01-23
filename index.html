@@ -2303,24 +2303,21 @@
             container.innerHTML = html;
         }
         
-        // QR/MANUAL INTERFACE LOGIC       
-        let qrScanner = null;
-
+        // QR/MANUAL INTERFACE LOGIC
         function openQRScanner() {
             const ui = document.getElementById('qr-interface');
-
             ui.classList.remove('hidden');
             requestAnimationFrame(() => {
-                ui.classList.remove('opacity-0', 'pointer-events-none');
-            }, 10);  // Small delay to allow display block to apply before opacity transition
+                ui.classList.add('active');
+            });
         }
 
         function closeQRScanner() {
             const ui = document.getElementById('qr-interface');            
-            ui.classList.add('opacity-0', 'pointer-events-none');            
+            ui.classList.remove('active');            
             setTimeout(() => {
                 ui.classList.add('hidden');
-            }, 300);
+            });
         }
 
 	function toggleScanMode() {
