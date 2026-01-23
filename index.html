@@ -963,37 +963,39 @@
 	    </div>
 	</div>
 
-    	<!-- QR SCANNER INTERFACE -->
-	<div id="qr-interface" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4 transition-opacity duration-300 opacity-0 pointer-events-none hidden">        
+    	<!-- QR SCANNER MODAL -->
+	<div id="qr-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4 transition-opacity duration-300 opacity-0 pointer-events-none hidden">        
         <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
         <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
 
-        <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden relative">            
-            <div id="qr-top-bar" class="flex-none flex items-center justify-between p-4 border-b border-gray-700 bg-black/20">
-                <h2 class="text-xl text-white font-bold tracking-wide">Scan QR / Enter Code</h2>
-                <button onclick="closeQRScanner()" class="text-gray-400 hover:text-white w-8 h-8 flex items-center justify-center rounded-full transition-colors">
+        <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden relative">
+            
+            <div class="flex-none flex items-center justify-between p-4 border-b border-gray-700 bg-black/10">
+                <h2 class="text-xl text-[var(--text-main)] font-bold tracking-wide">Scan QR / Enter Code</h2>
+                <button onclick="closeQRScanner()" class="text-gray-400 hover:text-red-500 w-8 h-8 flex items-center justify-center rounded-full transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button> 
             </div>
             
-            <div id="qr-manual-view" class="flex-grow flex flex-col items-center justify-center p-6 gap-6 overflow-y-auto custom-scroll">                
+            <div class="flex-grow flex flex-col items-center justify-center p-6 gap-6 overflow-y-auto custom-scroll">
+                
                 <div class="w-full">
-                    <label class="text-gray-400 text-xs font-bold uppercase tracking-wider mb-2 block">Search Inventory</label>
+                    <label class="text-gray-500 text-xs font-bold uppercase tracking-wider mb-2 block">Search Inventory</label>
                     <div class="flex flex-col gap-3">
-                        <input type="text" id="manual-code-input" class="w-full bg-gray-900 border border-gray-600 rounded-xl p-3 text-lg text-white text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
-                        <button onclick="submitManualCode()" class="w-full bg-green-700 hover:bg-green-600 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide" style="color: white !important;">
+                        <input type="text" id="manual-code-input" class="w-full bg-[var(--input-bg)] border border-gray-600 rounded-xl p-3 text-lg text-[var(--text-main)] text-center focus:border-green-400 focus:outline-none uppercase tracking-widest placeholder-gray-500 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
+                        <button onclick="submitManualCode()" class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide" style="color: white !important;">
                             FETCH PRODUCT
                         </button>
                     </div>
                 </div>
 
-                <div class="w-full h-px bg-gray-700 border-t border-gray-600 border-dashed"></div>
+                <div class="w-full h-px bg-gray-700/50 border-t border-gray-600/50 border-dashed"></div>
 
                 <div class="w-full">
                     <label class="text-red-400 text-xs font-bold uppercase tracking-wider mb-2 block" style="color: red !important;">Search Sold Items</label>
                     <div class="flex flex-col gap-3">
-                        <input type="text" id="sold-code-input" class="w-full bg-gray-900 border border-gray-600 rounded-xl p-3 text-lg text-white text-center focus:border-red-400 focus:outline-none uppercase tracking-widest placeholder-gray-600 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
-                        <button onclick="submitSoldCode()" class="w-full bg-red-700 hover:bg-red-600 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide" style="color: white !important;">
+                        <input type="text" id="sold-code-input" class="w-full bg-[var(--input-bg)] border border-gray-600 rounded-xl p-3 text-lg text-[var(--text-main)] text-center focus:border-red-400 focus:outline-none uppercase tracking-widest placeholder-gray-500 transition-colors" placeholder="XXXX-0000" value="E" oninput="if(this.value === '') this.value = 'E'">
+                        <button onclick="submitSoldCode()" class="w-full bg-red-500 hover:bg-red-700 text-white font-bold py-3 rounded-xl shadow-lg transition-transform active:scale-95 text-sm tracking-wide" style="color: white !important;">
                             FETCH SOLD ITEM
                         </button>
                     </div>
@@ -1001,24 +1003,22 @@
 
             </div>
         
-            <div id="qr-bottom-bar" class="flex-none p-4 border-t border-gray-700 bg-black/40 flex items-center justify-around">
+            <div class="flex-none p-4 border-t border-gray-700 bg-black/20 flex items-center justify-around">
                 
-                <button onclick="triggerGallery()" class="flex flex-col items-center gap-1 group" title="Scan Image">
+                <button onclick="triggerGallery()" class="flex flex-col items-center gap-1 group" title="Scan from Gallery">
                     <div class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-700 flex items-center justify-center transition-all shadow-lg">
                         <i class="far fa-image text-lg text-white"></i>
                     </div>
-                    <span class="text-[10px] text-gray-400 group-hover:text-white uppercase tracking-wide">Gallery</span>
                 </button>
 
                 <button id="scan-mode-btn" onclick="toggleScanMode()" class="px-3 py-1 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center transition-all active:scale-95 shadow-lg select-none hover:border-gray-500">
                     <span id="scan-mode-text" class="text-[10px] font-bold text-gray-300 tracking-wider">SINGLE</span>
                 </button>            
 
-                <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Take Photo">
+                <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Scan from Photo">
                     <div class="w-12 h-12 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-700 flex items-center justify-center transition-all shadow-lg">
                          <i class="fas fa-camera text-lg text-white"></i>
                     </div>
-                    <span class="text-[10px] text-gray-400 group-hover:text-white uppercase tracking-wide">Camera</span>
                 </button>
 
             </div>
@@ -1653,7 +1653,7 @@
 	        { id: 'share-addons-modal', close: toggleShareAddons },
 	        { id: 'name-popup', close: closeNamePopup },
 		{ id: 'history-modal', close: toggleHistory },
-		{ id: 'qr-interface', close: closeQRScanner },
+		{ id: 'qr-modal', close: closeQRScanner },
 		{ id: 'quote-details-modal', close: closeQuoteDetails },
 	        { id: 'margin-modal', close: toggleMarginModal }
 	    ];
@@ -2305,7 +2305,7 @@
         
         // QR/MANUAL INTERFACE LOGIC
         function openQRScanner() {
-            const ui = document.getElementById('qr-interface');
+            const ui = document.getElementById('qr-modal');
             ui.classList.remove('hidden');
             requestAnimationFrame(() => {
                 ui.classList.add('active');
@@ -2313,7 +2313,7 @@
         }
 
         function closeQRScanner() {
-            const ui = document.getElementById('qr-interface');            
+            const ui = document.getElementById('qr-modal');            
             ui.classList.remove('active');            
             setTimeout(() => {
                 ui.classList.add('hidden');
