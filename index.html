@@ -936,8 +936,8 @@
 	    </div>
 	</div>
 
-    	<!-- QR SCANNER MODAL -->
-	<div id="qr-modal" class="modal fixed inset-0 z-[100] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4 transition-opacity duration-300 opacity-0 pointer-events-none">        
+    	<!-- SCANNER MODAL -->
+	<div id="scanner-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">       
         <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
         <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
 
@@ -1624,7 +1624,7 @@
 	        { id: 'share-addons-modal', close: toggleShareAddons },
 	        { id: 'name-popup', close: closeNamePopup },
 		{ id: 'history-modal', close: toggleHistory },
-		{ id: 'qr-modal', close: toggleScanner },
+		{ id: 'scanner-modal', close: toggleScanner },
 		{ id: 'quote-details-modal', close: closeQuoteDetails },
 	        { id: 'margin-modal', close: toggleMarginModal }
 	    ];
@@ -2276,7 +2276,7 @@
         
         // SCANNER LOGIC
         function toggleScanner() {
-	    const modal = document.getElementById('qr-interface');
+	    const modal = document.getElementById('qr-modal');
 	    if (!modal) return;
     	    modal.classList.toggle('active');
 	    if (modal.classList.contains('active')) {
