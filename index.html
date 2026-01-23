@@ -1182,7 +1182,7 @@
 
         // --- CONFIGURATION ---
 	// API DATABASE URL - PASTE YOUR API SHEET CSV URL HERE
-        const API_KEY_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=1288995889&single=true&output=csv";
+        const API_KEY_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=0&single=true&output=csv";
 
         // USER DATABASE URL - PASTE YOUR AUTHENTICATION SHEET CSV URL HERE
         const USERS_SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=0&single=true&output=csv"; 
@@ -1214,42 +1214,49 @@
 	// ASYNC INITIALIZATION
         (async function startSystem() {
             try {
-                // FETCH API KEY
-                let keyText = "";
+                // FETCH CONFIGURATION CSV
+                let configText = "";
                 const uniqueKeyUrl = API_KEY_SHEET_URL + (API_KEY_SHEET_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
 
                 try {
                     const response = await fetch(uniqueKeyUrl);
                     if (!response.ok) throw new Error('Direct fetch failed');
-                    keyText = await response.text();
+                    configText = await response.text();
                 } catch (directError) {
-                    console.warn("API Key direct fetch failed, trying proxy...", directError);
+                    console.warn("Config direct fetch failed, trying proxy...", directError);
                     try {
                         const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueKeyUrl);
                         const proxyResponse = await fetch(proxyUrl);
                         if (!proxyResponse.ok) throw new Error('Corsproxy failed');
-                        keyText = await proxyResponse.text();
+                        configText = await proxyResponse.text();
                     } catch (proxyError) {
-                        console.warn("API Key corsproxy failed, trying allorigins...", proxyError);
+                        console.warn("Config corsproxy failed, trying allorigins...", proxyError);
                         const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueKeyUrl);
                         const backupResponse = await fetch(backupProxy);
                         if (!backupResponse.ok) throw new Error('All proxies failed');
-                        keyText = await backupResponse.text();
+                        configText = await backupResponse.text();
                     }
                 }
-                
-                const fetchedApiKey = keyText.trim().split(/[\r\n,]+/)[0].replace(/['"]+/g, '').trim();
-                if (!fetchedApiKey) throw new Error("Authentication Failed.");
 
-                // Construct Configuration
-                const firebaseConfig = {
-                    apiKey: fetchedApiKey,
-                    authDomain: "ejpc-vault.firebaseapp.com",
-                    projectId: "ejpc-vault",
-                    storageBucket: "ejpc-vault.firebasestorage.app",
-                    messagingSenderId: "640002447814",
-                    appId: "1:640002447814:web:4be6d2b288c539af8efac7"
-                };
+                // PARSE CSV TO BUILD CONFIG OBJECT
+                const firebaseConfig = {};
+                const lines = configText.trim().split(/\r\n|\n/);
+
+                lines.forEach(line => {  // Split by comma, handling quotes just in case 
+                    const parts = line.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);                       
+                    if (parts.length >= 2) {  // Clean quotes and whitespace                      
+                        const key = parts[0].trim().replace(/^['"]+|['"]+$/g, '');
+                        const value = parts[1].trim().replace(/^['"]+|['"]+$/g, '');                       
+                  
+                        if (key && value) {      // Map CSV keys to Firebase config properties
+                            firebaseConfig[key] = value;
+                        }
+                    }
+                });
+            
+                if (!firebaseConfig.apiKey || !firebaseConfig.authDomain) {    // Validation check
+                    throw new Error("Invalid or Missing Firebase Configuration in CSV");
+                }
 
                 // INITIALIZE FIREBASE
                 const app = initializeApp(firebaseConfig);
@@ -1268,7 +1275,7 @@
         
                     signInWithPopup(auth, provider).catch((error) => {
                         console.error(error);
-                        status.innerText = "Login Failed.";
+                        status.innerText = "Login Failed: " + error.code; // Added error code for easier debugging
                         btn.classList.remove('hidden');
                         loading.classList.add('hidden');
                     });
@@ -1291,21 +1298,18 @@
                             const uniqueUserUrl = USERS_SHEET_URL + (USERS_SHEET_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
 
                             try {
-                                // Direct Attempt
                                 const response = await fetch(uniqueUserUrl);
                                 if (!response.ok) throw new Error("Direct fetch failed");
                                 csvText = await response.text();
                             } catch (directErr) {
                                 console.warn("Userbase direct fetch failed, trying proxy...", directErr);
                                 try {
-                                    // CorsProxy Attempt
                                     const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUserUrl);
                                     const proxyResponse = await fetch(proxyUrl);
                                     if (!proxyResponse.ok) throw new Error("Corsproxy failed");
                                     csvText = await proxyResponse.text();
                                 } catch (proxyErr) {
-                                    console.warn("Userbase corsproxy failed, trying allorigins...", proxyErr);
-                                    // AllOrigins Attempt 
+				    console.warn("Userbase corsproxy failed, trying allorigins...", proxyErr);
                                     const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUserUrl);
                                     const backupResponse = await fetch(backupProxy);
                                     if (!backupResponse.ok) throw new Error("All proxies failed");
@@ -1316,7 +1320,7 @@
                             const allowedEmails = parseUsersCSV(csvText);                    
                             const userEmail = user.email.toLowerCase().trim();
                             
-                            if (allowedEmails.includes(userEmail)) {                                
+                            if (allowedEmails.includes(userEmail)) {                             
                                 status.className = "text-green-400 text-sm font-bold mb-2";
                                 status.innerText = `Welcome ${user.displayName}`; // SUCCESS: ACCESS GRANTED
                                 
@@ -1345,22 +1349,22 @@
                             if(vaultElement) vaultElement.innerHTML = "";
                         }
 
-                    } else {                       
-                        if (overlay) {
+                    } else {                      
+                        if (overlay) {  // LOGGED OUT
                             overlay.style.display = 'flex';
                             overlay.style.opacity = '1';
                         }
                         if (btn) btn.classList.remove('hidden');
                         if (loading) loading.classList.add('hidden');                
                         
-                        if(vaultElement) vaultElement.innerHTML = ""; // LOGGED OUT
+                        if(vaultElement) vaultElement.innerHTML = "";
                     }
                 });
-             
+              
                 setInterval(() => {
                     const overlay = document.getElementById('auth-overlay');
                     const user = auth.currentUser;           
-                    if (!user) {   // SECURITY WATCHDOG
+                    if (!user) {  // SECURITY GUARD
                         if (!overlay || overlay.style.display === 'none' || overlay.style.opacity === '0') {
                             window.location.reload();
                         }
