@@ -286,6 +286,11 @@
         
         /* Spin Animation for Sync */
         .fa-sync.spin, .fa-sync-alt.spin, .fa-spinner.spin { animation: spin 1s linear infinite; }
+	
+	.spin-animate {
+	    animation: spin 1s linear infinite !important; /* !important overrides any FA defaults */
+	    transform-origin: center;
+	}
        
         /* Theme Toggle Switch */
         .theme-toggle {
@@ -314,6 +319,11 @@
             font-size: 14px;
             color: #fbbf24;
             transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+	    display: flex;
+	    align-items: center;
+	    justify-content: center;
+	    width: 100%;
+	    height: 100%;
         }
 
         body.light .toggle-circle {
@@ -662,8 +672,8 @@
             <div class="flex justify-between items-center p-4 pt-3 pb-1 border-b border-gray-700/50 flex-shrink-0">
                 <div class="flex items-center gap-5">
                     <h2 class="text-3xl md:text-4xl text-white font-bold">Rates</h2>
-		    <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme">
-                    	<div class="toggle-circle">☀</div>
+		    <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme Mode">
+                    	<div class="toggle-circle"><i class="fas fa-sun"></i></div>
                     </div>
                 </div>
                 
@@ -1360,10 +1370,10 @@
             const setTheme = (mode) => {
                 if (mode === 'light') {
                     document.body.classList.add('light');
-                    circle.textContent = '☀';
+                    circle.innerHTML = '<i class="fas fa-sun"></i>';
                 } else {
                     document.body.classList.remove('light');
-                    circle.textContent = '☾';
+                    circle.innerHTML = '<i class="fas fa-moon"></i>';
                 }
                 localStorage.setItem('theme', mode);
             };
@@ -2227,11 +2237,12 @@
 
             async function fetchRate() {
                 const icon = refreshBtn.querySelector('i');
-                icon.classList.add('spin');
+                icon.classList.add('spin-animate');
                 updatedEl.textContent = 'Updating...';
+		const minSpinTime = new Promise(resolve => setTimeout(resolve, 800));
                 
                 try {
-                    const res = await fetch(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`);
+                    const [res] = await Promise.all([fetch(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`), minSpinTime
                     const data = await res.json();
                     const rate = data.rates[targetCurrency];
                     
@@ -2252,8 +2263,9 @@
                 } catch(e) {
                     updatedEl.textContent = 'Error fetching rate';
                     statusDot.classList.replace('bg-green-500', 'bg-red-500');
-                }
-                icon.classList.remove('spin');
+                } finally {
+                    icon.classList.remove('spin-animate');
+		}
             }
 
             // Events
