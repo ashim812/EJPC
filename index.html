@@ -1125,7 +1125,7 @@
 	// ASYNC INITIALIZATION
         (async function startSystem() {
             try {            
-                const keyText = await window.fetchSmart(API_DB_URL);     // FETCH API KEY               
+                const keyText = await fetchSmart(API_DB_URL);     // FETCH API KEY               
                 const fetchedApiKey = keyText.trim().split(/[\r\n,]+/)[0].replace(/['"]+/g, '').trim();
                 if (!fetchedApiKey) throw new Error("Authentication Failed.");
 
@@ -1174,7 +1174,7 @@
                         status.innerHTML = "Finding Access Key...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users.</span>";
                         
                         try {                        
-                            const csvText = await window.fetchSmart(USERS_DB_URL);    // FETCH USERBASE
+                            const csvText = await fetchSmart(USERS_DB_URL);    // FETCH USERBASE
 
                             const allowedEmails = parseUsersCSV(csvText);                    
                             const userEmail = user.email.toLowerCase().trim();
@@ -1240,7 +1240,7 @@
 
     <script>
 	
-	window.fetchSmart = async function(url) {
+	async function fetchSmart(url) {
 	    const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
 	    let text = '';
     
