@@ -84,7 +84,7 @@
             display: flex;
             flex-direction: column;
             transition: background 0.3s ease, color 0.3s ease;
-            position: relative; /* For P2R positioning */
+            position: relative;
         }
 
         h1, h2, .brand-font {
@@ -513,37 +513,6 @@
             border-color: var(--gold-primary);
         }
 
-        /* --- PULL TO REFRESH STYLES --- */
-        #p2r-container {
-            position: absolute;
-            top: var(--safe-top);
-            left: 0;
-            width: 100%;
-            height: 60px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0;
-            transform: translateY(-20px);
-            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.2s;
-        }
-        
-        #p2r-icon {
-            color: var(--gold-primary);
-            font-size: 20px;
-            background: var(--panel-bg);
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            border: 1px solid var(--border-color);
-        }
-
 	body.light #auth-overlay {
 	    background-color: #f3f4f6 !important;
 	}
@@ -616,14 +585,6 @@
 
     <!-- 2. THE VAULT (Wraps ALL your existing content) -->
     <div id="protected-content" class="w-full h-full flex flex-col">
-
-    <!-- PULL TO REFRESH SPINNER -->
-    <div id="p2r-container">
-        <div id="p2r-icon">
-            <i class="fas fa-arrow-down"></i>
-        </div>
-    </div>
-
     <nav class="flex-none h-12 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-3 flex justify-between items-center">
             <div class="flex items-center gap-4">		
@@ -646,7 +607,7 @@
                     <i class="fas fa-clock-rotate-left text-2xl"></i>
                 </button> 
             </div>
-	    <h1 class="text-2xl md:text-2xl font-bold text-yellow-500 tracking-wider">EJPC</h1>
+	    <h1 id="app-logo" class="text-2xl md:text-2xl font-bold text-yellow-500 tracking-wider cursor-pointer select-none transition-opacity duration-200" title="Hold to Refresh">EJPC</h1>
             <div class="flex items-center gap-3">
                 <div class="flex items-center gap-4">
                     <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
@@ -943,7 +904,7 @@
 
         <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden relative">            
             <div class="flex-none flex items-center justify-between px-4 pt-3">
-                <h2 class="text-2xl text-[var(--text-main)] font-bold tracking-wide">Scan QR/Enter Code</h2>
+                <h2 class="text-2xl text-[var(--text-main)] font-bold tracking-wide">Scan QR / Enter Code</h2>
                 <button onclick="toggleScanner()" class="text-gray-400 hover:text-white">
                     <i class="fas fa-times text-2xl"></i>
                 </button> 
@@ -1552,7 +1513,7 @@
             initTheme();
 	    initBackdropClosing();
             initCurrencyConverter();
-            initPullToRefresh();
+            initLogoReload();
 	    initStealthMode();
 	    initSettingsLongPress();             
        
@@ -1641,93 +1602,37 @@
 	    });
 	}
         
-        // PULL-TO-REFRESH LOGIC
-        function initPullToRefresh() {
-            const body = document.body;
-            const main = document.getElementById('app-main');
-            const p2rContainer = document.getElementById('p2r-container');
-            const icon = document.getElementById('p2r-icon');
-            const iconI = icon.querySelector('i');
-            
-            let startY = 0;
-            let currentY = 0;
-            let isPulling = false;
-            const threshold = 150; // Drag PULL distance
-            
-            body.addEventListener('touchstart', (e) => {
-                if (document.querySelector('.modal.active')) return; // Check for active modals - if any modal is active, DISABLE P2R		
-        	if (e.target.closest('button, input, select, textarea, .add-chip, .rate-cube, .nav-btn, .invoice-pill, .glass-panel, .item-row, .sold-card')) {  // Ignore if touching a button (prevents accidental triggers)
-		    return;
-		}
-                if (window.scrollY === 0) {  // Only enable if at the very top of page                 
-                    const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');   // Check if we are inside a scrollable element that is NOT at top
-                    if (scrollable && scrollable.scrollTop > 0) {
-                        return; // Let internal scroll happen
-                    }
-                    
-                    startY = e.touches[0].clientY;
-                    isPulling = true;
-                }
-            }, { passive: true });
+        // LOGO REFRESH LOGIC
+        function initLogoReload() {
+	    const logo = document.getElementById('app-logo');
+	    if (!logo) return;
+	    let timer;
+	    const start = (e) => {
+	        if (e.type === 'mousedown' && e.button !== 0) return;      
+	        logo.style.opacity = '0.4';  // Visual Feedback: Dim the logo to show it's being pressed
 
-            body.addEventListener('touchmove', (e) => {
-                if (!isPulling) return;
-                
-                const scrollable = e.target.closest('.custom-scroll, .overflow-y-auto');
-                if (scrollable && scrollable.scrollTop > 0) {
-                    isPulling = false; // Cancel if started scrolling down internally
-                    return;
-                }
+	        timer = setTimeout(() => {
+	            if (navigator.vibrate) navigator.vibrate(50);
+	            window.location.reload();
+	        }, 1000); // 1 Seconds Delay
+	    };
 
-                currentY = e.touches[0].clientY;
-                const diff = currentY - startY;                
-           
-                if (diff > 0) {     // Only handle pull down                 
-                    const move = Math.min(diff * 0.4, 180); // Resistance formula
-                    
-                    if (diff > 10) {  // Visual Feedback
-                        p2rContainer.style.opacity = '1';
-                        p2rContainer.style.transform = `translateY(${move - 20}px)`; // -20 offset from CSS
-                        main.style.transform = `translateY(${move}px)`;                        
-                  
-                        const rotate = Math.min(diff * 2, 180);      // Rotate arrow
-                        icon.style.transform = `rotate(${rotate}deg)`;
-                        
-                        if (diff > threshold) {
-                            iconI.className = "fas fa-sync";
-                            icon.style.borderColor = "var(--gold-primary)";
-                        } else {
-                             iconI.className = "fas fa-arrow-down";
-                             icon.style.borderColor = "var(--border-color)";
-                        }
-                    }
-                }
-            }, { passive: true });
+	    const cancel = () => {
+	        // Reset Visuals
+	        logo.style.opacity = '1';
+	        clearTimeout(timer);
+	    };
 
-            body.addEventListener('touchend', (e) => {
-                if (!isPulling) return;
-                isPulling = false;
-                const diff = currentY - startY;
-                
-                if (diff > threshold) {   // Trigger Refresh                   
-                    iconI.classList.add('fa-spin'); // Spin
-                    p2rContainer.style.transform = `translateY(40px)`;
-                    main.style.transform = `translateY(60px)`;                
-                    if (navigator.vibrate) navigator.vibrate(50);   // Vibration feedback if available
-                    
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 500);
-                } else {            
-                    p2rContainer.style.opacity = '0';   // Reset
-                    p2rContainer.style.transform = 'translateY(-20px)';
-                    main.style.transform = 'translateY(0)';
-                }               
-              
-                startY = 0;  // Reset vars
-                currentY = 0;
-            });
-        }
+	    // Touch Events
+	    logo.addEventListener('touchstart', start, {passive: true});
+	    logo.addEventListener('touchend', cancel);
+	    logo.addEventListener('touchmove', cancel); // Cancel if they scroll away
+
+	    // Mouse Events
+	    logo.addEventListener('mousedown', start);
+	    logo.addEventListener('mouseup', cancel);
+	    logo.addEventListener('mouseleave', cancel);
+	}
         
         function saveRates() {
             localStorage.setItem('jewelleryRates', JSON.stringify(rates));
