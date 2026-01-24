@@ -518,7 +518,7 @@
 	#popup-item-name::-webkit-calendar-picker-indicator {
 	    display: none !important;
 	}
-        /* TABLET OVERRIDE
+        /* TABLET OVERRIDE */
         @media (min-width: 768px) {
             :root {
                 --safe-top: 0px !important;
@@ -528,7 +528,7 @@
 </head>
 <body>
 
-    <!-- 1. AUTHENTICATION OVERLAY -->
+    <!-- AUTHENTICATION OVERLAY -->
     <div id="auth-overlay" class="fixed inset-0 z-[9999] bg-[#0f0f0f] flex flex-col items-center justify-center p-4 transition-opacity duration-500">
         <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm w-full border border-yellow-500/20 shadow-2xl">
             <!-- Branding -->
@@ -552,8 +552,8 @@
         </div>
     </div>
 
-    <!-- 2. THE VAULT (Wraps ALL your existing content) -->
-    <div id="protected-content" class="w-full h-full flex flex-col">
+    <!-- THE VAULT -->
+    <div id="protected-content" class="w-full h-full flex flex-col" style="display: none;">
     <nav class="flex-none h-12 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-3 flex justify-between items-center">
             <div class="flex items-center gap-4">		
@@ -825,7 +825,7 @@
         </div>
     </div>
 
-    <!--PRICE QUOTATION HISTORY-->    
+    <!-- QUOTATION HISTORY -->    
 	<div id="history-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
 	    <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border border-gray-700">
 	        <div class="flex justify-between items-center p-3 pb-0.5 border-gray-700">
@@ -1096,7 +1096,7 @@
         const API_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=1288995889&single=true&output=csv";
 
         // USER DATABASE URL - PASTE YOUR AUTHENTICATION SHEET CSV URL HERE
-        const USERS_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=0&single=true&output=csv"; 
+	const USERS_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=0&single=true&output=csv"; 
 
         // VAULT
         let secureAppHTML = ""; 
@@ -1124,8 +1124,28 @@
 
 	// ASYNC INITIALIZATION
         (async function startSystem() {
-            try {            
-                const keyText = await fetchSmart(API_DB_URL);     // FETCH API KEY               
+	    let url = API_DB_URL;            
+            if (!url) {
+                showToast("No API DB configured.\nPlease contact the Developer.");
+                return;
+
+            try {
+                window.signIn = function() {   // LOGIN FUNCTION
+                    const btn = document.getElementById('google-login-btn');
+                    const loading = document.getElementById('auth-loading');
+                    const status = document.getElementById('auth-status');            
+                    btn.classList.add('hidden');
+                    loading.classList.remove('hidden');
+                    status.innerText = "Connecting...";        
+                    signInWithPopup(auth, provider).catch((error) => {
+                        console.error(error);
+                        status.innerText = "Login Failed.";
+                        btn.classList.remove('hidden');
+                        loading.classList.add('hidden');
+                    });
+                };
+
+		const keyText = await fetchSmart(API_DB_URL);     // FETCH API KEY               
                 const fetchedApiKey = keyText.trim().split(/[\r\n,]+/)[0].replace(/['"]+/g, '').trim();
                 if (!fetchedApiKey) throw new Error("Authentication Failed.");
 
@@ -1144,24 +1164,6 @@
                 const auth = getAuth(app);
                 const provider = new GoogleAuthProvider();
 
-                // LOGIN FUNCTION
-                window.signIn = function() {
-                    const btn = document.getElementById('google-login-btn');
-                    const loading = document.getElementById('auth-loading');
-                    const status = document.getElementById('auth-status');
-            
-                    btn.classList.add('hidden');
-                    loading.classList.remove('hidden');
-                    status.innerText = "Connecting...";
-        
-                    signInWithPopup(auth, provider).catch((error) => {
-                        console.error(error);
-                        status.innerText = "Login Failed.";
-                        btn.classList.remove('hidden');
-                        loading.classList.add('hidden');
-                    });
-                };
-
                 // AUTH OBSERVER
                 onAuthStateChanged(auth, async (user) => {
                     const overlay = document.getElementById('auth-overlay');
@@ -1169,13 +1171,16 @@
                     const btn = document.getElementById('google-login-btn');
                     const loading = document.getElementById('auth-loading');
                     const status = document.getElementById('auth-status');
+		    let url = USERS_DB_URL;            
+	            if (!url) {
+	                showToast("No Users DB configured.\nPlease contact the Developer.");
+	                return;
                 
                     if (user) {
                         status.innerHTML = "Finding Access Key...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users.</span>";
                         
                         try {                        
                             const csvText = await fetchSmart(USERS_DB_URL);    // FETCH USERBASE
-
                             const allowedEmails = parseUsersCSV(csvText);                    
                             const userEmail = user.email.toLowerCase().trim();
                             
@@ -1183,8 +1188,9 @@
                                 status.className = "text-green-400 text-sm font-bold mb-2";
                                 status.innerText = `Welcome ${user.displayName}`; // SUCCESS: ACCESS GRANTED
                                 
-                                if(vaultElement && vaultElement.innerHTML === "") {
-                                    vaultElement.innerHTML = secureAppHTML;                        
+                                if(vaultElement) {
+                                    vaultElement.innerHTML = secureAppHTML;
+				    vaultElement.style.display = 'flex';
                                     if (typeof window.init === "function") window.init();
                                 }
                              
@@ -1719,8 +1725,8 @@
                 return;
             }
 
-            const csvText = await fetchSmart(PRODUCT_DB_URL);
-            
+	    try {
+	        const csvText = await fetchSmart(PRODUCT_DB_URL);            
                 const product = parseProductCSV(csvText, upperCode);    // Parse and Find Product
                 const actionBtn = document.getElementById('prod-action-btn');
 
@@ -1931,8 +1937,8 @@
                 return;
             }
 
-            const csvText = await fetchSmart(SOLD_DB_URL);
-             
+            try {
+		const csvText = await fetchSmart(SOLD_DB_URL);             
                 const product = parseSoldCSV(csvText, upperCode);   // Parsing
                 const actionBtn = document.getElementById('prod-action-btn');
 
@@ -2291,17 +2297,17 @@
                 showToast("No Rates DB configured.\nPlease contact the Developer.");
                 return;
             }
-        
-            const csvText = await fetchSmart(RATES_DB_URL);
-            // UI Loading State
-            btn.disabled = true;
-            icon.classList.add('spin');
-            btn.classList.add('opacity-50');
+
+	    try {        
+            	const csvText = await fetchSmart(RATES_DB_URL);
+            	// UI Loading State
+            	btn.disabled = true;
+            	icon.classList.add('spin');
+            	btn.classList.add('opacity-50');
         
                 const newRates = parseRatesCSV(csvText);          
                 if (newRates.length > 0) {
-
-                    items.forEach(item => {   // MIGRATION: Preserve item links by mapping old rate IDs to new stable IDs based on name
+                    items.forEach(item => {
                         const currentRate = rates.find(r => r.id === item.rateId);
 
                         if (currentRate) {    // If identify the current item's name, try to find it in the new list
