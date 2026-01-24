@@ -553,7 +553,7 @@
         </div>
     </div>
 
-    <!-- VAULT -->
+    <!-- THE VAULT -->
     <div id="protected-content" class="w-full h-full flex flex-col" style="display: none;">
     <nav class="flex-none h-12 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-3 flex justify-between items-center">
@@ -826,7 +826,7 @@
         </div>
     </div>
 
-    <!--QUOTATION HISTORY-->    
+    <!-- QUOTATION HISTORY -->    
 	<div id="history-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
 	    <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border border-gray-700">
 	        <div class="flex justify-between items-center p-3 pb-0.5 border-gray-700">
@@ -1097,7 +1097,7 @@
         const API_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=1288995889&single=true&output=csv";
 
         // USER DATABASE URL - PASTE YOUR AUTHENTICATION SHEET CSV URL HERE
-        const USERS_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=0&single=true&output=csv"; 
+	const USERS_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=0&single=true&output=csv"; 
 
         // VAULT
         let secureAppHTML = ""; 
@@ -1129,31 +1129,24 @@
             if (!url) {
                 showToast("No API DB configured.\nPlease contact the Developer.");
                 return;
+	    }
             try {
-                // FETCH API KEY
-                let keyText = "";
-                const uniqueKeyUrl = API_DB_URL + (API_DB_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
+                window.signIn = function() {   // LOGIN FUNCTION
+                    const btn = document.getElementById('google-login-btn');
+                    const loading = document.getElementById('auth-loading');
+                    const status = document.getElementById('auth-status');            
+                    btn.classList.add('hidden');
+                    loading.classList.remove('hidden');
+                    status.innerText = "Connecting...";        
+                    signInWithPopup(auth, provider).catch((error) => {
+                        console.error(error);
+                        status.innerText = "Login Failed.";
+                        btn.classList.remove('hidden');
+                        loading.classList.add('hidden');
+                    });
+                };
 
-                try {
-                    const response = await fetch(uniqueKeyUrl);
-                    if (!response.ok) throw new Error('Direct fetch failed');
-                    keyText = await response.text();
-                } catch (directError) {
-                    console.warn("API Key direct fetch failed, trying proxy...", directError);
-                    try {
-                        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueKeyUrl);
-                        const proxyResponse = await fetch(proxyUrl);
-                        if (!proxyResponse.ok) throw new Error('Corsproxy failed');
-                        keyText = await proxyResponse.text();
-                    } catch (proxyError) {
-                        console.warn("API Key corsproxy failed, trying allorigins...", proxyError);
-                        const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueKeyUrl);
-                        const backupResponse = await fetch(backupProxy);
-                        if (!backupResponse.ok) throw new Error('All proxies failed');
-                        keyText = await backupResponse.text();
-                    }
-                }
-                
+		const keyText = await fetchSmart(API_DB_URL);     // FETCH API KEY               
                 const fetchedApiKey = keyText.trim().split(/[\r\n,]+/)[0].replace(/['"]+/g, '').trim();
                 if (!fetchedApiKey) throw new Error("Authentication Failed.");
 
@@ -1172,24 +1165,6 @@
                 const auth = getAuth(app);
                 const provider = new GoogleAuthProvider();
 
-                // LOGIN FUNCTION
-                window.signIn = function() {
-                    const btn = document.getElementById('google-login-btn');
-                    const loading = document.getElementById('auth-loading');
-                    const status = document.getElementById('auth-status');
-            
-                    btn.classList.add('hidden');
-                    loading.classList.remove('hidden');
-                    status.innerText = "Connecting...";
-        
-                    signInWithPopup(auth, provider).catch((error) => {
-                        console.error(error);
-                        status.innerText = "Login Failed.";
-                        btn.classList.remove('hidden');
-                        loading.classList.add('hidden');
-                    });
-                };
-
                 // AUTH OBSERVER
                 onAuthStateChanged(auth, async (user) => {
                     const overlay = document.getElementById('auth-overlay');
@@ -1197,43 +1172,16 @@
                     const btn = document.getElementById('google-login-btn');
                     const loading = document.getElementById('auth-loading');
                     const status = document.getElementById('auth-status');
-
-                    let url = USERS_DB_URL;            
+		    let url = USERS_DB_URL;            
 	            if (!url) {
 	                showToast("No Users DB configured.\nPlease contact the Developer.");
 	                return;
-
+                    }
                     if (user) {
                         status.innerHTML = "Finding Access Key...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users.</span>";
                         
-                        try {
-                            // FETCH USERBASE
-                            let csvText = "";
-                            const uniqueUserUrl = USERS_DB_URL + (USERS_DB_URL.includes('?') ? '&' : '?') + '_t=' + Date.now();
-
-                            try {
-                                // Direct Attempt
-                                const response = await fetch(uniqueUserUrl);
-                                if (!response.ok) throw new Error("Direct fetch failed");
-                                csvText = await response.text();
-                            } catch (directErr) {
-                                console.warn("Userbase direct fetch failed, trying proxy...", directErr);
-                                try {
-                                    // CorsProxy Attempt
-                                    const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUserUrl);
-                                    const proxyResponse = await fetch(proxyUrl);
-                                    if (!proxyResponse.ok) throw new Error("Corsproxy failed");
-                                    csvText = await proxyResponse.text();
-                                } catch (proxyErr) {
-                                    console.warn("Userbase corsproxy failed, trying allorigins...", proxyErr);
-                                    // AllOrigins Attempt 
-                                    const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUserUrl);
-                                    const backupResponse = await fetch(backupProxy);
-                                    if (!backupResponse.ok) throw new Error("All proxies failed");
-                                    csvText = await backupResponse.text();
-                                }
-                            }
-
+                        try {                        
+                            const csvText = await fetchSmart(USERS_DB_URL);    // FETCH USERBASE
                             const allowedEmails = parseUsersCSV(csvText);                    
                             const userEmail = user.email.toLowerCase().trim();
                             
@@ -1243,7 +1191,7 @@
                                 
                                 if(vaultElement) {
                                     vaultElement.innerHTML = secureAppHTML;
-				    vaultElement.style.display = 'flex';                        
+				    vaultElement.style.display = 'flex';
                                     if (typeof window.init === "function") window.init();
                                 }
                              
@@ -1298,7 +1246,50 @@
     </script>
 
     <script>
-        // DATA MANAGEMENT
+	
+	async function fetchSmart(url) {
+	    const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
+	    let text = '';
+    
+	    try {
+	        const response = await fetch(uniqueUrl);
+	        if (!response.ok) throw new Error('Direct fetch failed');
+	        text = await response.text();
+	    } catch (directError) {
+	        console.warn("Direct fetch failed, trying proxy...", directError);
+	        try {
+	            const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
+	            const proxyResponse = await fetch(proxyUrl);
+	            if (!proxyResponse.ok) throw new Error('Corsproxy failed');
+	            text = await proxyResponse.text();
+	        } catch (proxyError) {
+	            console.warn("Corsproxy failed, trying allorigins...", proxyError);
+	            const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUrl);
+	            const backupResponse = await fetch(backupProxy);
+	            if (!backupResponse.ok) throw new Error('All proxies failed');
+	            text = await backupResponse.text();
+	        }
+	    }
+	    return text;
+	}
+
+	function splitCSVLine(text) {
+	    const matches = [];
+	    const regex = /(?:^|,)(\s*"(?:[^"]|"")*"\s*|[^,]*)/g;
+	    let match;
+	    while ((match = regex.exec(text)) !== null) {
+	        let val = match[1] || "";
+	        val = val.trim();
+	        if (val.startsWith('"') && val.endsWith('"')) {
+	            val = val.slice(1, -1).replace(/""/g, '"');
+	        }
+	        matches.push(val);
+	        if (regex.lastIndex === match.index) regex.lastIndex++;
+	    }
+	    if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) matches.pop();
+	    return matches;
+	}
+
         let currentFetchedProduct = null;
         let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
 	let scanMode = 'single';
@@ -1604,7 +1595,7 @@
 	    // Touch Events
 	    logo.addEventListener('touchstart', start, {passive: true});
 	    logo.addEventListener('touchend', cancel);
-	    logo.addEventListener('touchmove', cancel);
+	    logo.addEventListener('touchmove', cancel); // Cancel if they scroll away
 
 	    // Mouse Events
 	    logo.addEventListener('mousedown', start);
@@ -1735,30 +1726,8 @@
                 return;
             }
 
-            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();     // Timestamp to prevent caching
-
-            try {              
-                let csvText = '';
-                try {
-                    const response = await fetch(uniqueUrl);  //Fetch CSV
-                    if (!response.ok) throw new Error('Direct fetch failed');
-                    csvText = await response.text();
-                } catch (directError) {
-                    console.warn("Direct fetch failed, trying proxy...", directError);
-		    try {
-                    	const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
-                    	const proxyResponse = await fetch(proxyUrl);
-                    	if (!proxyResponse.ok) throw new Error('Corsproxy failed');
-                    	csvText = await proxyResponse.text();
-                    } catch (proxyError) {
-                     	console.warn("Corsproxy failed, trying allorigins...", proxyError);
-                     	const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUrl);
-                     	const backupResponse = await fetch(backupProxy);
-                     	if (!backupResponse.ok) throw new Error('All proxies failed');
-                     	csvText = await backupResponse.text();
-		    }
-                }
-            
+	    try {
+	        const csvText = await fetchSmart(PRODUCT_DB_URL);            
                 const product = parseProductCSV(csvText, upperCode);    // Parse and Find Product
                 const actionBtn = document.getElementById('prod-action-btn');
 
@@ -1891,27 +1860,10 @@
             }
         }
 
-	function splitCSVLine(text) {
-	    const matches = [];
-	    const regex = /(?:^|,)(\s*"(?:[^"]|"")*"\s*|[^,]*)/g;
-	    let match;
-	    while ((match = regex.exec(text)) !== null) {
-	        let val = match[1] || "";
-	        val = val.trim();
-	        if (val.startsWith('"') && val.endsWith('"')) {
-	            val = val.slice(1, -1).replace(/""/g, '"');
-	        }
-	        matches.push(val);
-	        if (regex.lastIndex === match.index) regex.lastIndex++;
-	    }
-	    if(matches.length > 1 && matches[matches.length-1] === "" && !text.endsWith(",")) matches.pop();
-	    return matches;
-	}
-
         function parseProductCSV(csvText, searchId) {
             const lines = csvText.trim().split(/\r\n|\n/);
             if (lines.length < 1) return null;
-	    const headers = splitCSVLine(lines[0]).map(h => h.toLowerCase().trim());                        
+            const headers = splitCSVLine(lines[0]).map(h => h.toLowerCase().trim());                        
             const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
             
             const idx = {
@@ -1986,26 +1938,8 @@
                 return;
             }
 
-            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
-
-            try {             
-                let csvText = '';
-                try {
-                    const response = await fetch(uniqueUrl);   // Fetch CSV
-                    if (!response.ok) throw new Error('Direct fetch failed');
-                    csvText = await response.text();
-                } catch (directError) {
-                    try {
-                        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
-                        const proxyResponse = await fetch(proxyUrl);
-                        csvText = await proxyResponse.text();
-                    } catch (proxyError) {
-                         const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUrl);
-                         const backupResponse = await fetch(backupProxy);
-                         csvText = await backupResponse.text();
-                    }
-                }
-             
+            try {
+		const csvText = await fetchSmart(SOLD_DB_URL);             
                 const product = parseSoldCSV(csvText, upperCode);   // Parsing
                 const actionBtn = document.getElementById('prod-action-btn');
 
@@ -2364,42 +2298,16 @@
                 showToast("No Rates DB configured.\nPlease contact the Developer.");
                 return;
             }
-        
-            const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();    // Cache Buster: Force new fetch by adding timestamp
-            // UI Loading State
-            btn.disabled = true;
-            icon.classList.add('spin');
-            btn.classList.add('opacity-50');
 
-            try {
-                // Try Direct Fetch first with cache busting
-                let csvText = '';
-                try {
-                    const response = await fetch(uniqueUrl);
-                    if (!response.ok) throw new Error('Direct fetch failed');
-                    csvText = await response.text();
-                } catch (directError) {
-                    console.warn("Direct fetch failed, trying proxy...", directError);
-                    
-                    // Fallback to corsproxy.io
-                    try {
-                        const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(uniqueUrl);
-                        const proxyResponse = await fetch(proxyUrl);
-                        if (!proxyResponse.ok) throw new Error('Corsproxy failed');
-                        csvText = await proxyResponse.text();
-                    } catch (proxyError) {
-                         console.warn("Corsproxy failed, trying allorigins...", proxyError);
-                         // Fallback to api.allorigins
-                         const backupProxy = 'https://api.allorigins.win/raw?url=' + encodeURIComponent(uniqueUrl);
-                         const backupResponse = await fetch(backupProxy);
-                         if (!backupResponse.ok) throw new Error('All proxies failed');
-                         csvText = await backupResponse.text();
-                    }
-                }
-         
+	    try {        
+            	const csvText = await fetchSmart(RATES_DB_URL);
+            	// UI Loading State
+            	btn.disabled = true;
+            	icon.classList.add('spin');
+            	btn.classList.add('opacity-50');
+        
                 const newRates = parseRatesCSV(csvText);          
                 if (newRates.length > 0) {
-
                     items.forEach(item => {
                         const currentRate = rates.find(r => r.id === item.rateId);
 
@@ -2437,7 +2345,7 @@
             }
         }
 
-        // Rates CSV Parser
+        // Rates DB CSV Parser
         function parseRatesCSV(csvText) {
             const lines = csvText.trim().split(/\r\n|\n/);
             if (lines.length < 1) return [];
@@ -2808,7 +2716,7 @@
 	    clearIcon(input);
 	    return true;
 	}
-	
+
 	function validateWeight(input) {
 	    validateInput(input, 'Required', 'Must be greater than 0');
 	}
