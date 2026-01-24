@@ -1510,10 +1510,11 @@
             renderSettings();
             renderAddMenus();
             renderShareAddons();
+	    syncRates(true);
         
             setInterval(() => {
-                syncRates(); 
-            }, 3600000);    // AUTO SYNC RATES: Every Hour
+                syncRates(true); 
+            }, 3600000);    // HOURLY AUTO SYNC RATES
         }
 
 	function toggleMarginModal() {
@@ -2242,7 +2243,7 @@
 		const minSpinTime = new Promise(resolve => setTimeout(resolve, 800));
                 
                 try {
-                    const [res] = await Promise.all([fetch(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`), minSpinTime
+                    const [res] = await Promise.all([fetch(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`), minSpinTime]);
                     const data = await res.json();
                     const rate = data.rates[targetCurrency];
                     
@@ -2301,7 +2302,7 @@
 
 
         // SETTINGS RATES SYNC LOGIC
-        async function syncRates() {
+        async function syncRates(isAuto = false) {
             const btn = document.getElementById('sync-btn');
             const icon = document.getElementById('sync-icon');            
 
@@ -2312,10 +2313,11 @@
             }
 
 	    try {
-            	// UI Loading State
-            	btn.disabled = true;
-            	icon.classList.add('spin');
-            	btn.classList.add('opacity-50');
+            	if (btn && icon && !isAuto) { // UI Loading State
+	            btn.disabled = true;
+            	    icon.classList.add('spin');
+            	    btn.classList.add('opacity-50');
+		}
         	const csvText = await fetchSmart(RATES_DB_URL);
                 const newRates = parseRatesCSV(csvText);          
                 if (newRates.length > 0) {
@@ -2340,19 +2342,27 @@
                     renderCalculator(); 
                     calculateTotals();
                     
-                    showToast(`Synced ${newRates.length} rates successfully!`);
+		    if (isAuto) {
+			showToast(`${newRates.length} Rates Auto-Synced`);
+	            } else {
+	                showToast(`Synced ${newRates.length} rates successfully!`);
+		    }
                 } else {
-                    showToast("Synced, but found no valid data format.");
+                    if (!isAuto) {
+			showToast("Synced, but found no valid data format.");
+	            } else {
+	                showToast("Auto-Synced, but found no valid data format.");
+		    }
                 }
-
             } catch (error) {
                 console.error("Sync Error:", error);
-                showToast("Failed to fetch. Please try again after few minutes.");
+                if (!isAuto) showToast("Failed to fetch. Please try again after few minutes.");
             } finally {
-                // UI Reset State
-                btn.disabled = false;
-                icon.classList.remove('spin');
-                btn.classList.remove('opacity-50');
+                if (btn && icon) {      // UI Reset State
+		    btn.disabled = false;
+                    icon.classList.remove('spin');
+                    btn.classList.remove('opacity-50');
+		}
             }
         }
 
