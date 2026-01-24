@@ -285,7 +285,7 @@
         .delete-btn-corner i { font-size: 10px; }
         
         /* Spin Animation for Sync */
-        .fa-sync.spin, .fa-spinner.spin { animation: spin 1s linear infinite; }
+        .fa-sync.spin, .fa-sync-alt.spin, .fa-spinner.spin { animation: spin 1s linear infinite; }
        
         /* Theme Toggle Switch */
         .theme-toggle {
@@ -703,7 +703,7 @@
                         <span class="text-[10px] md:text-xs text-gray-500 italic text-right leading-tight max-w-[120px]">
                             *Updates take ~5 mins
                         </span>
-                        <button id="sync-btn" onclick="syncRates()" class="bg-green-700 hover:bg-green-600 text-white px-6 py-2 rounded-lg transition-colors flex items-center gap-2">
+                        <button id="sync-btn" onclick="syncRates()" class="bg-green-700 hover:bg-green-600 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-2">
                             <i id="sync-icon" class="fas fa-sync"></i> SYNC
                         </button>
                     </div>
@@ -1595,7 +1595,7 @@
 	    // Touch Events
 	    logo.addEventListener('touchstart', start, {passive: true});
 	    logo.addEventListener('touchend', cancel);
-	    logo.addEventListener('touchmove', cancel); // Cancel if they scroll away
+	    logo.addEventListener('touchmove', cancel);
 
 	    // Mouse Events
 	    logo.addEventListener('mousedown', start);
@@ -2227,7 +2227,7 @@
 
             async function fetchRate() {
                 const icon = refreshBtn.querySelector('i');
-                icon.classList.add('fa-spin');
+                icon.classList.add('spin');
                 updatedEl.textContent = 'Updating...';
                 
                 try {
@@ -2299,13 +2299,12 @@
                 return;
             }
 
-	    try {        
-            	const csvText = await fetchSmart(RATES_DB_URL);
+	    try {
             	// UI Loading State
             	btn.disabled = true;
             	icon.classList.add('spin');
             	btn.classList.add('opacity-50');
-        
+        	const csvText = await fetchSmart(RATES_DB_URL);
                 const newRates = parseRatesCSV(csvText);          
                 if (newRates.length > 0) {
                     items.forEach(item => {
@@ -2345,7 +2344,7 @@
             }
         }
 
-        // Rates DB CSV Parser
+        // Rates CSV Parser
         function parseRatesCSV(csvText) {
             const lines = csvText.trim().split(/\r\n|\n/);
             if (lines.length < 1) return [];
