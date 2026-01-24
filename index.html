@@ -10,6 +10,7 @@
     
     <link rel="icon" type="image/png" href="EJPC-app-icon-favicon.png">
 
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="EJPC">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -1236,7 +1237,7 @@
                     }
                 }, 1500);
 
-            } catch (err) {
+            )} catch (err) {
                 console.error("Initialization Failed:", err);
                 const status = document.getElementById('auth-status');
                 if(status) status.innerText = "System Error: Configuration Failed";
