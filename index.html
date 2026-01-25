@@ -1102,7 +1102,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
-        // --- CONFIGURATION ---
+        // --- AUTHENTICATION CONFIGURATION ---
 	// API DATABASE URL - PASTE YOUR API SHEET CSV URL HERE
         const API_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSVrmhTe91IFVyUXDrYkRh67VxmejcV0tiFuZHqTCnYUDJNgZIQD0kVaeHXOKoWgc24TgoCM35t0HIP/pub?gid=1288995889&single=true&output=csv";
 
@@ -1114,8 +1114,7 @@
         const vault = document.getElementById('protected-content');
         if (vault) {
             secureAppHTML = vault.innerHTML;
-            vault.innerHTML = "";          
-            console.log("App secured in vault.");
+            vault.innerHTML = "";
         }
 
         // PARSE CSV HELPER
@@ -1255,8 +1254,7 @@
         })();
     </script>
 
-    <script>
-	
+    <script>	
 	async function fetchSmart(url) {
 	    const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
 	    let text = '';
@@ -2144,7 +2142,6 @@
         function handleScannedCode(code) {
             if(code) {
                 const upperCode = code.toUpperCase();
-                console.log("Code Scanned:", upperCode);
                 toggleScanner();
                 fetchProductDetails(upperCode);
             }
@@ -2356,7 +2353,7 @@
                 }
             } catch (error) {
                 console.error("Sync Error:", error);
-                if (!isAuto) showToast("Failed to fetch. Please try again after few minutes.");
+                if (!isAuto) showToast("Sync Failed. Please try again after few minutes.");
             } finally {
                 if (btn && icon) {      // UI Reset State
 		    btn.disabled = false;
