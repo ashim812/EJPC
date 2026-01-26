@@ -430,6 +430,7 @@
         /* HOVER COLORS VISIBILITY IN BOTH THEME MODES */
         body .hover-blue:hover, body.light .hover-blue:hover { color: #60a5fa !important; }
         body .hover-purple:hover, body.light .hover-purple:hover { color: #c084fc !important; }
+	body .hover-orange:hover, body.light .hover-orange:hover { color: #fb923c !important; }
         body .hover-yellow:hover, body.light .hover-yellow:hover { color: #facc15 !important; }
         body .hover-red:hover, body.light .hover-red:hover { color: #ef4444 !important; }
 
@@ -535,6 +536,18 @@
                 --safe-top: 0px !important;
             }
         }
+
+	/* Orientation Lock Icon Animation */
+	@keyframes rotateFade {
+            0% { transform: rotate(-90deg); opacity: 1; }
+            40% { transform: rotate(0deg); opacity: 1; }
+            75% { transform: rotate(0deg); opacity: 1; }
+            100% { transform: rotate(0deg); opacity: 0; }
+        }
+
+	.animate-phone-rotate {
+	    animation: rotateFade 2s ease-in-out infinite;
+	}
     </style>
 </head>
 <body>
@@ -568,7 +581,7 @@
     <nav class="flex-none h-12 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
         <div class="w-full h-full px-3 flex justify-between items-center">
             <div class="flex items-center gap-4">		
-                <button onclick="toggleScanner()" class="nav-btn hover-red p-2 rounded-full" title="Scan QR">
+                <button onclick="toggleScanner()" class="nav-btn hover-purple p-2 rounded-full" title="Scan QR">
                     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <!-- Corners -->
                         <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
@@ -583,7 +596,7 @@
                         <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
                     </svg>
                 </button>
-		<button onclick="toggleHistory()" class="nav-btn hover-purple p-2 rounded-full" title="Quotation History">
+		<button onclick="toggleHistory()" class="nav-btn hover-green p-2 rounded-full" title="Quotation History">
                     <i class="fas fa-clock-rotate-left text-2xl"></i>
                 </button> 
             </div>
@@ -756,7 +769,7 @@
 </div>
 
     <div id="discount-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
-        <div class="modal-content glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-green-900">
+        <div class="modal-content glass-panel w-full max-w-md rounded-2xl flex flex-col shadow-2xl border border-red-600">
             <div class="flex justify-between items-start p-4 pb-0">
                 <div>
                     <h2 class="text-2xl md:text-3xl text-white font-bold">Discount Calculator</h2>
@@ -768,11 +781,11 @@
                 <form onsubmit="return false;" class="flex flex-col gap-4">
                     <div>
                         <label class="text-sm text-gray-400 block mb-1">Original Price (₹):</label>
-                        <input type="number" id="calc-original" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-green-500 focus:outline-none" placeholder="0.00" oninput="runDiscountCalc()" min="0" step="any">
+                        <input type="number" id="calc-original" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-red-500 focus:outline-none" placeholder="0.00" oninput="runDiscountCalc()" min="0" step="any">
                     </div>
                     <div>
                         <label class="text-sm text-gray-400 block mb-1">Discount (%):</label>
-                        <input type="number" id="calc-percent" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-green-500 focus:outline-none" value="0" oninput="runDiscountCalc()" min="0" max="100" step="any">
+                        <input type="number" id="calc-percent" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-red-500 focus:outline-none" value="0" oninput="runDiscountCalc()" min="0" max="100" step="any">
                     </div>
                     <div id="calc-result" class="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 hidden"></div>
                 </form>
@@ -781,7 +794,7 @@
     </div>
 
     <div id="currency-modal" class="modal fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
-        <div class="modal-content glass-panel w-full max-w-2xl rounded-2xl flex flex-col shadow-2xl border border-purple-900">
+        <div class="modal-content glass-panel w-full max-w-2xl rounded-2xl flex flex-col shadow-2xl border border-orange-900">
             <div class="flex justify-between items-start p-6 pb-2">
                 <div>
                     <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">INR → Currency Converter</h2>
@@ -837,7 +850,7 @@
 
     <!-- QUOTATION HISTORY -->    
 	<div id="history-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
-	    <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border border-gray-700">
+	    <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border-green-700">
 	        <div class="flex justify-between items-center p-3 pb-0.5 border-gray-700">
 		<div class="flex items-center gap-5">
 	            <h2 class="text-2xl text-white font-bold">History</h2>
@@ -861,10 +874,10 @@
 	</div>
 
 	<div id="quote-details-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
-	    <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-blue-500/50">
+	    <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border-green-500/50">
 	        <div class="flex justify-between items-center p-4 border-b border-gray-700 rounded-t-2xl">
 	            <h3 class="text-lg font-bold text-white flex items-center gap-2">
-	                <i class="fas fa-info-circle text-blue-400"></i> Saved Quotation Details
+	                <i class="fas fa-info-circle text-blue-400"></i> Quotation Details
 	            </h3>
 	            <button onclick="closeQuoteDetails()" class="text-gray-400 hover:text-white transition-colors">
 	                <i class="fas fa-times text-xl"></i>
@@ -881,7 +894,7 @@
         <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
         <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
 
-        <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border border-gray-700 overflow-hidden relative">            
+        <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border-purple-700">            
             <div class="flex-none flex items-center justify-between px-4 pt-3">
                 <h2 class="text-2xl text-[var(--text-main)] font-bold tracking-wide">Scan QR / Enter Code</h2>
                 <button onclick="toggleScanner()" class="text-gray-400 hover:text-white">
@@ -1075,7 +1088,7 @@
     
     <!-- PRODUCT DETAILS POPUP BOX -->
     <div id="product-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
-        <div class="modal-content glass-panel w-full max-w-sm rounded-[32px] flex flex-col shadow-2xl border border-red-500 relative overflow-hidden text-center p-8 gap-4 backdrop-blur-md transition-colors">
+        <div class="modal-content glass-panel w-full max-w-sm rounded-[32px] flex flex-col shadow-2xl border-purple-500 relative overflow-hidden text-center p-8 gap-4 backdrop-blur-md transition-colors">
              <button id="prod-modal-x" onclick="closeProductModal()" class="absolute top-4 right-4 text-gray-500 hover:text-red-500 transition-colors"><i class="fas fa-times text-xl"></i></button>
              <h2 class="text-2xl font-bold italic mb-2 font-serif text-[var(--text-main)] mt-2">PRODUCT DETAILS</h2>
              <div id="product-details-content" class="text-left space-y-1.5 text-[var(--text-main)] text-[15px] font-sans font-medium leading-relaxed">
@@ -2177,8 +2190,8 @@
 
             resultDiv.classList.remove('hidden');
             resultDiv.innerHTML = `
-                <div class="text-green-400 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
-                <div class="text-gray-400 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
+                <div class="text-red-600 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
+                <div class="text-red-500 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
             `;
         }
 
@@ -3719,9 +3732,8 @@
 	}
     </script>
 <div id="orientation-lock" class="fixed inset-0 z-[10000] bg-black hidden flex-col items-center justify-center text-center p-6">
-    <i class="fas fa-mobile-alt text-yellow-500 text-6xl mb-4"></i>
-    <h2 class="text-white text-2xl font-bold mb-2">Portrait Mode Only</h2>
-    <p class="text-gray-400">Please Rotate your Phone</p>
+    <i class="fas fa-mobile-alt text-yellow-500 text-6xl mb-4 animate-phone-rotate"></i>
+    <h2 class="text-white text-2xl font-bold mb-2">Rotate the Device</h2>
 </div>
 
 <script>
