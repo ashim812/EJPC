@@ -146,7 +146,6 @@
             visibility: hidden;
             pointer-events: none;
             padding-top: var(--safe-top); /* Ensure modals respect safe area */
-            padding-bottom: var(--safe-bottom);
         }
         .modal.active {
             opacity: 1;
@@ -1687,7 +1686,7 @@
                 }                
             
                 if(summaryState.tax) {
-                    runningTotal += (runningTotal * (typeof taxConfig !== 'undefined' ? taxConfig.rate/100 : 0.03));    // Tax
+                    runningTotal += (runningTotal * (taxConfig.rate/100));    // Tax
                 }
 
                 if(summaryState.roundOffMode > 0) {
@@ -1706,7 +1705,7 @@
         }
 
         // PRODUCT DETAILS MODAL LOGIC
-        function openProductModal(loading = true) {
+        function openProductModal() {
             const modal = document.getElementById('product-modal');
             const content = document.getElementById('product-details-content');
             const errorDiv = document.getElementById('product-error');
@@ -1717,9 +1716,7 @@
             actionBtn.onclick = closeProductModal;
 
             errorDiv.classList.add('hidden');
-            if(loading) {
-                content.innerHTML = `<div class="flex justify-center p-8"><i class="fas fa-circle-notch fa-spin text-3xl text-yellow-600"></i></div>`;
-            }
+            content.innerHTML = `<div class="flex justify-center p-8"><i class="fas fa-circle-notch fa-spin text-3xl text-yellow-600"></i></div>`;
             modal.classList.add('active');
         }
 
@@ -1735,7 +1732,7 @@
         async function fetchProductDetails(code) {
             if(!code) return;
             const upperCode = code.toUpperCase();            
-            openProductModal(true); // Show Loading
+            openProductModal();
 
             if (!PRODUCT_DB_URL) {
                 document.getElementById('product-details-content').innerHTML = "No Inventory DB configured.\nPlease contact the Developer.";
@@ -1945,7 +1942,7 @@
             if(!code) return;
             const upperCode = code.toUpperCase();
             
-            openProductModal(true);
+            openProductModal();
             document.querySelector('#product-modal h2').innerText = "FETCHING SOLD ITEM DETAILS...";
 
             if (!SOLD_DB_URL) {
@@ -3304,7 +3301,7 @@
             }
 
             if(summaryState.tax) {
-                const tax = runningTotal * (typeof taxConfig !== 'undefined' ? taxConfig.rate/100 : 0.03);
+                const tax = runningTotal * (taxConfig.rate/100);
                 if(shareOptions.tax) {
                     text += `GST (3%) : + ₹${tax.toLocaleString('en-IN', {maximumFractionDigits: 2})}\n`;
                 }
