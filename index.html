@@ -412,7 +412,7 @@
 	}
 
 	.blink-active {
-	    animation: blink-full 1s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
+	    animation: blink-full 0.5s cubic-bezier(0.4, 0, 0.6, 1) infinite alternate;
 	}
         
         /* Navigation Button Styles */
@@ -1348,7 +1348,6 @@
 
         let summaryState = {
             tax: true,
-            roundOffMode: 10000, // Default to 10000
             showRoundOptions: false,
             roundRowHidden: true
         };        
@@ -3175,7 +3174,9 @@
             let roundDiffClass = "text-gray-500";            
           
             if (summaryState.roundOffMode > 0) {
-		if (runningTotal < 1000) {
+		if (runningTotal < 100) {
+                    summaryState.roundOffMode = 1;
+		} else if (runningTotal < 1000) {
                     summaryState.roundOffMode = 10;
                 } else if (runningTotal < 10000) {
                     summaryState.roundOffMode = 100;
