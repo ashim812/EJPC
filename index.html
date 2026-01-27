@@ -1348,7 +1348,7 @@
 
         let summaryState = {
             tax: true,
-            roundOffMode: 1000, // 0: None, 1: Round Integer, 10: Round 10, 100: Round 100, 1000
+            roundOffMode: 10000, // Default to 10000
             showRoundOptions: false,
             roundRowHidden: true
         };        
@@ -3174,7 +3174,16 @@
             let roundLabel = "Round Off";
             let roundDiffClass = "text-gray-500";            
           
-            if (summaryState.roundOffMode > 0) {  // Calculate if active (Calculation happens regardless of visibility)
+            if (summaryState.roundOffMode > 0) {
+		if (runningTotal < 1000) {
+                    summaryState.roundOffMode = 10;
+                } else if (runningTotal < 10000) {
+                    summaryState.roundOffMode = 100;
+                } else if (runningTotal < 100000) {
+                    summaryState.roundOffMode = 1000;
+                } else {
+                    summaryState.roundOffMode = 10000;
+                }
                 const mode = summaryState.roundOffMode;
                 const rounded = Math.round(runningTotal / mode) * mode;
                 roundOffAmount = rounded - runningTotal;
@@ -3184,7 +3193,7 @@
 
             const sign = roundOffAmount >= 0 ? '+' : '';
             const displayDiff = summaryState.roundOffMode > 0 ? `${sign}₹${roundOffAmount.toFixed(2)}` : '';         
-            const infoBtnClass = summaryState.showRoundOptions ? 'text-yellow-500' : 'text-gray-400';   // Info Button Style
+            const infoBtnClass = summaryState.showRoundOptions ? 'text-yellow-500' : 'text-gray-400';
                 
             if (!summaryState.roundRowHidden && !isStealthMode) {      // Render Row ONLY if not hidden AND not in stealth mode
                 html += `
@@ -3204,13 +3213,20 @@
                         <button onclick="setRoundMode(10)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 10 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10</button>
                         <button onclick="setRoundMode(100)" class="w-10 h-8 rounded border ${summaryState.roundOffMode === 100 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">100</button>
                         <button onclick="setRoundMode(1000)" class="w-11 h-8 rounded border ${summaryState.roundOffMode === 1000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1000</button>
-                        
-                        <button onclick="toggleRoundRowVisibility()" class="w-8 h-8 flex items-center justify-center text-gray-500 hover:text-red-400 transition-all ml-2" title="Hide Round Off Row">
-                            <i class="fas fa-eye-slash text-sm"></i>
-                        </button>
+			<button onclick="setRoundMode(10000)" class="w-14 h-8 rounded border ${summaryState.roundOffMode === 10000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10000</button>
                     </div>
                 </div>
                 `;
+            }
+
+	    const isRoundNeg = roundOffAmount < 0;
+            let toggleIconClass, toggleBtnClass;
+            if (summaryState.roundRowHidden) {
+                toggleIconClass = isRoundNeg ? "fas fa-exclamation-circle text-xs blink-active" : "far fa-question-circle text-xs";
+                toggleBtnClass = isRoundNeg ? "text-red-500 hover:text-red-400" : "text-gray-500 hover:text-yellow-500";
+            } else {
+                toggleIconClass = "fas fa-eye-slash text-xs";
+                toggleBtnClass = "text-gray-500 hover:text-red-400";
             }
 
             // Final Total Row
@@ -3218,9 +3234,9 @@
             <div class="invoice-row mt-4 pt-2 pb-0 border-t border-gray-800">
                 <div class="flex items-center gap-2">
                     <span class="text-white font-bold text-xl">Total Price</span>
-		    ${(summaryState.roundRowHidden && !isStealthMode) ? `
-                        <button onclick="toggleRoundRowVisibility()" class="text-gray-500 hover:text-yellow-500 transition-colors ml-2" title="Show Round Off">
-                            <i class="far fa-question-circle text-xs"></i>
+		    ${!isStealthMode ? `
+                        <button onclick="toggleRoundRowVisibility()" class="${toggleBtnClass} transition-colors ml-2" title="Toggle Round Off">
+                            <i class="${toggleIconClass}"></i>
                         </button>
                     ` : ''}
                 </div>
