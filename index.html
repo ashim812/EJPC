@@ -3198,7 +3198,7 @@
 
             const sign = roundOffAmount >= 0 ? '+' : '';
             const displayDiff = (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) ? `${sign}₹${roundOffAmount.toFixed(2)}` : '';         
-            const infoBtnClass = !summaryState.showRoundOptions ? 'text-yellow-500' : 'text-gray-500';
+            const infoBtnClass = !summaryState.showRoundOptions ? 'text-purple-500' : 'text-gray-500';
                 
             if (!summaryState.roundRowHidden && !isStealthMode) {      // Render Row ONLY if not hidden AND not in stealth mode
 		if (summaryState.roundOffEnabled) {
