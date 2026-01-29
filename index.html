@@ -3258,19 +3258,20 @@
 		    ${!isStealthMode ? `
 			<div class="relative ml-2 flex flex-col items-center justify-center">
                             ${ (isRoundNeg && summaryState.roundRowHidden) ? `
-                                <div class="absolute bottom-full mb-2.5 w-max bg-gray-700 text-white text-[10px] font-bold px-2 py-1.5 rounded shadow-xl z-10 flex flex-col items-center animate-bounce">
-                                    Check other Rounding options also
-                                    <div class="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-gray-700 absolute top-full"></div>
-                                </div>
+                            <div class="absolute bottom-full w-max bg-gray-800 text-white text-[10px] font-bold px-2 py-1.5 rounded shadow-xl z-10 flex flex-col items-center animate-bounce">
+                                Check other Rounding Options as well
+                                <div class="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-gray-700 absolute top-full"></div>
+                            </div>
                             ` : ''}
-                            <button onclick="toggleRoundRowVisibility()" class="${toggleBtnClass} transition-colors ml-2" title="Toggle Round Off">
+                            <button onclick="toggleRoundRowVisibility()" class="${toggleBtnClass} transition-colors" title="Toggle Round Off">
                                 <i class="${toggleIconClass}"></i>
                             </button>
-                        ` : ''}
-                    </div>
-                    <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+			</div>
+                    ` : ''}
                 </div>
-                `;
+                <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+            </div>
+            `;
 
 	// Currency Row
             if (currencyAddActive && globalExchangeRate > 0) {
