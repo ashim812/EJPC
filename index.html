@@ -3177,20 +3177,18 @@
           
             if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
 		if (!summaryState.showRoundOptions) {
-                    const modes = [10000, 1000, 100, 10, 1]; 
-	            let bestMode = 1;
-	            let minDiff = Infinity;
-      
-	            for (let m of modes) {  // Test each mode what the rounding would be
-	                const rounded = Math.round(runningTotal / m) * m;  
-	                const diff = Math.abs(rounded - runningTotal);  // Absolute difference (distance from 0)
-	                if (diff < minDiff) {
-	                    minDiff = diff;
-	                    bestMode = m;
-	                }
-	            }
-	            summaryState.roundOffMode = bestMode;
-	        }
+                    if (runningTotal < 100) {
+                        summaryState.roundOffMode = 1;
+                    } else if (runningTotal < 1000) {
+                        summaryState.roundOffMode = 10;
+                    } else if (runningTotal < 10000) {
+                        summaryState.roundOffMode = 100;
+                    } else if (runningTotal < 100000) {
+                        summaryState.roundOffMode = 1000;
+                    } else {
+                        summaryState.roundOffMode = 10000;
+                    }
+                }
                 const mode = summaryState.roundOffMode;
                 const rounded = Math.round(runningTotal / mode) * mode;
                 roundOffAmount = rounded - runningTotal;
@@ -3258,14 +3256,21 @@
                 <div class="flex items-center gap-2">
                     <span class="text-white font-bold text-xl">Total Price</span>
 		    ${!isStealthMode ? `
-                        <button onclick="toggleRoundRowVisibility()" class="${toggleBtnClass} transition-colors ml-2" title="Toggle Round Off">
-                            <i class="${toggleIconClass}"></i>
-                        </button>
-                    ` : ''}
+			<div class="relative ml-2 flex flex-col items-center justify-center">
+                            ${ (isRoundNeg && summaryState.roundRowHidden) ? `
+                                <div class="absolute bottom-full mb-2.5 w-max bg-gray-700 text-white text-[10px] font-bold px-2 py-1.5 rounded shadow-xl z-10 flex flex-col items-center animate-bounce">
+                                    Check other Rounding options also
+                                    <div class="w-0 h-0 border-l-[8px] border-l-transparent border-r-[8px] border-r-transparent border-t-[8px] border-t-gray-700 absolute top-full"></div>
+                                </div>
+                            ` : ''}
+                            <button onclick="toggleRoundRowVisibility()" class="${toggleBtnClass} transition-colors ml-2" title="Toggle Round Off">
+                                <i class="${toggleIconClass}"></i>
+                            </button>
+                        ` : ''}
+                    </div>
+                    <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
                 </div>
-                <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
-            </div>
-            `;
+                `;
 
 	// Currency Row
             if (currencyAddActive && globalExchangeRate > 0) {
