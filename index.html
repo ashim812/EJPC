@@ -3167,26 +3167,16 @@
           
             if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
 		if (!summaryState.showRoundOptions) {
-                    if (runningTotal < 50) {
-        		summaryState.roundOffMode = 1;
-		    } else if (runningTotal < 100) {
-		        summaryState.roundOffMode = 5;
-		    } else if (runningTotal < 500) {
-		        summaryState.roundOffMode = 10;
-		    } else if (runningTotal < 1000) {
-		        summaryState.roundOffMode = 50;
-		    } else if (runningTotal < 5000) {
-		        summaryState.roundOffMode = 100;
-		    } else if (runningTotal < 10000) {
-		        summaryState.roundOffMode = 500;
-		    } else if (runningTotal < 50000) {
-		        summaryState.roundOffMode = 1000;
-		    } else if (runningTotal < 100000) {
-		        summaryState.roundOffMode = 5000;
-		    } else if (runningTotal < 500000) {
-		        summaryState.roundOffMode = 10000;
-		    } else {
-		        summaryState.roundOffMode = 50000;
+                    if (runningTotal < 100) {
+                        summaryState.roundOffMode = 1;
+                    } else if (runningTotal < 1000) {
+                        summaryState.roundOffMode = 10;
+                    } else if (runningTotal < 10000) {
+                        summaryState.roundOffMode = 100;
+                    } else if (runningTotal < 100000) {
+                        summaryState.roundOffMode = 1000;
+                    } else {
+                        summaryState.roundOffMode = 10000;
                     }
                 }
                 const mode = summaryState.roundOffMode;
@@ -3222,17 +3212,12 @@
                             <span class="invoice-val ${roundDiffClass}">${displayDiff}</span>
                         </div>
                     
-                    <div class="${summaryState.showRoundOptions ? 'flex' : 'hidden'} flex-wrap justify-start gap-2 animate-[slideIn_0.2s_ease-out]">
-                        <button onclick="setRoundMode(1)" class="w-4 h-5 rounded border ${summaryState.roundOffMode === 1 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1</button>
-    			<button onclick="setRoundMode(5)" class="w-4 h-5 rounded border ${summaryState.roundOffMode === 5 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">5</button>
-    			<button onclick="setRoundMode(10)" class="w-5 h-5 rounded border ${summaryState.roundOffMode === 10 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10</button>
-    			<button onclick="setRoundMode(50)" class="w-5 h-5 rounded border ${summaryState.roundOffMode === 50 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">50</button>
-    			<button onclick="setRoundMode(100)" class="w-6 h-5 rounded border ${summaryState.roundOffMode === 100 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">100</button>
-    			<button onclick="setRoundMode(500)" class="w-6 h-5 rounded border ${summaryState.roundOffMode === 500 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">500</button>
-    			<button onclick="setRoundMode(1000)" class="w-5 h-5 rounded border ${summaryState.roundOffMode === 1000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1k</button>
-    			<button onclick="setRoundMode(5000)" class="w-5 h-5 rounded border ${summaryState.roundOffMode === 5000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">5k</button>
-    			<button onclick="setRoundMode(10000)" class="w-6 h-5 rounded border ${summaryState.roundOffMode === 10000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10k</button>
-    			<button onclick="setRoundMode(50000)" class="w-6 h-5 rounded border ${summaryState.roundOffMode === 50000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">50k</button>
+                    <div class="${summaryState.showRoundOptions ? 'flex' : 'hidden'} justify-start gap-3 mb-2 animate-[slideIn_0.2s_ease-out]">
+                        <button onclick="setRoundMode(1)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 1 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1</button>
+                        <button onclick="setRoundMode(10)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 10 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10</button>
+                        <button onclick="setRoundMode(100)" class="w-10 h-8 rounded border ${summaryState.roundOffMode === 100 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">100</button>
+                        <button onclick="setRoundMode(1000)" class="w-11 h-8 rounded border ${summaryState.roundOffMode === 1000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1000</button>
+			<button onclick="setRoundMode(10000)" class="w-14 h-8 rounded border ${summaryState.roundOffMode === 10000 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10000</button>
                     </div>
                 </div>
                 `;
