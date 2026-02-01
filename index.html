@@ -44,6 +44,8 @@
             --input-bg: #2a2a2a;
             --border-color: rgba(212, 175, 55, 0.2);
             --accent-blue: #64b5f6;
+            --bg-gradient-1: #1f1f1f;
+            --bg-gradient-2: #000000;
             --icon-color: #d1d5db; /* gray-300 default */
             --safe-top: env(safe-area-inset-top, 0px);
         }
@@ -58,6 +60,8 @@
             --input-bg: #ffffff;
             --border-color: rgba(0, 0, 0, 0.1);
             --accent-blue: #0284c7;
+            --bg-gradient-1: #e2e8f0;
+            --bg-gradient-2: #f8fafc;
             --icon-color: #374151; /* gray-700 for light mode */
         }
 
@@ -1929,7 +1933,6 @@
             if(code.length > 1) {
 		toggleScanner();
                 fetchSoldDetails(code);
-                input.value = "E";
             } else {
                 showToast("Please enter a Product Code");
             }
