@@ -939,7 +939,7 @@
 
                 <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Scan with Camera">
                     <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
-                         <i class="fas fa-camera text-lg"></i>
+                         <i class="fas fa-qrcode text-lg"></i>
                     </div>
                 </button>
 
@@ -2172,8 +2172,20 @@
                 return;
             }
 
+	    let baseValuation = 0;
+	    items.forEach(item => {
+	        const rate = rates.find(r => r.id === item.rateId);
+	        if (rate && item.weight > 0) {
+	            const price = rate.price || 0;
+	            const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
+	            baseValuation += cost;
+	        }
+	    });
+
             const amountSaved = originalPrice * (discountPercentage / 100);
             const discountedPrice = originalPrice - amountSaved;
+	    const lossAmount = baseValuation - discountedPrice;
+	    const isLoss = lossAmount > 0;
         
             discountData = {    // Update Global Discount Data
                 percentage: discountPercentage,
@@ -2183,10 +2195,21 @@
             };
 
             resultDiv.classList.remove('hidden');
-            resultDiv.innerHTML = `
+
+            let html = `
                 <div class="text-red-600 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
                 <div class="text-red-500 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
             `;
+
+	    if (isLoss) {
+	        html += `
+	            <div class="mt-2 p-2 bg-red-900/30 border border-red-500 rounded text-red-500 text-xs font-bold flex items-center gap-2">
+			<i class="fas fa-triangle-exclamation text-yellow-400 blink-active"></i>
+	                <span>LOSS: ₹ ${lossAmount.toLocaleString('en-IN', {maximumFractionDigits: 2})} below Cost</span>
+	            </div>
+	        `;
+	    }	
+	    resultDiv.innerHTML = html;
         }
 
         // CURRENCY CONVERTER LOGIC
