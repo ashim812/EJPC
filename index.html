@@ -576,31 +576,14 @@
 
     <!-- THE VAULT -->
     <div id="protected-content" class="w-full h-full flex flex-col" style="display: none;">
-    <nav class="flex-none h-12 w-full glass-panel border-b border-gray-800 z-40 transition-colors duration-300">
+    <nav class="flex-none h-12 w-full glass-panel z-40 transition-colors duration-300">
         <div class="w-full h-full px-3 flex justify-between items-center">
-            <div class="flex items-center gap-4">		
-                <button onclick="toggleScanner()" class="nav-btn hover-purple p-2 rounded-full" title="Scan QR">
-                    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <!-- Corners -->
-                        <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                        <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                        <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                        <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                        <!-- Inner Markers -->
-                        <rect x="7" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
-                        <rect x="14" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
-                        <rect x="7" y="14" width="3" height="3" rx="0.5" stroke-width="2"></rect>
-                        <path d="M14.5 14.5h.5v.5h-.5z" stroke-width="2.5"></path>
-                        <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
-                    </svg>
-                </button>
-		<button onclick="toggleHistory()" class="nav-btn hover-green p-2 rounded-full" title="Quotation History">
-                    <i class="far fa-clock text-2xl"></i>
-                </button> 
-            </div>
-	    <h1 id="app-logo" class="text-2xl md:text-2xl font-bold text-yellow-500 tracking-wider cursor-pointer select-none transition-opacity duration-200" title="Hold to Refresh">EJPC</h1>
+            <h1 id="app-logo" class="text-2xl md:text-2xl font-bold text-yellow-500 tracking-wider cursor-pointer select-none transition-opacity duration-200" title="Hold to Refresh">EJPC</h1>
             <div class="flex items-center gap-3">
-                <div class="flex items-center gap-4">
+                <div class="flex items-center gap-7">
+                    <button onclick="toggleHistory()" class="nav-btn hover-green p-2 rounded-full" title="Quotation History">
+                    	<i class="far fa-clock text-2xl"></i>
+		    </button>
                     <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -610,6 +593,21 @@
 			    <line x1="8" y1="11.5" x2="16" y2="11.5"></line>
                         </svg>
                     </button>
+		    <button onclick="toggleScanner()" class="nav-btn hover-purple p-2 rounded-full" title="Scan QR">
+	                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                           <!-- Corners -->
+                           <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                           <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                           <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                           <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                           <!-- Inner Markers -->
+                           <rect x="7" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                           <rect x="14" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                           <rect x="7" y="14" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                           <path d="M14.5 14.5h.5v.5h-.5z" stroke-width="2.5"></path>
+                           <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
+	               </svg>
+	            </button>
                     <button id="nav-settings-btn" class="nav-btn hover-yellow p-2 rounded-full" title="Manage Rates">
                         <i class="fas fa-gear text-2xl"></i>
                     </button>
