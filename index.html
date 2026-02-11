@@ -1704,15 +1704,17 @@
         }
 
         // PRODUCT DETAILS MODAL LOGIC
-        function openProductModal() {
+        function openProductModal(title = "PRODUCT DETAILS") {
             const modal = document.getElementById('product-modal');
             const content = document.getElementById('product-details-content');
             const errorDiv = document.getElementById('product-error');
-            const actionBtn = document.getElementById('prod-action-btn');
-            
+            const actionBtn = document.getElementById('prod-action-btn');            
             document.getElementById('prod-modal-x').classList.remove('hidden');
             actionBtn.innerText = "LOAD";
             actionBtn.onclick = closeProductModal;
+
+	    const modalHeader = document.querySelector('#product-modal h2');
+	    if (modalHeader) modalHeader.innerText = title;
 
             errorDiv.classList.add('hidden');
             content.innerHTML = `<div class="flex justify-center p-8"><i class="fas fa-circle-notch fa-spin text-3xl text-yellow-600"></i></div>`;
@@ -1731,10 +1733,7 @@
         async function fetchProductDetails(code) {
             if(!code) return;
             const upperCode = code.toUpperCase();            
-            openProductModal();
-
-	    const modalHeader = document.querySelector('#product-modal h2');
-	    if (modalHeader) modalHeader.innerText = "PRODUCT DETAILS";
+            openProductModal("PRODUCT DETAILS");
 
             if (!PRODUCT_DB_URL) {
                 document.getElementById('product-details-content').innerHTML = "No Inventory DB configured.\nPlease contact the Developer.";
@@ -1945,7 +1944,7 @@
         async function fetchSoldDetails(code) {
             if(!code) return;
             const upperCode = code.toUpperCase();
-            openProductModal();
+            openProductModal("SOLD ITEM DETAILS");
 
             if (!SOLD_DB_URL) {
                 document.getElementById('product-details-content').innerHTML = "No Sold Items DB configured.\nPlease contact the Developer.";
@@ -2028,9 +2027,7 @@
         }
 
         function renderSoldDetails(p) {
-            const container = document.getElementById('product-details-content');
-            document.querySelector('#product-modal h2').innerText = "SOLD ITEM DETAILS";
-            
+            const container = document.getElementById('product-details-content');          
             let html = `
                 <div>Product ID : ${p.id}</div>
                 <div>Product : ${p.item}</div>
