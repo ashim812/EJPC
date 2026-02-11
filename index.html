@@ -1733,6 +1733,9 @@
             const upperCode = code.toUpperCase();            
             openProductModal();
 
+	    const modalHeader = document.querySelector('#product-modal h2');
+	    if (modalHeader) modalHeader.innerText = "PRODUCT DETAILS";
+
             if (!PRODUCT_DB_URL) {
                 document.getElementById('product-details-content').innerHTML = "No Inventory DB configured.\nPlease contact the Developer.";
                 return;
@@ -1867,6 +1870,9 @@
             if (loadedCount > 0) {
                 showToast("Product Details Loaded");
                 closeProductModal();
+		if (scanMode === 'single') {
+	            toggleSummary();
+	        }
             } else {
                 showToast("Could not match items to Rates");
             }
@@ -1939,9 +1945,7 @@
         async function fetchSoldDetails(code) {
             if(!code) return;
             const upperCode = code.toUpperCase();
-            
             openProductModal();
-            document.querySelector('#product-modal h2').innerText = "FETCHING SOLD ITEM DETAILS...";
 
             if (!SOLD_DB_URL) {
                 document.getElementById('product-details-content').innerHTML = "No Sold Items DB configured.\nPlease contact the Developer.";
@@ -1962,9 +1966,8 @@
                     document.getElementById('product-details-content').innerHTML = "";
                     document.getElementById('err-prod-id').textContent = upperCode;
                     document.getElementById('product-error').classList.remove('hidden');
-                    document.querySelector('#product-modal h2').innerText = "SOLD ITEM NOT FOUND";
                     actionBtn.innerText = "RETRY";
-                    actionBtn.onclick = () => { closeProductModal(); document.getElementById('sold-code-input').focus(); };
+                    actionBtn.onclick = () => { closeProductModal(); toggleScanner(); };
                 }
 
             } catch (error) {
