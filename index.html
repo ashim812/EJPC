@@ -701,13 +701,6 @@
                         </div>
                         <div id="settings-metals-list" class="auto-grid content-start"></div>
                     </div>
-                    <div class="bg-gray-900 bg-opacity-40 p-4 rounded-xl border border-gray-800 flex flex-col">
-                        <div class="flex items-center gap-2 mb-4 border-b border-gray-700 pb-2">
-                            <i class="far fa-gem text-blue-400"></i>
-                            <h3 class="text-lg font-bold text-gray-300">STONES</h3>
-                        </div>
-                        <div id="settings-stones-list" class="auto-grid content-start"></div>
-                    </div>
                 </div>
             </div>
             <div class="p-4 border-t border-gray-700 bg-gray-900 bg-opacity-80 rounded-b-2xl flex flex-col gap-3 flex-shrink-0">
@@ -781,7 +774,7 @@
                     </div>
                     <div>
                         <label class="text-sm text-gray-400 block mb-1">Discount (%):</label>
-                        <input type="number" id="calc-percent" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-red-500 focus:outline-none" value="0" oninput="runDiscountCalc()" min="0" max="100" step="any">
+                        <input type="number" id="calc-percent" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-red-500 focus:outline-none" value="0" oninput="runDiscountCalc()" min="0" max="15" step="any">
                     </div>
                     <div id="calc-result" class="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 hidden"></div>
                 </form>
@@ -929,11 +922,7 @@
                     <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
                         <i class="far fa-image text-lg"></i>
                     </div>
-                </button>
-
-                <button id="scan-mode-btn" onclick="toggleScanMode()" class="px-2 py-0.5 rounded-full bg-gray-900 border border-gray-700 flex items-center justify-center transition-all active:scale-50 shadow-lg select-none hover:border-gray-500">
-                    <span id="scan-mode-text" class="text-[10px] font-bold text-white tracking-wider">SINGLE</span>
-                </button>            
+                </button>          
 
                 <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Scan with Camera">
                     <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
@@ -1305,8 +1294,7 @@
 	}
 
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
-	let scanMode = 'single';
+        let profitMargins = { metal: 5, stone: 35 }; // Default Profit Margin
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1346,7 +1334,7 @@
 
         let summaryState = {
             tax: true,
-	    roundOffMode: 1, // Default to 1
+	    roundOffMode: 1,
 	    roundOffEnabled: true,
             showRoundOptions: false,
             roundRowHidden: false
@@ -1546,7 +1534,7 @@
 	}
 
 	function resetMargins() {
-            if(confirm("Reset margins to default (Metal: 5%, Stone: 25%)?")) {
+            if(confirm("Reset margins to default (Metal: 5%, Stone: 35%)?")) {
                 profitMargins = { metal: 5, stone: 25 };
             
                 const mInput = document.getElementById('margin-metal-input');
@@ -1769,12 +1757,10 @@
         
         function loadProductToCalculator() {
             if (!currentFetchedProduct) return;
-	    if (scanMode === 'single') {
-	         items = []; // Clear existing items
-	         renderCalculator(); // Clear UI rows
-	         calculateTotals(); // Reset totals
-	    }       
-            const p = currentFetchedProduct;
+	    items = []; // Clear existing items
+	    renderCalculator(); // Clear UI rows
+	    calculateTotals(); // Reset totals
+	    const p = currentFetchedProduct;
             let loadedCount = 0;
 
             // Helper to update DOM inputs for newly added item
@@ -1869,9 +1855,7 @@
             if (loadedCount > 0) {
                 showToast("Product Details Loaded");
                 closeProductModal();
-		if (scanMode === 'single') {
-	            toggleSummary();
-	        }
+	        toggleSummary();	        
             } else {
                 showToast("Could not match items to Rates");
             }
@@ -2097,21 +2081,6 @@
 	    const soldInput = document.getElementById('sold-code-input');
 	    if(manInput) manInput.value = 'E';
 	    if(soldInput) soldInput.value = 'E';
-	}
-
-	function toggleScanMode() {
-	    const btn = document.getElementById('scan-mode-btn');
-	    const text = document.getElementById('scan-mode-text');
-    
-	    if (scanMode === 'single') {
-	        scanMode = 'multi';
-	        text.innerText = 'MULTI';
-	        if(navigator.vibrate) navigator.vibrate([100, 50, 100, 50, 100]);
-	    } else {
-	        scanMode = 'single';
-	        text.innerText = 'SINGLE';
-	        if(navigator.vibrate) navigator.vibrate(500);
-	    }
 	}
                
         // Gallery Scan & Camera Scan Logic     
@@ -2537,28 +2506,45 @@
                 .filter(r => r.type === 'stone' && r.name)
                 .sort(sortStones);
 
-            if (validMetals.length === 0) {
-                metalMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set rates in Settings to enable</span>`;
-            } else {
-                validMetals.forEach(r => {
-                    const btn = document.createElement('button');
-                    btn.className = 'add-chip metal';
-                    btn.onclick = () => addItem('metal', r.id);
-                    btn.innerHTML = `${r.name}`;
-                    metalMenu.appendChild(btn);
-                });
-            }
+            validMetals.forEach(r => {
+                const btn = document.createElement('button');
+                btn.className = 'add-chip metal';
+                btn.onclick = () => addItem('metal', r.id);
+                btn.innerHTML = `${r.name}`;
+                metalMenu.appendChild(btn);
+            });
+            
+            validStones.forEach(r => {
+                const btn = document.createElement('button');
+                btn.className = 'add-chip stone';
+                btn.onclick = () => addItem('stone', r.id);
+                btn.innerHTML = `${r.name}`;
+                stoneMenu.appendChild(btn);
+            });
 
-            if (validStones.length === 0) {
-                stoneMenu.innerHTML = `<span class="text-gray-600 text-xs italic">Set names in Settings to enable</span>`;
-            } else {
-                validStones.forEach(r => {
-                    const btn = document.createElement('button');
-                    btn.className = 'add-chip stone';
-                    btn.onclick = () => addItem('stone', r.id);
-                    btn.innerHTML = `${r.name}`;
-                    stoneMenu.appendChild(btn);
-                });
+            const addBtn = document.createElement('button');
+            addBtn.className = 'add-chip border-dashed border-blue-500 text-blue-400';
+            addBtn.onclick = () => addNewStoneToMenu();
+            addBtn.innerHTML = `<i class="fas fa-plus mr-1"></i> New Stone`;
+            stoneMenu.appendChild(addBtn);
+        }
+
+	function addNewStoneToMenu() {
+            const name = prompt("Enter New Stone Name:");
+            if (name && name.trim() !== "") {
+                const newId = 's_cust_' + Date.now();
+                const newStone = { 
+                    id: newId, 
+                    name: name.trim(), 
+                    type: 'stone', 
+                    price: 0, 
+                    isSynced: false 
+                };
+                
+                rates.push(newStone);
+                renderAddMenus(); // Refresh buttons to show the new one
+                addItem('stone', newId); // Automatically add it to the calculator
+                showToast(`${name} added to Stone menu`);
             }
         }
 
@@ -2846,16 +2832,11 @@
         }
 
         function renderSettings() {
-            const metalList = document.getElementById('settings-metals-list');
-            const stoneList = document.getElementById('settings-stones-list');            
+            const metalList = document.getElementById('settings-metals-list');           
             metalList.innerHTML = '';
-            stoneList.innerHTML = '';
             const metals = rates.filter(r => r.type === 'metal');
-            const stones = rates.filter(r => r.type === 'stone');
             metals.forEach(r => metalList.appendChild(createCubeElement(r)));
             metalList.appendChild(createAddButton('metal'));
-            stones.forEach(r => stoneList.appendChild(createCubeElement(r)));
-            stoneList.appendChild(createAddButton('stone'));
         }
 
         function createCubeElement(rate) {
