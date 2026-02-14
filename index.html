@@ -2342,11 +2342,13 @@
                     renderAddMenus();
                     renderCalculator(); 
                     calculateTotals();
+
+		    const metalCount = newRates.filter(r => r.type === 'metal').length;
                     
 		    if (isAuto) {
-			showToast(`${newRates.length} Rates Auto-Synced`);
+			showToast(`${metalCount} Rates Auto-Synced`);
 	            } else {
-	                showToast(`Synced ${newRates.length} rates successfully!`);
+	                showToast(`Synced ${metalCount} rates successfully!`);
 		    }
                 } else {
                     if (!isAuto) {
