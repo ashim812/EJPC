@@ -2144,10 +2144,9 @@
         // DISCOUNT CALCULATOR LOGIC
         function runDiscountCalc() {
             const originalPrice = parseFloat(document.getElementById('calc-original').value);
-            const discountPercentage = parseFloat(document.getElementById('calc-percent').value);
             const resultDiv = document.getElementById('calc-result');
 
-            let discountPercentage = parseFloat(percentInput.value);
+            let discountPercentage = parseFloat(document.getElementById('calc-percent').value);
 	    // Min & Max Discount %
 	    if (discountPercentage > 15) {
 	        percentInput.value = 15;
