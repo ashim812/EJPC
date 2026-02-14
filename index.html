@@ -385,16 +385,6 @@
             outline: none;
             width: 100%;
         }
-        .conv-pill {
-            background: rgba(125,125,125,0.1);
-            border: 1px solid var(--border-color);
-            padding: 4px 12px;
-            border-radius: 99px;
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            display: inline-flex;
-            align-items: center;
-        }
         .conv-pill-small {
             background: rgba(125,125,125,0.1);
             border: 1px solid var(--border-color);
@@ -1352,7 +1342,6 @@
 	    roundOffMode: 1,
 	    roundOffEnabled: true,
             showRoundOptions: false,
-            roundRowHidden: false
         };        
        
         let shareOptions = {
@@ -2825,7 +2814,7 @@
             }
 
             div.innerHTML = `
-                <div class="flex-grow w-full md:w-auto pl-2">
+                <div class="flex-grow w-full md:w-auto">
                     <div class="text-gray-200 font-medium text-lg">${label}</div>
                 </div>
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
