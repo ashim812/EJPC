@@ -748,7 +748,7 @@
 	            <label class="text-sm text-blue-400 font-bold uppercase tracking-wider">Stone Margin %</label>
 	            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2 w-24">
 	                <input type="number" id="margin-stone-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none text-right"
-	                       value="25" min="0" onchange="updateMargin('stone', this.value)">
+	                       value="35" min="0" onchange="updateMargin('stone', this.value)">
 	            </div>
 	        </div>
 	    </div>
@@ -772,7 +772,7 @@
                     </div>
                     <div>
                         <label class="text-sm text-gray-400 block mb-1">Discount (%):</label>
-                        <input type="number" id="calc-percent" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-red-500 focus:outline-none" value="0" oninput="runDiscountCalc()" min="0" max="15" step="any">
+                        <input type="number" id="calc-percent" class="w-full bg-gray-900 border border-gray-600 rounded p-3 text-lg text-white focus:border-red-500 focus:outline-none"oninput="runDiscountCalc()" step="any">
                     </div>
                     <div id="calc-result" class="mt-4 p-4 bg-gray-800 rounded-lg border border-gray-700 hidden"></div>
                 </form>
@@ -914,20 +914,36 @@
 
             </div>
         
-            <div class="flex-none p-6 pt-2 flex items-center justify-around">
-                
-                <button onclick="triggerGallery()" class="flex flex-col items-center gap-1 group" title="Scan from Gallery">
-                    <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
-                        <i class="far fa-image text-lg"></i>
-                    </div>
-                </button>          
+            <div class="flex-none p-6 pt-2 flex items-center justify-center gap-8">
+                <div class="flex items-center gap-3">
+		    <span class="text-[10px] text-gray-400 font-bold leading-tight text-right uppercase tracking-wide">Upload<br>QR ▶</span>
+                    <button onclick="triggerGallery()" class="flex flex-col items-center gap-1 group" title="Scan from Gallery">
+                        <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
+                            <i class="far fa-image text-lg"></i>
+                        </div>
+                    </button>
+		</div>
 
-                <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Scan with Camera">
-                    <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
-                         <i class="fas fa-qrcode text-lg"></i>
-                    </div>
-                </button>
-
+		<div class="flex items-center gap-3">
+                    <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Camera Scan">
+                        <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
+                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <!-- Corners -->
+                                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
+                                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
+                                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
+                                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
+                                <!-- Inner Markers -->
+                                <rect x="7" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                                <rect x="14" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                                <rect x="7" y="14" width="3" height="3" rx="0.5" stroke-width="2"></rect>
+                                <path d="M14.5 14.5h.5v.5h-.5z" stroke-width="2.5"></path>
+                                <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
+	                    </svg>
+                        </div>
+                    </button>
+		    <span class="text-[10px] text-gray-400 font-bold leading-tight text-left uppercase tracking-wide">Scan<br>◀ QR</span>
+    		</div>
             </div>
         </div>
     </div>
@@ -1533,13 +1549,13 @@
 
 	function resetMargins() {
             if(confirm("Reset margins to default (Metal: 5%, Stone: 35%)?")) {
-                profitMargins = { metal: 5, stone: 25 };
+                profitMargins = { metal: 5, stone: 35 };
             
                 const mInput = document.getElementById('margin-metal-input');
                 const sInput = document.getElementById('margin-stone-input');
             
                 if(mInput) mInput.value = 5;
-                if(sInput) sInput.value = 25;
+                if(sInput) sInput.value = 35;
             
                 localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
                 showToast("Margins reset to Default %");
@@ -2131,7 +2147,17 @@
             const discountPercentage = parseFloat(document.getElementById('calc-percent').value);
             const resultDiv = document.getElementById('calc-result');
 
-            if (isNaN(originalPrice) || originalPrice < 0 || isNaN(discountPercentage) || discountPercentage < 0 || discountPercentage > 100) {
+            let discountPercentage = parseFloat(percentInput.value);
+	    // Min & Max Discount %
+	    if (discountPercentage > 15) {
+	        percentInput.value = 15;
+	        discountPercentage = 15;
+	    } else if (discountPercentage < 0) {
+	        percentInput.value = 0;
+	        discountPercentage = 0;
+	    }
+	    
+            if (isNaN(originalPrice) || originalPrice < 0 || isNaN(discountPercentage)) {
                 resultDiv.classList.add('hidden');
                 discountData.active = false;
                 return;
@@ -2834,7 +2860,10 @@
             metalList.innerHTML = '';
             const metals = rates.filter(r => r.type === 'metal');
             metals.forEach(r => metalList.appendChild(createCubeElement(r)));
-            metalList.appendChild(createAddButton('metal'));
+	    const hasSyncedMetals = metals.some(r => r.isSynced === true);    
+	    if (!hasSyncedMetals) {
+	        metalList.appendChild(createAddButton('metal'));
+	    }
         }
 
         function createCubeElement(rate) {
@@ -2866,9 +2895,9 @@
 
         function createAddButton(type) {
             const btn = document.createElement('button');
-            btn.className = `rate-cube ${type} p-3 rounded-lg flex items-center justify-center min-h-[90px] hover:bg-gray-800 transition-colors group cursor-pointer border-dashed border-2 border-gray-700 hover:border-gray-500`;
+            btn.className = `rate-cube ${type} p-3 rounded-lg flex items-center justify-center min-h-[90px] transition-colors group cursor-pointer border-dashed border-2 border-gray-700 hover:border-gray-500`;
             btn.onclick = () => addRate(type);
-            btn.innerHTML = `<i class="fas fa-plus text-2xl text-gray-500 group-hover:text-white transition-colors"></i>`;
+            btn.innerHTML = `<i class="fas fa-plus text-2xl text-gray-500 group-hover:text-black transition-colors"></i>`;
             return btn;
         }
 
@@ -3625,7 +3654,7 @@
 	            const name = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
 	            const unit = item.type === 'metal' ? 'g' : 'ct';
 	            const price = item.type === 'stone' ? (item.manualPrice || 0) : (rate ? rate.price : 0);
-	            const margin = item.type === 'metal' ? (quote.margins?.metal || 5) : (quote.margins?.stone || 25);
+	            const margin = item.type === 'metal' ? (quote.margins?.metal || 5) : (quote.margins?.stone || 35);
 	            const cost = item.weight * price;
 	            const final = cost * (1 + margin/100);
 
@@ -3763,4 +3792,3 @@
 </script>
 </body>
 </html>
-
