@@ -667,7 +667,7 @@
 
     <div id="settings-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
         <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
-            <div class="flex justify-between items-center p-4 pt-3 pb-1 border-b border-gray-700/50 flex-shrink-0">
+            <div class="flex justify-between items-center p-4 pb-1 flex-shrink-0">
                 <div class="flex items-center gap-5">
                     <h2 class="text-3xl md:text-4xl text-white font-bold">Rates</h2>
 		    <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme Mode">
@@ -682,13 +682,12 @@
                 </div>
             </div>
             
-            <div class="p-3 overflow-y-auto custom-scroll flex-grow">
+            <div class="px-3 py-1 overflow-y-auto custom-scroll flex-grow">
                 <div class="bg-gray-900 bg-opacity-40 flex flex-col">
                     <div id="settings-metals-list" class="auto-grid content-start"></div>
                 </div>                
             </div>
-            <div class="p-4 border-t border-gray-700 bg-gray-900 bg-opacity-80 rounded-b-2xl flex flex-col gap-3 flex-shrink-0">
-                
+            <div class="px-4 py-2 border-t border-gray-700 bg-gray-900 bg-opacity-80 rounded-b-2xl flex flex-col gap-3 flex-shrink-0">                
                 <div class="flex justify-between items-center w-full">
                     <button onclick="clearRates()" class="text-xs text-red-500 hover:text-red-400 font-bold uppercase tracking-wider flex items-center gap-2">
                         <i class="fas fa-trash"></i> Clear All
@@ -824,7 +823,7 @@
     <!-- QUOTATION HISTORY -->    
 	<div id="history-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
 	    <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border-green-500">
-	        <div class="flex justify-between items-center p-3 pb-0.5 border-gray-700">
+	        <div class="flex justify-between items-center p-4 pb-0.5 border-gray-700">
 		<div class="flex items-center gap-5">
 	            <h2 class="text-2xl text-white font-bold">History</h2>
 		    <button onclick="clearHistory()" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md shadow-lg text-[10px] font-bold tracking-wider transition-transform active:scale-95 flex items-center justify-center" style="color: white !important;" title="Delete All History">
@@ -868,7 +867,7 @@
         <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
 
         <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border-purple-700">            
-            <div class="flex-none flex items-center justify-between px-4 pt-3">
+            <div class="flex-none flex items-center justify-between px-4 pt-5">
                 <h2 class="text-2xl text-[var(--text-main)] font-bold tracking-wide">Scan QR / Enter Code</h2>
                 <button onclick="toggleScanner()" class="text-gray-400 hover:text-white">
                     <i class="fas fa-times text-2xl"></i>
