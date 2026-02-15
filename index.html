@@ -629,7 +629,7 @@
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                 <div class="flex-none p-3 pb-0 flex justify-between items-center bg-black bg-opacity-20">
                     <h2 class="text-lg text-gray-200"><i class="fas fa-cube mr-2 text-yellow-500"></i>Metals</h2>
-                    <span class="text-xs text-gray-400">Metal Subtotal: <span class="text-yellow-500 font-bold">₹<span id="metal-subtotal">0.00</span></span></span>
+                    <span class="text-xs text-gray-400">Subtotal: <span class="text-yellow-500 font-bold">₹<span id="metal-subtotal">0.00</span></span></span>
                 </div>
                 
                 <div id="metal-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll">
@@ -643,7 +643,7 @@
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                 <div class="flex-none p-3 pb-0 flex justify-between items-center bg-black bg-opacity-20">
                     <h2 class="text-lg text-gray-200"><i class="far fa-gem mr-2 text-blue-400"></i>Stones</h2>
-                    <span class="text-xs text-gray-400">Stone Subtotal: <span class="text-blue-400 font-bold">₹<span id="stone-subtotal">0.00</span></span></span>
+                    <span class="text-xs text-gray-400">Subtotal: <span class="text-blue-400 font-bold">₹<span id="stone-subtotal">0.00</span></span></span>
                 </div>
 
                 <div id="stone-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll">
@@ -725,7 +725,7 @@
 	            <label class="text-sm text-blue-400 font-bold uppercase tracking-wider">Stone Margin %</label>
 	            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2 w-24">
 	                <input type="number" id="margin-stone-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none text-right"
-	                       value="35" min="0" onchange="updateMargin('stone', this.value)">
+	                       value="25" min="0" onchange="updateMargin('stone', this.value)">
 	            </div>
 	        </div>
 	    </div>
@@ -1286,7 +1286,7 @@
 	}
 
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 5, stone: 35 }; // Default Profit Margin
+        let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1525,14 +1525,14 @@
 	}
 
 	function resetMargins() {
-            if(confirm("Reset margins to default (Metal: 5%, Stone: 35%)?")) {
-                profitMargins = { metal: 5, stone: 35 };
+            if(confirm("Reset margins to default (Metal: 5%, Stone: 25%)?")) {
+                profitMargins = { metal: 5, stone: 25 };
             
                 const mInput = document.getElementById('margin-metal-input');
                 const sInput = document.getElementById('margin-stone-input');
             
                 if(mInput) mInput.value = 5;
-                if(sInput) sInput.value = 35;
+                if(sInput) sInput.value = 25;
             
                 localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
                 showToast("Margins reset to Default %");
@@ -3633,7 +3633,7 @@
 	            const name = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
 	            const unit = item.type === 'metal' ? 'g' : 'ct';
 	            const price = item.type === 'stone' ? (item.manualPrice || 0) : (rate ? rate.price : 0);
-	            const margin = item.type === 'metal' ? (quote.margins?.metal || 5) : (quote.margins?.stone || 35);
+	            const margin = item.type === 'metal' ? (quote.margins?.metal || 5) : (quote.margins?.stone || 25);
 	            const cost = item.weight * price;
 	            const final = cost * (1 + margin/100);
 
