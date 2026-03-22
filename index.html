@@ -1489,7 +1489,7 @@
 	    } else {
 	        localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
 	    }
-          
+	    checkMarginStatus();          
             renderCalculator();
             renderSettings();
             renderAddMenus();
@@ -1522,6 +1522,17 @@
 	    }
 	    profitMargins[type] = num;
 	    localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
+            checkMarginStatus();
+	}
+
+	function checkMarginStatus() {
+	    const gearIcon = document.querySelector('#nav-settings-btn i');
+	    if (!gearIcon) return;
+	    if (profitMargins.metal !== 5 || profitMargins.stone !== 25) {
+	        gearIcon.classList.add('text-yellow-500', 'blink-active');
+	    } else {
+                gearIcon.classList.remove('text-yellow-500', 'blink-active');
+	    }
 	}
 
 	function resetMargins() {
@@ -1536,6 +1547,7 @@
             
                 localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
                 showToast("Margins reset to Default %");
+		checkMarginStatus();
             }
         }
 
@@ -3707,6 +3719,7 @@
 	                const stoneInput = document.getElementById('margin-stone-input');
 	                if(metalInput) metalInput.value = profitMargins.metal;
 	                if(stoneInput) stoneInput.value = profitMargins.stone;
+			checkMarginStatus();
 	            }
 
 	            const savedDiscount = quote.discountPercent || 0;
