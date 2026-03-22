@@ -1529,9 +1529,9 @@
 	    const gearIcon = document.querySelector('#nav-settings-btn i');
 	    if (!gearIcon) return;
 	    if (profitMargins.metal !== 5 || profitMargins.stone !== 25) {
-	        gearIcon.classList.add('text-yellow-500', 'blink-active');
+	        gearIcon.classList.add('blink-active');
 	    } else {
-                gearIcon.classList.remove('text-yellow-500', 'blink-active');
+                gearIcon.classList.remove('blink-active');
 	    }
 	}
 
