@@ -506,15 +506,6 @@
 	    background-color: #ffffff !important;
             border-color: #e5e7eb !important; /* Light Gray Border */
         }
-	body.light #orientation-lock {
-	    background-color: #f3f4f6 !important;
-	}
-	body.light #orientation-lock h2 {
-	    color: #1f2937 !important;
-	}
-	body.light #orientation-lock p {
-	    color: #4b5563 !important;
-	}
 	#popup-item-name::-webkit-calendar-picker-indicator {
 	    display: none !important;
 	}
@@ -524,18 +515,6 @@
                 --safe-top: 0px !important;
             }
         }
-
-	/* Orientation Lock Icon Animation */
-	@keyframes rotateFade {
-            0% { transform: rotate(-90deg); opacity: 1; }
-            40% { transform: rotate(0deg); opacity: 1; }
-            75% { transform: rotate(0deg); opacity: 1; }
-            100% { transform: rotate(0deg); opacity: 0; }
-        }
-
-	.animate-phone-rotate {
-	    animation: rotateFade 3s ease-in-out infinite;
-	}
     </style>
 </head>
 <body>
@@ -704,9 +683,6 @@
         <div class="flex justify-between items-center p-4 border-b border-gray-700">
             <h3 class="text-lg font-bold text-white">Profit %</h3>
             <div class="flex items-center gap-3">
-                <button onclick="resetMargins()" class="bg-red-600 hover:bg-red-700 text-white w-9 h-9 rounded-xl shadow-lg flex items-center justify-center transition-transform active:scale-95" style="color: white !important;" title="Reset to Default Margins">
-                    <i class="fas fa-undo text-sm"></i>
-                </button>
                 <button onclick="toggleMarginModal()" class="text-gray-400 hover:text-white w-9 h-9 rounded-xl flex items-center justify-center hover:bg-white/5 transition-colors">
                     <i class="fas fa-times text-xl"></i>
                 </button>
@@ -717,7 +693,7 @@
 	            <label class="text-sm text-yellow-500 font-bold uppercase tracking-wider">Metal Margin %</label>
 	            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2 w-24">
 	                <input type="number" id="margin-metal-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none text-right"
-	                       value="5" min="0" onchange="updateMargin('metal', this.value)">
+	                       value="100" min="0" onchange="updateMargin('metal', this.value)">
 	            </div>
 	        </div>
 
@@ -725,7 +701,7 @@
 	            <label class="text-sm text-blue-400 font-bold uppercase tracking-wider">Stone Margin %</label>
 	            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2 w-24">
 	                <input type="number" id="margin-stone-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none text-right"
-	                       value="25" min="0" onchange="updateMargin('stone', this.value)">
+	                       value="100" min="0" onchange="updateMargin('stone', this.value)">
 	            </div>
 	        </div>
 	    </div>
@@ -943,15 +919,10 @@
 			    <i class="fas fa-bookmark"></i>
 			</button>
 
-                        <button id="summary-currency-btn" onclick="toggleCurrencyAdd()" class="text-gray-500 hover:text-gray-300 transition-colors" title="Show Currency Exchange">
-			     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-			            <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16"></path>
-			            <path d="M8 16H3v5"></path>
-			            <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8"></path>
-			            <path d="M16 8h5V3"></path>
-			            <text x="12" y="15.5" font-family="Arial" font-size="10" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle">₹</text>
-			        </svg>
-			     </button>
+                        <div class="flex items-center bg-gray-800 rounded-full p-0.5 border border-gray-700" title="Toggle Margin Type">
+                            <button id="margin-btn-f" onclick="setMarginType('F')" class="w-7 h-7 rounded-full text-xs font-bold transition-colors bg-yellow-500 text-black">F</button>
+                            <button id="margin-btn-i" onclick="setMarginType('I')" class="w-7 h-7 rounded-full text-xs font-bold transition-colors text-gray-400 hover:text-white">I</button>
+                        </div>
 
 			<button id="stealth-btn" onclick="toggleStealthMode()" class="text-gray-600 hover:text-white transition-colors" title="Presentation Mode">
                             <i class="fas fa-user-lock"></i>
@@ -1286,7 +1257,8 @@
 	}
 
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 5, stone: 25 }; // Default Profit Margin
+        let profitMargins = { metal: 100, stone: 100 }; // Default Margins
+	let marginType = 'F';
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1341,7 +1313,6 @@
         
         let rates = (storedRates && storedRates.length > 0) ? storedRates : JSON.parse(JSON.stringify(DEFAULT_RATES));
         let items = [];
-	let currencyAddActive = false;
 	let globalExchangeRate = 0;
 	let globalTargetCode = 'USD';
 
@@ -1480,15 +1451,6 @@
             initLogoReload();
 	    initStealthMode();
 	    initSettingsLongPress();             
-       
-            const storedMargins = localStorage.getItem('profitMargins');     // Load Profit Margin
-	    if (storedMargins) {
-	        try {
-	            profitMargins = JSON.parse(storedMargins);
-	        } catch(e) { console.error("Error parsing margins", e); }
-	    } else {
-	        localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
-	    }
 	    checkMarginStatus();          
             renderCalculator();
             renderSettings();
@@ -1504,11 +1466,41 @@
 	function toggleMarginModal() {
 	    const modal = document.getElementById('margin-modal');
 	    modal.classList.toggle('active');
-	    if (modal.classList.contains('active')) {   // Load current values into inputs when opening
+	    if (modal.classList.contains('active')) {
 	        document.getElementById('margin-metal-input').value = profitMargins.metal;
 	        document.getElementById('margin-stone-input').value = profitMargins.stone;
 	    }
 	}
+
+	function setMarginType(type) {
+            marginType = type;
+            const btnF = document.getElementById('margin-btn-f');
+            const btnI = document.getElementById('margin-btn-i');
+
+            if (type === 'F') {
+                btnF.classList.add('bg-yellow-500', 'text-black');
+                btnF.classList.remove('text-gray-400', 'hover:text-white');
+                btnI.classList.remove('bg-yellow-500', 'text-black');
+                btnI.classList.add('text-gray-400', 'hover:text-white');
+
+                profitMargins = { metal: 100, stone: 100 };
+            } else {
+                btnI.classList.add('bg-yellow-500', 'text-black');
+                btnI.classList.remove('text-gray-400', 'hover:text-white');
+                btnF.classList.remove('bg-yellow-500', 'text-black');
+                btnF.classList.add('text-gray-400', 'hover:text-white');
+
+                profitMargins = { metal: 20, stone: 50 };
+            }
+
+            const mInput = document.getElementById('margin-metal-input');
+            const sInput = document.getElementById('margin-stone-input');
+            if(mInput) mInput.value = profitMargins.metal;
+            if(sInput) sInput.value = profitMargins.stone;
+
+            checkMarginStatus();
+            generateSummary();
+        }
 
 	function updateMargin(type, val) {
 	    let num = parseFloat(val);
@@ -1521,35 +1513,20 @@
 	        el.value = num;
 	    }
 	    profitMargins[type] = num;
-	    localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
             checkMarginStatus();
 	}
 
 	function checkMarginStatus() {
 	    const gearIcon = document.querySelector('#nav-settings-btn i');
 	    if (!gearIcon) return;
-	    if (profitMargins.metal !== 5 || profitMargins.stone !== 25) {
+	    const isF = profitMargins.metal === 100 && profitMargins.stone === 100;
+	    const isI = profitMargins.metal === 20 && profitMargins.stone === 50;
+	    if (!isF && !isI) {
 	        gearIcon.classList.add('blink-active');
 	    } else {
                 gearIcon.classList.remove('blink-active');
 	    }
 	}
-
-	function resetMargins() {
-            if(confirm("Reset margins to default (Metal: 5%, Stone: 25%)?")) {
-                profitMargins = { metal: 5, stone: 25 };
-            
-                const mInput = document.getElementById('margin-metal-input');
-                const sInput = document.getElementById('margin-stone-input');
-            
-                if(mInput) mInput.value = 5;
-                if(sInput) sInput.value = 25;
-            
-                localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
-                showToast("Margins reset to Default %");
-		checkMarginStatus();
-            }
-        }
 
 	function initBackdropClosing() {
 	    const modals = [
@@ -3260,7 +3237,7 @@
             `;
 
 	// Currency Row
-            if (currencyAddActive && globalExchangeRate > 0) {
+            if (globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
                 
                 html += `
@@ -3274,12 +3251,12 @@
             }
             container.innerHTML = html;
 
-	    const curBtn = document.getElementById('summary-currency-btn');
-	    if (curBtn) {
-	        if (isStealthMode) {
-	             curBtn.classList.add('hidden');
-	        } else {
-	             curBtn.classList.remove('hidden');
+	    const marginToggleBtn = document.getElementById('margin-btn-f')?.parentElement;
+            if (marginToggleBtn) {
+                if (isStealthMode) {
+                     marginToggleBtn.classList.add('hidden');
+                } else {
+                     marginToggleBtn.classList.remove('hidden');
 	        }
 	    }
         }
@@ -3354,7 +3331,7 @@
 
             text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
 
-	    if (currencyAddActive && globalExchangeRate > 0) {
+	    if (globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
                 text += `\nEst. in ${globalTargetCode} : ${convertedAmt.toLocaleString('en-US', {style: 'currency', currency: globalTargetCode}).replace(/([^\d\s])(\d)/, '$1 $2')}`;
             }
@@ -3714,7 +3691,6 @@
 	            items = JSON.parse(JSON.stringify(quote.items));
 		    if(quote.margins) {
 	                profitMargins = quote.margins;
-	                localStorage.setItem('profitMargins', JSON.stringify(profitMargins));
 	                const metalInput = document.getElementById('margin-metal-input');
 	                const stoneInput = document.getElementById('margin-stone-input');
 	                if(metalInput) metalInput.value = profitMargins.metal;
@@ -3758,24 +3734,15 @@
 	        renderHistory();
 	    }
 	}
-    </script>
-<div id="orientation-lock" class="fixed inset-0 z-[10000] bg-black hidden flex-col items-center justify-center text-center p-6">
-    <i class="fas fa-mobile-alt text-yellow-500 text-6xl mb-4 animate-phone-rotate"></i>
-    <h2 class="text-white text-2xl font-bold mb-2">Rotate the Device</h2>
-</div>
+</script>
 
 <script>
     function checkOrientation() {   
-        const isPhone = window.innerWidth < 768 || window.innerHeight < 600;  // Detect if device is likely a phone (width < 768px usually implies phone)
-        const isLandscape = window.innerWidth > window.innerHeight;    // AND if it is in landscape mode        
-        const overlay = document.getElementById('orientation-lock');
-        
-        if (isPhone && isLandscape) {
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-        } else {
-            overlay.classList.add('hidden');
-            overlay.classList.remove('flex');
+        const isPhone = window.innerWidth < 768 || window.innerHeight < 600;  // Detect if device is likely a phone (width < 768px usually implies phone)        
+        if (isPhone && screen.orientation && screen.orientation.lock) {
+            screen.orientation.lock('portrait').catch(err => {
+                console.warn("Orientation lock not supported or failed:", err);
+            });
         }
     }
     window.addEventListener('resize', checkOrientation);    // Listen for resize changes
