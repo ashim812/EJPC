@@ -919,10 +919,7 @@
 			    <i class="fas fa-bookmark"></i>
 			</button>
 
-                        <div class="flex items-center bg-gray-800 rounded-full p-0.5 border border-gray-700" title="Toggle Margin Type">
-                            <button id="margin-btn-f" onclick="setMarginType('F')" class="w-7 h-7 rounded-full text-xs font-bold transition-colors bg-yellow-500 text-black">F</button>
-                            <button id="margin-btn-i" onclick="setMarginType('I')" class="w-7 h-7 rounded-full text-xs font-bold transition-colors text-gray-400 hover:text-white">I</button>
-                        </div>
+                        <button id="margin-type-btn" onclick="toggleMarginType()" class="w-8 h-8 rounded-full text-xs font-bold transition-colors bg-yellow-500 text-black border border-gray-700 flex items-center justify-center select-none" title="Toggle Margin Type">F</button>
 
 			<button id="stealth-btn" onclick="toggleStealthMode()" class="text-gray-600 hover:text-white transition-colors" title="Presentation Mode">
                             <i class="fas fa-user-lock"></i>
@@ -1472,25 +1469,13 @@
 	    }
 	}
 
-	function setMarginType(type) {
-            marginType = type;
-            const btnF = document.getElementById('margin-btn-f');
-            const btnI = document.getElementById('margin-btn-i');
-
-            if (type === 'F') {
-                btnF.classList.add('bg-yellow-500', 'text-black');
-                btnF.classList.remove('text-gray-400', 'hover:text-white');
-                btnI.classList.remove('bg-yellow-500', 'text-black');
-                btnI.classList.add('text-gray-400', 'hover:text-white');
-
-                profitMargins = { metal: 100, stone: 100 };
-            } else {
-                btnI.classList.add('bg-yellow-500', 'text-black');
-                btnI.classList.remove('text-gray-400', 'hover:text-white');
-                btnF.classList.remove('bg-yellow-500', 'text-black');
-                btnF.classList.add('text-gray-400', 'hover:text-white');
-
-                profitMargins = { metal: 20, stone: 50 };
+	function toggleMarginType() {
+	    if (marginType === 'F') {
+	        marginType = 'I';
+	        profitMargins = { metal: 20, stone: 50 };
+	    } else {
+	        marginType = 'F';
+	        profitMargins = { metal: 100, stone: 100 };
             }
 
             const mInput = document.getElementById('margin-metal-input');
@@ -1517,14 +1502,16 @@
 	}
 
 	function checkMarginStatus() {
-	    const gearIcon = document.querySelector('#nav-settings-btn i');
-	    if (!gearIcon) return;
+	    const marginBtn = document.getElementById('margin-type-btn');
+	    if (!marginBtn) return;
 	    const isF = profitMargins.metal === 100 && profitMargins.stone === 100;
 	    const isI = profitMargins.metal === 20 && profitMargins.stone === 50;
 	    if (!isF && !isI) {
-	        gearIcon.classList.add('blink-active');
+	        marginBtn.classList.add('blink-active');
 	    } else {
-                gearIcon.classList.remove('blink-active');
+                marginBtn.classList.remove('blink-active');
+	        if (isF) { marginType = 'F'; marginBtn.innerText = 'F'; }
+	        if (isI) { marginType = 'I'; marginBtn.innerText = 'I'; }
 	    }
 	}
 
@@ -3251,7 +3238,7 @@
             }
             container.innerHTML = html;
 
-	    const marginToggleBtn = document.getElementById('margin-btn-f')?.parentElement;
+	    const marginToggleBtn = document.getElementById('margin-type-btn');
             if (marginToggleBtn) {
                 if (isStealthMode) {
                      marginToggleBtn.classList.add('hidden');
