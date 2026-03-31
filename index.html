@@ -919,7 +919,7 @@
 			    <i class="fas fa-bookmark"></i>
 			</button>
 
-                        <button id="margin-type-btn" onclick="toggleMarginType()" class="w-8 h-8 rounded-full text-xs font-bold transition-colors bg-yellow-500 text-black border border-gray-700 flex items-center justify-center select-none" title="Toggle Margin Type">F</button>
+                        <button id="margin-type-btn" onclick="toggleMarginType()" class="w-5 h-5 rounded-md text-sm font-bold text-gray-500 border border-gray-500 flex items-center justify-center active:scale-90 select-none" title="Toggle Margin Type">F</button>
 
 			<button id="stealth-btn" onclick="toggleStealthMode()" class="text-gray-600 hover:text-white transition-colors" title="Presentation Mode">
                             <i class="fas fa-user-lock"></i>
@@ -1470,12 +1470,24 @@
 	}
 
 	function toggleMarginType() {
-	    if (marginType === 'F') {
-	        marginType = 'I';
-	        profitMargins = { metal: 20, stone: 50 };
+	    const isF = profitMargins.metal === 100 && profitMargins.stone === 100;
+	    const isI = profitMargins.metal === 20 && profitMargins.stone === 50;
+	    const isCustom = !isF && !isI;
+
+	    if (isCustom) {
+	        if (marginType === 'F') {
+	            profitMargins = { metal: 100, stone: 100 };
+	        } else {
+	            profitMargins = { metal: 20, stone: 50 };
+	        }
 	    } else {
-	        marginType = 'F';
-	        profitMargins = { metal: 100, stone: 100 };
+	        if (marginType === 'F') {
+	            marginType = 'I';
+	            profitMargins = { metal: 20, stone: 50 };
+	        } else {
+	            marginType = 'F';
+        	    profitMargins = { metal: 100, stone: 100 };
+	        }
             }
 
             const mInput = document.getElementById('margin-metal-input');
