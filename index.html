@@ -2199,8 +2199,8 @@
 
             async function fetchSymbols() {
                 try {
-                    const res = await fetch('https://api.frankfurter.app/currencies');
-                    const symbols = await res.json();
+                    const text = await fetchSmart('https://api.frankfurter.app/currencies');
+                    const symbols = JSON.parse(text);
                     listEl.innerHTML = '';
                     Object.entries(symbols).filter(([code]) => code !== 'INR').sort((a,b)=>a[1].localeCompare(b[1])).forEach(([code, name]) => {
                         const div = document.createElement('div');
@@ -2220,8 +2220,8 @@
 		const minSpinTime = new Promise(resolve => setTimeout(resolve, 800));
                 
                 try {
-                    const [res] = await Promise.all([fetch(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`), minSpinTime]);
-                    const data = await res.json();
+                    const [text] = await Promise.all([fetchSmart(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`), minSpinTime]);
+                    const data = JSON.parse(text);
                     const rate = data.rates[targetCurrency];
                     
                     if(rate) {
