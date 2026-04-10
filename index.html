@@ -1999,9 +1999,9 @@
                 <div>Gross Weight : ${p.grossWt} g</div> 
             `;
 
-            if (parseFloat(p.netWt) > 0) html += `<div>${p.metal} : ${p.netWt} g</div>`;
-            if (parseFloat(p.diaWt) > 0) html += `<div>Dia : ${p.diaWt} ct @ ${p.diaRate}</div>`;
-            if (parseFloat(p.stoneWt) > 0) html += `<div>${p.stone || 'Stone'} : ${p.stoneWt} ct @ ${p.stoneRate}</div>`;
+            if (parseFloat(p.netWt) > 0) html += `<div>${p.metal} : ${parseFloat(p.netWt).toFixed(3)} g</div>`;
+            if (parseFloat(p.diaWt) > 0) html += `<div>Dia : ${parseFloat(p.diaWt).toFixed(2)} ct @ ${parseFloat(p.diaRate).toFixed(2)}</div>`;
+            if (parseFloat(p.stoneWt) > 0) html += `<div>${p.stone || 'Stone'} : ${parseFloat(p.stoneWt).toFixed(2)} ct @ ${parseFloat(p.stoneRate).toFixed(2)}</div>`;
             
             // SOLD DATE & PRICE HIGHLIGHT
             html += `
@@ -2028,18 +2028,18 @@
             `;
 	
             if (parseFloat(p.netWt) > 0) {    // Conditional Metal Row
-                html += `<div>${p.metal} : ${p.netWt} g</div>`;
+                html += `<div>${p.metal} : ${parseFloat(p.netWt).toFixed(3)} g</div>`;
             }
         
             if (parseFloat(p.diaWt) > 0) {    // Conditional Diamond Row
-                html += `<div>Dia : ${p.diaWt} ct @ ₹${p.diaRate}/ct</div>`;
+                html += `<div>Dia : ${parseFloat(p.diaWt).toFixed(2)} ct @ ₹${parseFloat(p.diaRate).toFixed(2)}/ct</div>`;
             }
 
             if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {    // Conditional Stone Row (If Stone Name exists but weight is 0/empty, handle accordingly)
                 const sName = p.stone || "Stone";
                 const sWt = p.stoneWt || "0";
                 const sRate = p.stoneRate || "0";
-                html += `<div>${sName} : ${sWt} ct @ ₹${sRate}/ct</div>`;
+                html += `<div>${sName} : ${parseFloat(sWt).toFixed(2)} ct @ ₹${parseFloat(sRate).toFixed(2)}/ct</div>`;
             }
 
             container.innerHTML = html;
@@ -2153,15 +2153,15 @@
             resultDiv.classList.remove('hidden');
 
             let html = `
-                <div class="text-red-600 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
-                <div class="text-red-500 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {maximumFractionDigits: 2})}</div>
+                <div class="text-red-600 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
+                <div class="text-red-500 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
             `;
 
 	    if (isLoss) {
 	        html += `
 	            <div class="mt-1 text-red-500 text-xs font-bold flex items-center gap-2">
 			<i class="fas fa-triangle-exclamation text-yellow-400 blink-active"></i>
-	                <span>LOSS: ₹ ${lossAmount.toLocaleString('en-IN', {maximumFractionDigits: 2})} below Cost</span>
+	                <span>LOSS: ₹ ${lossAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} below Cost</span>
 	            </div>
 	        `;
 	    }	
@@ -2644,7 +2644,7 @@
             const totalSpan = document.getElementById(`total-${item.id}`);
             if(rate && totalSpan) {
                 const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
-                totalSpan.innerText = cost.toLocaleString('en-IN', {maximumFractionDigits: 2});
+                totalSpan.innerText = cost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             }
         }
 
@@ -2674,8 +2674,8 @@
 
             animateValue(document.getElementById('display-total-price'), totalCost);
             document.getElementById('display-gross-weight').innerText = totalWeightGrams.toFixed(3);
-            document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2});
-            document.getElementById('stone-subtotal').innerText = stoneCost.toLocaleString('en-IN', {minimumFractionDigits: 2});
+            document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            document.getElementById('stone-subtotal').innerText = stoneCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
         }
 
         function animateValue(obj, end) {
@@ -2749,9 +2749,8 @@
             let val = item.manualPrice;
             if(isNaN(val)) val = 0;           
 
-            const rounded = Math.round(val);   // Round to integer
-            if(rounded > 0) {
-                input.value = rounded;   // Update UI
+            if(val > 0) {
+		input.value = val.toFixed(2);
             } else {
                 input.value = ''; 
             }
@@ -2778,7 +2777,7 @@
 
             let rateInputHtml = '';            // Rate Input for Stones
             if (isStone) {
-                const rateVal = item.manualPrice > 0 ? Math.round(item.manualPrice) : '';  // Format manual price to integer or empty
+                const rateVal = item.manualPrice > 0 ? item.manualPrice.toFixed(2) : '';
                 rateInputHtml = `
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
                     <input type="text" placeholder="Rate" value="${rateVal}" 
@@ -2795,7 +2794,7 @@
                     <div class="text-gray-200 font-medium text-lg">${label}</div>
                 </div>
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
-                    <input type="number" step="${stepVal}" min="0" value="${displayVal}" placeholder="${placeholderVal}" 
+                    <input type="text" inputmode="decimal" value="${displayVal}" placeholder="${placeholderVal}" 
                            oninput="validateWeight(this); updateItem('${item.id}', 'weight', this.value)" 
                            onblur="formatRowInput('${item.id}', this)"
                            class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none">
@@ -3086,7 +3085,7 @@
                     html += `
                     <div class="invoice-row">
                         <span>${nameLabel} <span class="text-xs text-gray-500">(${item.weight}${unit} / ${displayRate.toFixed(2)})</span></span>
-                        <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+                        <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                     </div>
                     `;
                 }
@@ -3118,7 +3117,7 @@
 	             onmousedown="startPress(event, 'discount')" ontouchstart="startPress(event, 'discount')"
 	             onmouseup="cancelPress()" onmouseleave="cancelPress()" ontouchend="cancelPress()" ontouchmove="cancelPress()">
                     <span>Discount (${discountData.percentage}%)</span>
-                    <span class="invoice-val text-green-400">-₹${amountSaved.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+                    <span class="invoice-val text-green-400">-₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 </div>
                 `;
             }
@@ -3139,7 +3138,7 @@
 	            <div class="flex items-center gap-2">
 	                <span>${taxName} (${taxRate}%)</span>
 	            </div>
-	            <span class="invoice-val text-yellow-500">+₹${taxAmount.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+	            <span class="invoice-val text-yellow-500">+₹${taxAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
 	        </div>
                 `;
                  runningTotal += taxAmount;
@@ -3231,7 +3230,7 @@
                 <div class="flex items-center gap-2">
                     <span class="text-white font-bold text-xl">Total Price</span>
                 </div>
-                <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}</span>
+                <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
             </div>
             `;
 
@@ -3276,7 +3275,7 @@
 		    const priceWithMargin = cost * (1 + margin/100);
                     total += priceWithMargin;                    
                     const unit = item.type === 'metal' ? 'g' : 'ct';
-
+		    const weightDisplay = item.type === 'metal' ? item.weight.toFixed(3) : item.weight.toFixed(2);
                     if(item.type === 'metal') {
                         grossWeight += item.weight;
                     } else {
@@ -3284,7 +3283,7 @@
                     }
                     
                     const nameLabel = rate.name || "Unnamed Item";
-                    text += `${nameLabel} (${item.weight}${unit}) : ₹${priceWithMargin.toLocaleString('en-IN', {maximumFractionDigits: 2})}\n`;
+                    text += `${nameLabel} (${weightDisplay}${unit}) : ₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
             });
 
@@ -3302,7 +3301,7 @@
                 const discountedTotal = runningTotal - amountSaved;
                 
                 if(shareOptions.discount) {
-                    text += `Discount (${discountData.percentage}%) : - ₹${amountSaved.toLocaleString('en-IN', {maximumFractionDigits: 2})}\n`;
+                    text += `Discount (${discountData.percentage}%) : - ₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal = discountedTotal;
             }
@@ -3310,7 +3309,7 @@
             if(summaryState.tax) {
                 const tax = runningTotal * (taxConfig.rate/100);
                 if(shareOptions.tax) {
-                    text += `GST (3%) : + ₹${tax.toLocaleString('en-IN', {maximumFractionDigits: 2})}\n`;
+                    text += `GST (3%) : + ₹${tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal += tax;
             }
@@ -3328,7 +3327,7 @@
                 runningTotal = rounded; // Always update the total to the rounded value
             }
 
-            text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {maximumFractionDigits: 2})}`;
+            text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 
 	    if (globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
