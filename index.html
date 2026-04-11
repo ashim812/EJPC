@@ -693,7 +693,7 @@
 	            <label class="text-lg text-yellow-500 font-bold uppercase tracking-wider">Metal</label>
 	            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2 w-14">
 	                <input type="number" id="margin-metal-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none text-center"
-	                       value="100" min="0" onchange="updateMargin('metal', this.value)">
+	                       value="50" min="0" onchange="updateMargin('metal', this.value)">
 	            </div>
 	        </div>
 
@@ -1254,7 +1254,7 @@
 	}
 
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 100, stone: 100 }; // Default Margins
+        let profitMargins = { metal: 50, stone: 100 }; // Default Margins
 	let marginType = 'F';
 
         const DEFAULT_RATES = [
@@ -1470,13 +1470,13 @@
 	}
 
 	function toggleMarginType() {
-	    const isF = profitMargins.metal === 100 && profitMargins.stone === 100;
+	    const isF = profitMargins.metal === 50 && profitMargins.stone === 100;
 	    const isI = profitMargins.metal === 20 && profitMargins.stone === 50;
 	    const isCustom = !isF && !isI;
 
 	    if (isCustom) {
 	        if (marginType === 'F') {
-	            profitMargins = { metal: 100, stone: 100 };
+	            profitMargins = { metal: 50, stone: 100 };
 	        } else {
 	            profitMargins = { metal: 20, stone: 50 };
 	        }
@@ -1486,7 +1486,7 @@
 	            profitMargins = { metal: 20, stone: 50 };
 	        } else {
 	            marginType = 'F';
-        	    profitMargins = { metal: 100, stone: 100 };
+        	    profitMargins = { metal: 50, stone: 100 };
 	        }
             }
 
@@ -1516,7 +1516,7 @@
 	function checkMarginStatus() {
 	    const marginBtn = document.getElementById('margin-type-btn');
 	    if (!marginBtn) return;
-	    const isF = profitMargins.metal === 100 && profitMargins.stone === 100;
+	    const isF = profitMargins.metal === 50 && profitMargins.stone === 100;
 	    const isI = profitMargins.metal === 20 && profitMargins.stone === 50;
 	    if (!isF && !isI) {
 	        marginBtn.classList.add('blink-active');
