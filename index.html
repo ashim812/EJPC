@@ -1737,24 +1737,8 @@
         function loadProductToCalculator() {
             if (!currentFetchedProduct) return;
 	    items = []; // Clear existing items
-	    renderCalculator(); // Clear UI rows
-	    calculateTotals(); // Reset totals
 	    const p = currentFetchedProduct;
             let loadedCount = 0;
-
-            // Helper to update DOM inputs for newly added item
-            const updateDOMInputs = (itemId, weight, rate) => {
-                const row = document.getElementById(itemId);
-                if (!row) return;
-                
-                const weightInput = row.querySelector('input[type="number"]');
-                if (weightInput) weightInput.value = weight;
-                
-                if (rate) {
-                    const rateInput = row.querySelector('input[type="text"]');
-                    if (rateInput) rateInput.value = rate;
-                }
-            };
 
             // Load Metal
             if (p.metal && parseFloat(p.netWt) > 0) {                // Find rate where rate name contains the metal string or vice versa
@@ -1763,10 +1747,13 @@
                 const metalRate = rates.find(r => r.type === 'metal' && normalize(r.name).includes(pMetalClean));
                 
                 if (metalRate) {
-                    addItem('metal', metalRate.id);
-                    const newItem = items[items.length - 1]; // The one just added
-                    updateItem(newItem.id, 'weight', p.netWt);
-                    updateDOMInputs(newItem.id, p.netWt, null);
+                    items.push({ 
+                    id: 'item_' + Date.now() + Math.random().toString(36).substr(2, 9), 
+	            type: 'metal', 
+	            rateId: metalRate.id, 
+	            weight: parseFloat(p.netWt), 
+	            manualPrice: 0 
+        	    });
                     loadedCount++;
                 } else {
                      console.warn("No rate found for metal:", p.metal);
@@ -1789,15 +1776,13 @@
             if (parseFloat(p.diaWt) > 0) {
                 const diaRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes('diamond')); // Look for "Diamond" in rates
                 if (diaRate) {
-                    addItem('stone', diaRate.id);
-                    const newItem = items[items.length - 1];
-                    updateItem(newItem.id, 'weight', p.diaWt);
-                    if(p.diaRate) updateItem(newItem.id, 'manualPrice', p.diaRate); // Set rate if available
-                    
-                    // Decode for display
-                    let decodedRate = p.diaRate;
-                    if(p.diaRate && isNaN(p.diaRate)) decodedRate = decodePrice(p.diaRate);
-                    updateDOMInputs(newItem.id, p.diaWt, p.diaRate || '');  // Actually we want to show the original string in the box if it's text, or number if number but updateDOMInputs takes raw value.
+                    items.push({ 
+	            id: 'item_' + Date.now() + Math.random().toString(36).substr(2, 9), 
+        	    type: 'stone', 
+               	    rateId: diaRate.id, 
+	            weight: parseFloat(p.diaWt), 
+	            manualPrice: decodePrice(p.diaRate) 
+	            });
                     loadedCount++;
                 }
             }
@@ -1807,31 +1792,24 @@
                 let stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase())); // fuzzy match stone name
                              
                 if (!stoneRate) {    // If no match found, create dynamic rate for display            
-                    stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase() === p.stone.toLowerCase());    // Check purely by name exact match now.
-                    
-                    if (!stoneRate) {
-                         const newId = 'dyn_' + Date.now() + '_' + Math.floor(Math.random() * 1000);
-                         stoneRate = {
-                             id: newId,
-                             name: p.stone, // Exact name
-                             type: 'stone',
-                             price: 0 // Default price
-                         };
-                         rates.push(stoneRate);    // Add to rates array so addItem can find it. Note: We do NOT call saveRates(), so this is temporary for the session
-                    }
+                    const newId = 'dyn_' + Date.now();
+                    stoneRate = { id: newId, name: p.stone, type: 'stone', price: 0 };
+                    rates.push(stoneRate);
                 }
 
-                if (stoneRate) {
-                    addItem('stone', stoneRate.id);
-                    const newItem = items[items.length - 1];
-                    updateItem(newItem.id, 'weight', p.stoneWt);
-                    if(p.stoneRate) updateItem(newItem.id, 'manualPrice', p.stoneRate);
-                    updateDOMInputs(newItem.id, p.stoneWt, p.stoneRate || '');
-                    loadedCount++;
-                }
+                items.push({ 
+                    id: 'item_' + Date.now() + Math.random().toString(36).substr(2, 9), 
+	            type: 'stone', 
+	            rateId: stoneRate.id, 
+	            weight: parseFloat(p.stoneWt), 
+	            manualPrice: decodePrice(p.stoneRate) 
+	        });
+                loadedCount++;
             }
 
             if (loadedCount > 0) {
+		renderCalculator(); // Clear UI rows
+	        calculateTotals(); // Reset totals
                 showToast("Product Details Loaded");
                 closeProductModal();
 	        toggleSummary();	        
@@ -3073,6 +3051,7 @@
 		    const baseRate = item.type === 'stone' ? (item.manualPrice || 0) : price;
             	    const rateWithMargin = baseRate * (1 + margin/100);
             	    const displayRate = rateWithMargin / 1000;
+		    const weightDisplay = item.type === 'metal' ? item.weight.toFixed(3) : item.weight.toFixed(2);
 
                     if(item.type === 'metal') {
                         grossWeight += item.weight;
@@ -3084,7 +3063,7 @@
 
                     html += `
                     <div class="invoice-row">
-                        <span>${nameLabel} <span class="text-xs text-gray-500">(${item.weight}${unit} / ${displayRate.toFixed(2)})</span></span>
+                        <span>${nameLabel} <span class="text-xs text-gray-500">(${weightDisplay}${unit} / ${displayRate.toFixed(2)})</span></span>
                         <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                     </div>
                     `;
