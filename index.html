@@ -919,7 +919,7 @@
 			    <i class="fas fa-bookmark"></i>
 			</button>
 
-                        <button id="margin-type-btn" onclick="toggleMarginType()" class="w-5 h-5 rounded-md text-sm font-bold text-gray-500 border border-gray-500 flex items-center justify-center active:scale-90 select-none" title="Toggle Margin Type">F</button>
+                        <button id="margin-type-btn" onclick="toggleMarginType()" class="w-5 h-5 rounded-md text-sm font-bold text-gray-500 border border-gray-500 flex items-center justify-center active:scale-90 select-none" title="Toggle Margin Type">H</button>
 
 			<button id="stealth-btn" onclick="toggleStealthMode()" class="text-gray-600 hover:text-white transition-colors" title="Presentation Mode">
                             <i class="fas fa-user-lock"></i>
@@ -1254,8 +1254,8 @@
 	}
 
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 20, stone: 70 }; // Default Margins
-	let marginType = 'F';
+        let profitMargins = { metal: 20, stone: 50 }; // Default Margins
+	let marginType = 'H';
 
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
@@ -1470,23 +1470,23 @@
 	}
 
 	function toggleMarginType() {
-	    const isF = profitMargins.metal === 20 && profitMargins.stone === 70;
-	    const isI = profitMargins.metal === 20 && profitMargins.stone === 50;
-	    const isCustom = !isF && !isI;
+	    const isH = profitMargins.metal === 20 && profitMargins.stone === 50;
+	    const isL = profitMargins.metal === 5 && profitMargins.stone === 35;
+	    const isCustom = !isH && !isL;
 
 	    if (isCustom) {
-	        if (marginType === 'F') {
-	            profitMargins = { metal: 20, stone: 70 };
-	        } else {
+	        if (marginType === 'H') {
 	            profitMargins = { metal: 20, stone: 50 };
+	        } else {
+	            profitMargins = { metal: 5, stone: 35 };
 	        }
 	    } else {
-	        if (marginType === 'F') {
-	            marginType = 'I';
-	            profitMargins = { metal: 20, stone: 50 };
+	        if (marginType === 'H') {
+	            marginType = 'L';
+	            profitMargins = { metal: 5, stone: 35 };
 	        } else {
-	            marginType = 'F';
-        	    profitMargins = { metal: 20, stone: 70 };
+	            marginType = 'H';
+        	    profitMargins = { metal: 20, stone: 50 };
 	        }
             }
 
@@ -1516,14 +1516,14 @@
 	function checkMarginStatus() {
 	    const marginBtn = document.getElementById('margin-type-btn');
 	    if (!marginBtn) return;
-	    const isF = profitMargins.metal === 20 && profitMargins.stone === 70;
-	    const isI = profitMargins.metal === 20 && profitMargins.stone === 50;
-	    if (!isF && !isI) {
+	    const isH = profitMargins.metal === 20 && profitMargins.stone === 50;
+	    const isL = profitMargins.metal === 5 && profitMargins.stone === 35;
+	    if (!isH && !isL) {
 	        marginBtn.classList.add('blink-active');
 	    } else {
                 marginBtn.classList.remove('blink-active');
-	        if (isF) { marginType = 'F'; marginBtn.innerText = 'F'; }
-	        if (isI) { marginType = 'I'; marginBtn.innerText = 'I'; }
+	        if (isH) { marginType = 'H'; marginBtn.innerText = 'H'; }
+	        if (isL) { marginType = 'L'; marginBtn.innerText = 'L'; }
 	    }
 	}
 
@@ -3599,7 +3599,7 @@
 	            const name = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
 	            const unit = item.type === 'metal' ? 'g' : 'ct';
 	            const price = item.type === 'stone' ? (item.manualPrice || 0) : (rate ? rate.price : 0);
-	            const margin = item.type === 'metal' ? (quote.margins?.metal || 5) : (quote.margins?.stone || 25);
+	            const margin = item.type === 'metal' ? (quote.margins?.metal || 20) : (quote.margins?.stone || 50);
 	            const cost = item.weight * price;
 	            const final = cost * (1 + margin/100);
 
