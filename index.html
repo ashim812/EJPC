@@ -2906,10 +2906,11 @@
                     }
                     
                     const nameLabel = rate.name || "Unnamed Item";
+		    const rateDisplay = isStealthMode ? "" : ` / ${displayRate.toFixed(2)}`;
 
                     html += `
                     <div class="invoice-row">
-                        <span>${nameLabel} <span class="text-xs text-gray-500">(${weightDisplay}${unit} / ${displayRate.toFixed(2)})</span></span>
+                        <span>${nameLabel} <span class="text-xs text-gray-500">(${weightDisplay}${unit}${rateDisplay})</span></span>
                         <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                     </div>
                     `;
