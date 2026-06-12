@@ -2441,6 +2441,33 @@
     	    }
 	}
 
+	function toggleStoneRateMode(id) {
+            const item = items.find(i => i.id === id);
+            if (item) {
+                item.rateMode = item.rateMode === 'total' ? 'per_ct' : 'total';
+                renderCalculator();
+            }
+        }
+
+        function handleStoneRateInput(id, value) {
+            const item = items.find(i => i.id === id);
+            if(item) {
+                let parsedVal = decodePrice(value);
+                if (item.rateMode === 'total') {
+                    if (item.weight > 0) {
+                        item.manualPrice = parsedVal / item.weight;
+                    } else {
+                        showToast("Enter stone weight first");
+                        item.manualPrice = 0;
+                    }
+                } else {
+                    item.manualPrice = parsedVal;
+                }
+                updateRowDisplay(item);
+                calculateTotals();
+            }
+        }
+
         function updateItem(id, field, value) {
             const item = items.find(i => i.id === id);
             if(item) {
@@ -2469,6 +2496,11 @@
             if(rate && totalSpan) {
                 const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
                 totalSpan.innerText = cost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+	    if (item.type === 'stone' && item.rateMode === 'total') {
+                const rateInput = document.getElementById(`rate-input-${item.id}`);
+                if (rateInput && document.activeElement !== rateInput) {
+                    const displayTotal = item.manualPrice * item.weight;
+                    rateInput.value = displayTotal > 0 ? displayTotal.toFixed(2) : '';
             }
         }
 
@@ -2571,6 +2603,9 @@
             const item = items.find(i => i.id === id);
             if(!item) return;            
             let val = item.manualPrice;
+	    if (item.rateMode === 'total') {
+                val = item.manualPrice * item.weight;
+            }
             if(isNaN(val)) val = 0;           
 
             if(val > 0) {
@@ -2601,14 +2636,21 @@
 
             let rateInputHtml = '';            // Rate Input for Stones
             if (isStone) {
-                const rateVal = item.manualPrice > 0 ? item.manualPrice.toFixed(2) : '';
+                const isTotalMode = item.rateMode === 'total';
+                let displayRate = item.manualPrice || 0;
+                if (isTotalMode) {
+                    displayRate = displayRate * (item.weight || 0);
+                }
+                const rateVal = displayRate > 0 ? displayRate.toFixed(2) : '';
+                const btnText = isTotalMode ? 'Tot' : '/ct';
+                const btnClass = isTotalMode ? 'text-yellow-500 font-bold' : 'text-gray-500';
                 rateInputHtml = `
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
-                    <input type="text" placeholder="Rate" value="${rateVal}" 
-                           oninput="validateRate(this); updateItem('${item.id}', 'manualPrice', this.value)"
+                    <input type="text" id="rate-input-${item.id}" placeholder="${isTotalMode ? 'Total' : 'Rate'}" value="${rateVal}" 
+                           oninput="validateRate(this); handleStoneRateInput('${item.id}', this.value)"
                            onblur="formatRateInput('${item.id}', this)"
                            class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none uppercase">
-                    <span class="text-gray-500 text-sm w-6">/ct</span>
+                    <button onclick="toggleStoneRateMode('${item.id}')" class="w-8 text-xs ${btnClass} hover:text-white transition-colors focus:outline-none select-none cursor-pointer" title="Toggle Rate Mode">${btnText}</button>
                 </div>
                 `;
             }
