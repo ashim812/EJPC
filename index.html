@@ -2496,11 +2496,13 @@
             if(rate && totalSpan) {
                 const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
                 totalSpan.innerText = cost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+	    }
 	    if (item.type === 'stone' && item.rateMode === 'total') {
                 const rateInput = document.getElementById(`rate-input-${item.id}`);
                 if (rateInput && document.activeElement !== rateInput) {
                     const displayTotal = item.manualPrice * item.weight;
                     rateInput.value = displayTotal > 0 ? displayTotal.toFixed(2) : '';
+		}
             }
         }
 
