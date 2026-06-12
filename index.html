@@ -2644,7 +2644,7 @@
                     displayRate = displayRate * (item.weight || 0);
                 }
                 const rateVal = displayRate > 0 ? displayRate.toFixed(2) : '';
-                const btnText = isTotalMode ? 'Tot' : '/ct';
+                const btnText = isTotalMode ? 'Total' : '/ct';
                 const btnClass = isTotalMode ? 'text-yellow-500 font-bold' : 'text-gray-500';
                 rateInputHtml = `
                 <div class="flex items-center gap-2 w-1/2 md:w-32">
@@ -2652,7 +2652,7 @@
                            oninput="validateRate(this); handleStoneRateInput('${item.id}', this.value)"
                            onblur="formatRateInput('${item.id}', this)"
                            class="w-full bg-gray-900 border border-gray-600 rounded px-2 py-1 text-right text-white focus:border-yellow-500 focus:outline-none uppercase">
-                    <button onclick="toggleStoneRateMode('${item.id}')" class="w-8 text-xs ${btnClass} hover:text-white transition-colors focus:outline-none select-none cursor-pointer" title="Toggle Rate Mode">${btnText}</button>
+                    <button onclick="toggleStoneRateMode('${item.id}')" class="w-8 text-sm ${btnClass} hover:text-white transition-colors focus:outline-none select-none cursor-pointer" title="Toggle Rate Mode">${btnText}</button>
                 </div>
                 `;
             }
