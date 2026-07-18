@@ -85,6 +85,8 @@
             flex-direction: column;
             transition: background 0.3s ease, color 0.3s ease;
             position: relative;
+	    -webkit-user-select: none;
+	    user-select: none;
         }
 
         h1, h2, .brand-font {
@@ -137,7 +139,7 @@
         @keyframes spin { 100% { transform: rotate(360deg); } }
 
         /* Inputs */
-        input { color: var(--text-main) !important; }
+        input { color: var(--text-main) !important; -webkit-user-select: auto; user-select: auto;}
 
         /* Modal Transitions */
         .modal {
@@ -1255,7 +1257,7 @@
         const RATES_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRNqsuqZA8a-qejlcJWu3ad_F9_TS_1-2OwznvetGZsUWUdANQIfnkiEskSDY393MB-taoW2dHuvYNu/pub?output=csv"; 
         
         // PRODUCT DATABASE URL - PASTE YOUR INVENTORY SHEET CSV URL HERE
-        // It must have columns: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
+        // It must have columns: Prod ID, Item, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
         const PRODUCT_DB_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMTBu_R4YiqvjuYo_m-pi8FyKd0voRh6_RJmLnVVDcAJHjzcni6eF6InH0yULCM7jPly3-l95FSpgX/pub?gid=0&single=true&output=csv";
      
         let discountData = {
@@ -1794,12 +1796,11 @@
             const lines = csvText.trim().split(/\r\n|\n/);
             if (lines.length < 1) return null;
             const headers = splitCSVLine(lines[0]).map(h => h.toLowerCase().trim());                        
-            const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Month, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
+            const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
             
             const idx = {
                 id: getIdx('prod id'),
                 item: getIdx('item'),
-                month: getIdx('month'),
                 sourcing: getIdx('sourcing'),
                 origin: getIdx('origin'),
                 metal: getIdx('metal'),
@@ -1825,7 +1826,6 @@
                     return {
                         id: rowId,
                         item: row[idx.item] || "-",
-                        month: row[idx.month] || "-",
                         sourcing: row[idx.sourcing] || "",
                         origin: row[idx.origin] || "",
                         metal: row[idx.metal] || "",
@@ -1848,7 +1848,6 @@
             let html = `
                 <div>Product ID : ${p.id}</div>
                 <div>Product : ${p.item}</div>
-                <div>Dated : ${p.month}</div>
                 <div>${p.sourcing ? p.sourcing : 'Sourcing'} from ${p.origin ? p.origin : 'Origin'}</div>
                 <div>Gross Weight : ${p.grossWt} g</div>                
             `;
