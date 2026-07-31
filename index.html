@@ -2006,15 +2006,16 @@
             const inrEl = document.getElementById('conv-inr');
             const outEl = document.getElementById('conv-out');
             const searchEl = document.getElementById('conv-search');
-            const listEl = document.getElementById('conv-list');
+            const listEl = document.getElementById('currency-picker-list');
             const labelEl = document.getElementById('conv-label');
             const rateLabel2 = document.getElementById('conv-rate-2');
             const updatedEl = document.getElementById('conv-updated');
             const statusDot = document.getElementById('conv-status-dot');
-
+	    document.getElementById("currency-picker-search").addEventListener("input", e => {renderCurrencyPicker(e.target.value);});
             let rateINRtoTarget = null;
             let targetCurrency = 'USD';
             const currencySymbols = {};
+	    let currencies = [];
 	    let favouriteCurrencies = JSON.parse(localStorage.getItem("currencyFavorites"))??["USD","EUR","GBP"];
             function updateConv(from='INR') {
                 if(!rateINRtoTarget) return;
@@ -2041,7 +2042,6 @@
 		    const cache = localStorage.getItem(FX_SYMBOLS_CACHE);
 		    const cacheTime = localStorage.getItem(FX_SYMBOLS_TIME);
 		    const cacheValid = cache && cacheTime && (Date.now() - Number(cacheTime) < SYMBOL_CACHE_DURATION);
-		    let currencies;
 		    if (cacheValid) {
 		        currencies = JSON.parse(cache);
 		    } else {
@@ -2062,6 +2062,7 @@
 	                   }
                 	   listEl.appendChild(div);
 	                });
+		    renderCurrencyPicker();
                     fetchRates();
                 } catch(e) { console.error(e); }
             }
@@ -2196,8 +2197,6 @@
 	}
 
 	function closeCurrencyPicker(){document.getElementById("currency-picker-modal").classList.remove("active");}
-
-	document.getElementById("currency-picker-search").addEventListener("input",e=>{renderCurrencyPicker(e.target.value);});
 
         // SETTINGS RATES SYNC LOGIC
         async function syncRates(isAuto = false) {
