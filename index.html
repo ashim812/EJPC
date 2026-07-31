@@ -1441,23 +1441,23 @@
 	}
 
 	function toggleMarginType() {
-	    const isH = profitMargins.metal === 20 && profitMargins.stone === 50;
-	    const isL = profitMargins.metal === 5 && profitMargins.stone === 35;
+	    const isH = profitMargins.metal === 20 && profitMargins.stone === 40;
+	    const isL = profitMargins.metal === 5 && profitMargins.stone === 25;
 	    const isCustom = !isH && !isL;
 
 	    if (isCustom) {
 	        if (marginType === 'H') {
-	            profitMargins = { metal: 20, stone: 50 };
+	            profitMargins = { metal: 20, stone: 40 };
 	        } else {
-	            profitMargins = { metal: 5, stone: 35 };
+	            profitMargins = { metal: 5, stone: 25 };
 	        }
 	    } else {
 	        if (marginType === 'H') {
 	            marginType = 'L';
-	            profitMargins = { metal: 5, stone: 35 };
+	            profitMargins = { metal: 5, stone: 25 };
 	        } else {
 	            marginType = 'H';
-        	    profitMargins = { metal: 20, stone: 50 };
+        	    profitMargins = { metal: 20, stone: 40 };
 	        }
             }
 
@@ -1487,8 +1487,8 @@
 	function checkMarginStatus() {
 	    const marginBtn = document.getElementById('margin-type-btn');
 	    if (!marginBtn) return;
-	    const isH = profitMargins.metal === 20 && profitMargins.stone === 50;
-	    const isL = profitMargins.metal === 5 && profitMargins.stone === 35;
+	    const isH = profitMargins.metal === 20 && profitMargins.stone === 40;
+	    const isL = profitMargins.metal === 5 && profitMargins.stone === 25;
 	    if (!isH && !isL) {
 	        marginBtn.classList.add('blink-active');
 	    } else {
@@ -2071,7 +2071,7 @@
                         const data = await response.json();
 			rates = data.rates;
 		        localStorage.setItem(FX_CACHE_RATES, JSON.stringify(rates));
-		        localStorage.setItem(FX_CACHE_TIME, now.toString());
+		        localStorage.setItem(FX_CACHE_TIME, Date.now().toString());
 
 		      }
                       const rate = rates[targetCurrency];
