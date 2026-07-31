@@ -2069,8 +2069,8 @@
 	                const response = await fetch("https://api.frankfurter.dev/v2/rates?base=INR");
 			if (!response.ok) throw new Error(`HTTP ${response.status}`);
                         const data = await response.json();
-			console.log(data);
-			rates = data.rates;
+			rates = {};
+			data.forEach(item => {rates[item.quote] = item.rate;});
 		        localStorage.setItem(FX_CACHE_RATES, JSON.stringify(rates));
 		        localStorage.setItem(FX_CACHE_TIME, Date.now().toString());
 
