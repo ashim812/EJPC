@@ -2024,7 +2024,7 @@
 
             async function fetchSymbols() {
                 try {
-                    const text = await fetchSmart('https://api.frankfurter.dev/v2/currencies');
+                    const text = await fetch('https://api.frankfurter.dev/v2/currencies');
                     const currencies = JSON.parse(text);
                     listEl.innerHTML = '';
                     currencies.filter(currency => currency.iso_code !== "INR").sort((a, b) => a.name.localeCompare(b.name)).forEach(currency => {
@@ -2053,7 +2053,7 @@
 		    if (cacheValid) {
 		        rates = JSON.parse(cache);
 		    } else {
-	                const [text] = await fetchSmart("https://api.frankfurter.dev/v2/latest?base=INR");
+	                const [text] = await fetch("https://api.frankfurter.dev/v2/latest?base=INR");
                         const data = JSON.parse(text);
 			rates = data.rates;
 		        localStorage.setItem(FX_CACHE_RATES, JSON.stringify(rates));
