@@ -2027,6 +2027,8 @@
 	 }
 
 	 function runCalculation() {
+	     const inrInput = document.getElementById('conv-inr');
+	     if (!inrInput) return;
 	     const inrValue = parseFloat(document.getElementById('conv-inr').value) || 0;
 	     const rate = localExchangeRates[selectedConvCurrency];    
 	     if (rate) {
@@ -2065,7 +2067,12 @@
 	             convList.appendChild(div);
 	         }
 	     }    
-	     convSearch.value = selectedConvCurrency;
+	     if (convSearch) {
+	         convSearch.value = selectedConvCurrency;
+	         convSearch.onclick = () => {
+	             if (convList) convList.style.display = convList.style.display === 'block' ? 'none' : 'block';
+	         };
+	     }
 	     statusText.textContent = "LIVE";
 	     statusDot.className = "w-2 h-2 rounded-full bg-green-500 blink-active";    
 	     convSearch.addEventListener('click', () => {
@@ -2091,9 +2098,6 @@
 	     statusText.textContent = "LIVE";
 	     setTimeout(() => syncIcon.classList.remove('spin-animate'), 1000);
 	 });
-
-	 document.addEventListener('DOMContentLoaded', initCurrencyConverter);
-
 
         // SETTINGS RATES SYNC LOGIC
         async function syncRates(isAuto = false) {
