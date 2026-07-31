@@ -352,13 +352,7 @@
         }
         .dropdown-list div { padding:8px 12px; cursor:pointer; color: var(--text-main); }
         .dropdown-list div:hover { background: rgba(125,125,125,0.1); }
-	.currency-header{ font-size:12px; color:var(--text-muted); margin:12px 0 6px; text-transform:uppercase; letter-spacing:.08em; }
-	.currency-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; border-radius:12px; cursor:pointer; transition:.18s; }
-	.currency-item:hover{ background:rgba(255,255,255,.05); transform:translateY(-1px); }
-	.currency-item.selected{ border:1px solid var(--gold-primary); }
-	.currency-star{ color:#facc15; cursor:pointer; margin-right:10px; }
-	.currency-code{ font-weight:700; }
-	.currency-name{ color:var(--text-muted); font-size:13px; }
+
         /* Currency Converter Card Styles */
         .conv-card {
             background-color: var(--input-bg);
@@ -749,8 +743,8 @@
                 <div class="conv-card">
                         <label class="conv-label">Convert To</label>
                         <div class="dropdown">
-                            <input id="conv-search" class="bg-transparent text-xl font-bold w-full outline-none text-white cursor-pointer" placeholder="Select Currency" readonly onclick="openCurrencyPicker()">
-			    <input type="hidden" id="selected-currency">
+                            <input id="conv-search" class="bg-transparent text-xl font-bold w-full outline-none text-white cursor-pointer" placeholder="Select Currency" readonly>
+                            <div id="conv-list" class="dropdown-list custom-scroll"></div>
                         </div>
                     </div>
                 <div class="flex flex-col md:flex-row gap-4 mt-2">
@@ -776,15 +770,6 @@
     		    </span>
 		</div>
             </div>
-        </div>
-    </div>
-
-    <div id="currency-picker-modal" class="modal fixed inset-0 z-[200] bg-black/70 backdrop-blur-sm">
-	<div class="modal-content glass-panel w-full max-w-lg h-[80vh] mx-auto mt-8 rounded-2xl flex flex-col">
-	    <div class="p-5">
-	        <input id="currency-picker-search" type="text" placeholder="🔍 Search currency..." class="w-full bg-[var(--input-bg)] border border-[var(--border-color)] rounded-xl p-3 text-lg outline-none">
-	    </div>
-        <div id="currency-picker-list" class="flex-1 overflow-y-auto custom-scroll px-3 pb-3"></div>
         </div>
     </div>
 
@@ -1522,7 +1507,6 @@
 		{ id: 'history-modal', close: toggleHistory },
 		{ id: 'scanner-modal', close: toggleScanner },
 		{ id: 'quote-details-modal', close: closeQuoteDetails },
-		{ id: 'currency-picker-modal', close: closeCurrencyPicker },
 	        { id: 'margin-modal', close: toggleMarginModal }
 	    ];
 
@@ -2006,16 +1990,16 @@
             const inrEl = document.getElementById('conv-inr');
             const outEl = document.getElementById('conv-out');
             const searchEl = document.getElementById('conv-search');
-            const listEl = document.getElementById('currency-picker-list');
+            const listEl = document.getElementById('conv-list');
             const labelEl = document.getElementById('conv-label');
             const rateLabel2 = document.getElementById('conv-rate-2');
             const updatedEl = document.getElementById('conv-updated');
             const statusDot = document.getElementById('conv-status-dot');
-	    document.getElementById("currency-picker-search").addEventListener("input", e => {renderCurrencyPicker(e.target.value);});
+
             let rateINRtoTarget = null;
             let targetCurrency = 'USD';
             const currencySymbols = {};
-	    let favouriteCurrencies = JSON.parse(localStorage.getItem("currencyFavorites"))??["USD","EUR","GBP"];
+
             function updateConv(from='INR') {
                 if(!rateINRtoTarget) return;
                 if(from === 'INR'){
@@ -2041,13 +2025,14 @@
 		    const cache = localStorage.getItem(FX_SYMBOLS_CACHE);
 		    const cacheTime = localStorage.getItem(FX_SYMBOLS_TIME);
 		    const cacheValid = cache && cacheTime && (Date.now() - Number(cacheTime) < SYMBOL_CACHE_DURATION);
-		    let currencies = [];
+		    let currencies;
 		    if (cacheValid) {
 		        currencies = JSON.parse(cache);
 		    } else {
 	                const response = await fetch('https://api.frankfurter.dev/v2/currencies');
 	                if (!response.ok) { throw new Error(`HTTP ${response.status}`);}
 	                currencies = await response.json();
+		    	console.log(currencies);
 			localStorage.setItem(FX_SYMBOLS_CACHE, JSON.stringify(currencies));
 		        localStorage.setItem(FX_SYMBOLS_TIME, Date.now().toString());
 		    }
@@ -2062,7 +2047,6 @@
 	                   }
                 	   listEl.appendChild(div);
 	                });
-		    renderCurrencyPicker();
                     fetchRates();
                 } catch(e) { console.error(e); }
             }
@@ -2137,66 +2121,6 @@
             fetchSymbols();
         }
 
-	function renderCurrencyPicker(filter=""){
-	    const container =
-	    document.getElementById("currency-picker-list");
-	    container.innerHTML="";
-	    const term=filter.toLowerCase();
-	    const fav=[];
-	    const other=[];
-	    currencies.forEach(c=>{
-	        if(!c.code.toLowerCase().includes(term) && !c.name.toLowerCase().includes(term)) 
-		return;
-	        if(favouriteCurrencies.includes(c.code))
-	            fav.push(c);
-	        else
-	            other.push(c);
-	    });
-	    if(fav.length){container.innerHTML+=`<div class="currency-header">Favorites</div>`; fav.forEach(c=>container.appendChild(makeCurrencyRow(c)));}
-	    container.innerHTML+= `<div class="currency-header">All currencies</div>`; other.forEach(c=>container.appendChild(makeCurrencyRow(c)));
-	}
-
-	function makeCurrencyRow(c){
-	    const row=document.createElement("div");
-	    row.className="currency-item";
-	    row.innerHTML=`<div style="display:flex;align-items:center"><span class="currency-star" onclick="event.stopPropagation();toggleFavourite('${c.code}')">${favouriteCurrencies.includes(c.code)?"★":"☆"}</span><div>
-                <div class="currency-code">${c.code}</div>
-                <div class="currency-name">${c.name}</div>
-	            </div>
-	        </div>
-	    `;
-	    row.onclick=()=>selectCurrency(c);
-	    return row;
-	}
-
-	function toggleFavourite(code){
-	    if(favouriteCurrencies.includes(code))
-	        favouriteCurrencies = favouriteCurrencies.filter(x=>x!==code);
-	    else
-	        favouriteCurrencies.unshift(code);
-	    localStorage.setItem("currencyFavorites", JSON.stringify(favouriteCurrencies));
-	    renderCurrencyPicker(
-	        document.getElementById("currency-picker-search").value
-	    );
-	}
-
-	function selectCurrency(c){
-	    document.getElementById("conv-search").value=`${c.code}`;
-	    globalTargetCode=c.code;
-	    closeCurrencyPicker();
-	    convertCurrency();
-	}
-
-	function openCurrencyPicker(){
-	    const modal=document.getElementById("currency-picker-modal");
-	    modal.classList.add("active");
-	    renderCurrencyPicker();
-	    const search= document.getElementById("currency-picker-search");
-	    search.value="";
-	    setTimeout(()=>search.focus(),150);
-	}
-
-	function closeCurrencyPicker(){document.getElementById("currency-picker-modal").classList.remove("active");}
 
         // SETTINGS RATES SYNC LOGIC
         async function syncRates(isAuto = false) {
