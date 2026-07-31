@@ -730,9 +730,9 @@
                 <div>
                     <h2 class="text-2xl md:text-3xl text-white font-bold mb-1">INR → Currency Converter</h2>
                     <div class="flex flex-col gap-1">
-                        <p class="text-gray-400 text-sm">Exchange Rates auto-update every 60 secs</p>
+                        <p class="text-gray-400 text-sm">Exchange Rates auto-update every hour</p>
                         <div class="flex flex-col items-start gap-1 mt-1">
-                            <span class="text-[10px] text-gray-500">Source: European Central Bank (via Frankfurter API)</span>
+                            <span class="text-[10px] text-gray-500">Source: 84 Central Banks Worldwide (via Frankfurter API)</span>
                             <span id="conv-rate-2" class="conv-pill-small">1 USD = ...</span>
                         </div>
                     </div>
@@ -768,13 +768,11 @@
                         <span id="conv-updated">Fetching...</span>
                     </div>
 		
-		    <div class="flex items-center gap-3">                 
-                    	<button id="conv-refresh" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-bold text-sm transition-colors shadow-lg flex items-center gap-2">
-                        	Rates <i class="fas fa-sync-alt"></i>
-	                </button>
-        	     </div>
+		    <span id="conv-rate-2" class="conv-pill-small cursor-pointer transition-all hover:scale-105 active:scale-95" title="Refresh Exchange Rates">
+			<span id="conv-rate-text"> $ 1 = ... </span>
+        		<i id="conv-pill-icon" class="fas fa-sync-alt ml-2 text-[10px]"></i>
+    		    </span>
 		</div>
-
             </div>
         </div>
     </div>
@@ -2020,9 +2018,13 @@
                 }
             }
 
+	    const FX_CACHE_RATES = "ejpc_fx_rates";
+	    const FX_CACHE_TIME = "ejpc_fx_timestamp";
+	    const FX_CACHE_DURATION = 60 * 60 * 1000; // 1 hour
+
             async function fetchSymbols() {
                 try {
-                    const text = await fetchSmart('https://api.frankfurter.app/currencies');
+                    const text = await fetchSmart('https://api.frankfurter.dev/v2/currencies');
                     const symbols = JSON.parse(text);
                     listEl.innerHTML = '';
                     Object.entries(symbols).filter(([code]) => code !== 'INR').sort((a,b)=>a[1].localeCompare(b[1])).forEach(([code, name]) => {
@@ -2032,48 +2034,55 @@
                         if(code === 'USD') searchEl.value = div.textContent;
                         listEl.appendChild(div);
                     });
-                    fetchRate();
+                    fetchRates();
                 } catch(e) { console.error('Symbol fetch error'); }
             }
 
-            async function fetchRate() {
-                const icon = refreshBtn.querySelector('i');
-                icon.classList.add('spin-animate');
-                updatedEl.textContent = 'Updating...';
-		const minSpinTime = new Promise(resolve => setTimeout(resolve, 800));
-                
+            async function fetchRates() {
+                const icon = refreshBtn.getElementById("conv-pill-icon");
+                icon.classList.add("spin-animate");
+                updatedEl.textContent = 'Updating...';                
                 try {
-                    const [text] = await Promise.all([fetchSmart(`https://api.frankfurter.app/latest?from=INR&to=${targetCurrency}`), minSpinTime]);
-                    const data = JSON.parse(text);
-                    const rate = data.rates[targetCurrency];
-                    
-                    if(rate) {
-                        rateINRtoTarget = rate;
-			globalExchangeRate = rate;
-                        globalTargetCode = targetCurrency;
-                        const symbol = currencySymbols[targetCurrency] || targetCurrency;                    
-                        const oneTargetToInr = 1 / rate;    // Calculate reverse rate for 1 Target = X INR
+		    let rates;
+		    const cache = localStorage.getItem(FX_CACHE_RATES);
+		    const cacheTime = localStorage.getItem(FX_CACHE_TIME);
+		    const now = Date.now();
+		    const cacheValid = cache && cacheTime && (now - Number(cacheTime) < FX_CACHE_DURATION);
+		    if cacheValid {
+		        rates = JSON.parse(cache);
+		    } else {
+	                const [text] = await fetchSmart("https://api.frankfurter.dev/v2/latest?base=INR");
+                        const data = JSON.parse(text);
+			rates = data.rates;
+		        localStorage.setItem(FX_CACHE_RATES, JSON.stringify(rates));
+		        localStorage.setItem(FX_CACHE_TIME, now);
 
-                        if(rateLabel2) rateLabel2.textContent = `1 ${symbol} = ${oneTargetToInr.toFixed(2)} INR`;
-                        
-                        updatedEl.textContent = 'LIVE';
-                        statusDot.classList.replace('bg-yellow-500', 'bg-green-500');
-			statusDot.classList.add('blink-active');
-                        updateConv('INR');
-                    }
-                } catch(e) {
-                    updatedEl.textContent = 'Error fetching rate';
-                    statusDot.classList.replace('bg-green-500', 'bg-red-500');
-                } finally {
-                    icon.classList.remove('spin-animate');
-		}
-            }
+		      }
+                      const rate = rates[targetCurrency];
+                      rateINRtoTarget = rate;
+		      globalExchangeRate = rate;
+                      globalTargetCode = targetCurrency;
+                      const symbol = currencySymbols[targetCurrency] || targetCurrency;                    
+                      document.getElementById("conv-rate-text").textContent = `${symbol} 1 = ₹ ${(1/rate).toFixed(2)}`;
+		      document.getElementById("conv-updated").textContent = "LIVE";
+		      const dot = document.getElementById("conv-status-dot");
+                      dot.classList.remove("bg-red-500", "bg-yellow-500");
+		      dot.classList.add("bg-green-500", "blink-active");
+                      updateConv('INR');
+                    } catch(e) {
+                          document.getElementById("conv-updated").textContent = 'Error fetching rate';
+                          document.getElementById("conv-status-dot").classList.replace('bg-green-500', 'bg-red-500');
+			  console.error(e);
+                    } finally {
+                          icon.classList.remove('spin-animate');
+		    }
+                }
 
             // Events
             inrEl.addEventListener('input', () => updateConv('INR'));
             outEl.addEventListener('input', () => updateConv('OUT'));
-            refreshBtn.addEventListener('click', fetchRate);
-            
+            const ratePill = document.getElementById("conv-rate-2");
+	    ratePill.addEventListener("click", fetchRates);            
             searchEl.addEventListener('focus', () => listEl.style.display = 'block');
             document.addEventListener('click', (e) => {
                 if(!searchEl.contains(e.target) && !listEl.contains(e.target)) listEl.style.display = 'none';
@@ -2092,12 +2101,11 @@
                     labelEl.textContent = targetCurrency;
                     searchEl.value = e.target.textContent;
                     listEl.style.display = 'none';
-                    fetchRate();
+                    fetchRates();
                 }
             });
 
             fetchSymbols();
-            setInterval(fetchRate, 60000); // Auto-refresh every minute
         }
 
 
