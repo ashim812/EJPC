@@ -740,26 +740,23 @@
             </div>
             
             <div class="p-6 pt-2 flex flex-col gap-4">
-                
-                <div class="flex flex-col md:flex-row gap-4 mt-2">
-                    <div class="conv-card flex-1">
-                        <label class="conv-label">Amount in INR (₹)</label>
-                        <input id="conv-inr" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
-                    </div>
-                    
-                    <div class="conv-card flex-1">
+                <div class="conv-card">
                         <label class="conv-label">Convert To</label>
                         <div class="dropdown">
                             <input id="conv-search" class="bg-transparent text-xl font-bold w-full outline-none text-white cursor-pointer" placeholder="Select Currency" readonly>
                             <div id="conv-list" class="dropdown-list custom-scroll"></div>
                         </div>
                     </div>
-                </div>
-
-                <div class="conv-card">
-                    <label class="conv-label">Estimated Amount in <span id="conv-label">USD</span></label>
-                    <input id="conv-out" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
-                </div>
+                <div class="flex flex-col md:flex-row gap-4 mt-2">
+                    <div class="conv-card flex-1">
+                        <label class="conv-label">Amount in INR (₹)</label>
+                        <input id="conv-inr" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
+                    </div>
+                    <div class="conv-card flex-1">
+                        <label class="conv-label">Estimated Amount in <span id="conv-label">USD</span></label>
+                        <input id="conv-out" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
+                    </div>                    
+                </div>                
 
                 <div class="flex items-center justify-between mt-2">
                     <div class="text-[10px] text-gray-500 flex items-center gap-2">
@@ -1229,7 +1226,7 @@
 	}
 
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 20, stone: 50 }; // Default Margins
+        let profitMargins = { metal: 20, stone: 40 }; // Default Margins
 	let marginType = 'H';
 
         const DEFAULT_RATES = [
