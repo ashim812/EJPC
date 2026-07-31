@@ -2042,9 +2042,7 @@
 	     const statusText = document.getElementById('conv-updated');
 	     const convSearch = document.getElementById('conv-search');
 	     const convList = document.getElementById('conv-list');
-	     const inrInput = document.getElementById('conv-inr');    
-	     statusDot.className = "w-2 h-2 rounded-full bg-yellow-500";
-	     statusText.textContent = "Checking Rates...";    
+	     const inrInput = document.getElementById('conv-inr');   
 	     localExchangeRates = await getValidRates();    
 	     if (!localExchangeRates) {
 	         statusText.textContent = "Error fetching rates";
