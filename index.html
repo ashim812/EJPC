@@ -2025,15 +2025,17 @@
             async function fetchSymbols() {
                 try {
                     const text = await fetchSmart('https://api.frankfurter.dev/v2/currencies');
-                    const symbols = JSON.parse(text);
+                    const currencies = JSON.parse(text);
                     listEl.innerHTML = '';
-                    Object.entries(symbols).filter(([code]) => code !== 'INR').sort((a,b)=>a[1].localeCompare(b[1])).forEach(([code, name]) => {
-                        const div = document.createElement('div');
-                        div.textContent = `${code} - ${name}`;
-                        div.dataset.code = code;
-                        if(code === 'USD') searchEl.value = div.textContent;
-                        listEl.appendChild(div);
-                    });
+                    currencies.filter(currency => currency.iso_code !== "INR").sort((a, b) => a.name.localeCompare(b.name)).forEach(currency => {
+	                   const div = document.createElement("div");
+	                   div.textContent = `${currency.iso_code} - ${currency.name}`;
+                           div.dataset.code = currency.iso_code;
+	                   if (currency.iso_code === "USD") {
+	                       searchEl.value = div.textContent;
+	                   }
+                	   listEl.appendChild(div);
+	                });
                     fetchRates();
                 } catch(e) { console.error('Symbol fetch error'); }
             }
