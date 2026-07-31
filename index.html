@@ -2015,7 +2015,6 @@
             let rateINRtoTarget = null;
             let targetCurrency = 'USD';
             const currencySymbols = {};
-	    let currencies = [];
 	    let favouriteCurrencies = JSON.parse(localStorage.getItem("currencyFavorites"))??["USD","EUR","GBP"];
             function updateConv(from='INR') {
                 if(!rateINRtoTarget) return;
@@ -2042,6 +2041,7 @@
 		    const cache = localStorage.getItem(FX_SYMBOLS_CACHE);
 		    const cacheTime = localStorage.getItem(FX_SYMBOLS_TIME);
 		    const cacheValid = cache && cacheTime && (Date.now() - Number(cacheTime) < SYMBOL_CACHE_DURATION);
+		    let currencies = [];
 		    if (cacheValid) {
 		        currencies = JSON.parse(cache);
 		    } else {
