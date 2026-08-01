@@ -1280,6 +1280,7 @@
         let items = [];
 	let globalExchangeRate = 0;
 	let globalTargetCode = 'USD';
+	const currencySymbols = {};
 
         // THEME LOGIC
         function initTheme() {
@@ -2000,7 +2001,6 @@
             let targetCurrency = 'USD';
 	    let previousCurrencyText = "USD";
 	    let currencySelected = false;
-            const currencySymbols = {};
 
             function updateConv(from='INR') {
                 if(!rateINRtoTarget) return;
