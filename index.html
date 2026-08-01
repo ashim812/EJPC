@@ -2039,7 +2039,8 @@
 		    }
                     listEl.innerHTML = '';
 		    currencies.forEach(currency => {currencySymbols[currency.iso_code] = currency.symbol || currency.iso_code;});
-                    currencies.filter(currency => currency.iso_code !== "INR").sort((a, b) => a.name.localeCompare(b.name)).forEach(currency => {
+		    const excludedCurrencies = ["INR", "XAU", "XAG", "XPT", "XPD", "XDR", "MRO", "CNH"]; // Excluded Currency Codes
+                    currencies.filter(currency => !excludedCurrencies.includes(currency.iso_code)).sort((a, b) => a.name.localeCompare(b.name)).forEach(currency => {
 	                   const div = document.createElement("div");
 	                   div.textContent = `${currency.iso_code} - ${currency.name}`;
                            div.dataset.code = currency.iso_code;
