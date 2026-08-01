@@ -3143,13 +3143,13 @@
 	// Currency Row
             if (globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
-                
+                const symbol = currencySymbols[globalTargetCode] || globalTargetCode;
                 html += `
                 <div class="invoice-row cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleCurrency()">
                     <div class="flex items-center gap-2">
                         <span class="text-gray-400 text-sm">Est. in ${globalTargetCode}</span>
                     </div>
-                    <span class="invoice-val text-gray-300">${convertedAmt.toLocaleString('en-US', {style: 'currency', currency: globalTargetCode}).replace(/([^\d\s])(\d)/, '$1 $2')}</span>
+                    <span class="invoice-val text-gray-300">${symbol} ${convertedAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
                 </div>
                 `;
             }
