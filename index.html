@@ -2097,7 +2097,14 @@
             outEl.addEventListener('input', () => updateConv('OUT'));
             const ratePill = document.getElementById("conv-rate-2");
 	    ratePill.addEventListener("click", fetchRates);            
-            searchEl.addEventListener('focus', () => {previousCurrencyText = searchEl.value; searchEl.value = ""; listEl.style.display = "block"; });
+            searchEl.addEventListener('focus', () => {
+		previousCurrencyText = searchEl.value; 
+		searchEl.value = ""; 
+		listEl.style.display = "block"; 
+		Array.from(listEl.children).forEach(div => {
+		    div.style.display = "block";
+		    });
+		});
             document.addEventListener('click', (e) => {
                 if(!searchEl.contains(e.target) && !listEl.contains(e.target)) { 
 		   listEl.style.display = 'none';
