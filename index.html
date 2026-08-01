@@ -1999,6 +1999,7 @@
             let rateINRtoTarget = null;
             let targetCurrency = 'USD';
 	    let previousCurrencyText = "USD";
+	    let currencySelected = false;
             const currencySymbols = {};
 
             function updateConv(from='INR') {
@@ -2098,21 +2099,22 @@
             const ratePill = document.getElementById("conv-rate-2");
 	    ratePill.addEventListener("click", fetchRates);            
             searchEl.addEventListener('focus', () => {
-		previousCurrencyText = searchEl.value; 
+		previousCurrencyText = searchEl.value;
+		currencySelected = false; 
 		searchEl.value = ""; 
 		listEl.style.display = "block"; 
 		Array.from(listEl.children).forEach(div => {
 		    div.style.display = "block";
 		    });
 		});
-            document.addEventListener('click', (e) => {
-                if(!searchEl.contains(e.target) && !listEl.contains(e.target)) { 
-		   listEl.style.display = 'none';
-		   if (searchEl.value.trim() === "") {
-	               searchEl.value = previousCurrencyText;
-		   }
-		}
-            });
+            searchEl.addEventListener("blur", () => {
+		setTimeout(() => {
+		    if (!currencySelected) {
+		        searchEl.value = previousCurrencyText;
+		    }
+		    listEl.style.display = "none";
+	        }, 150);
+	    });
             
             searchEl.addEventListener('input', () => {
                 const term = searchEl.value.toLowerCase();
@@ -2123,6 +2125,7 @@
 
             listEl.addEventListener('click', (e) => {
                 if(e.target.dataset.code) {
+		    currencySelected = true;
                     targetCurrency = e.target.dataset.code;
                     labelEl.textContent = targetCurrency;
                     searchEl.value = e.target.textContent;
