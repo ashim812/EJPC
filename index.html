@@ -3190,7 +3190,7 @@
                     }
                     
                     const nameLabel = rate.name || "Unnamed Item";
-                    text += `${nameLabel} (${weightDisplay}${unit}) : ₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `${nameLabel} : ${weightDisplay}$ {unit}\n`;
                 }
             });
 
@@ -3234,7 +3234,7 @@
                 runningTotal = rounded; // Always update the total to the rounded value
             }
 
-            text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+            text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
 
 	    if (globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
