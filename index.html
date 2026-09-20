@@ -540,7 +540,7 @@
         <div class="w-full h-full px-3 flex justify-between items-center">
             <h1 id="app-logo" class="text-2xl md:text-2xl font-bold text-yellow-500 tracking-wider cursor-pointer select-none transition-opacity duration-200" title="Hold to Refresh">EJPC</h1>
             <div class="flex items-center gap-3">
-                <div class="flex items-center gap-7">                    
+                <div class="flex items-center gap-6">                    
                     <button onclick="toggleSummary()" class="nav-btn hover-blue p-2 rounded-full" title="View Summary">
                         <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
@@ -906,7 +906,7 @@
 			</button>
 
                         <div class="flex items-center gap-2">
-			     <button id="summary-settings-btn" onclick="toggleShareAddons()" class="text-gray-500 hover:text-white transition-colors" title="Share Add-On">
+			     <button id="summary-settings-btn" onclick="toggleShareAddons()" class="text-gray-500 hover:text-white transition-colors" title="Share Add-Ons">
                                 <i class="fas fa-circle-plus text-xs"></i>
                              </button>
                              <button onclick="shareSummary()" class="text-blue-400 hover:text-blue-200 text-lg font-bold flex items-center gap-2 transition-colors" title="Share">
@@ -1390,13 +1390,11 @@
     	    isStealthMode = !isStealthMode;
     
     	    const closeBtn = document.getElementById('summary-close-btn');
-    	    const settingsBtn = document.getElementById('summary-settings-btn');
 	    const stealthBtn = document.getElementById('stealth-btn');
 	    const discBtn = document.getElementById('summary-discount-btn');
     
     	    // Hide/Show Buttons
     	    if(closeBtn) closeBtn.style.display = isStealthMode ? 'none' : 'flex';
-     	    if(settingsBtn) settingsBtn.style.display = isStealthMode ? 'none' : 'block';
 	    if(stealthBtn) stealthBtn.style.display = isStealthMode ? 'none' : 'block';
 	    if(discBtn) discBtn.style.display = isStealthMode ? 'none' : 'block';
     	    generateSummary();    	    
