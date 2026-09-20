@@ -3082,8 +3082,8 @@
                 roundDiffClass = roundOffAmount >= 0 ? 'text-gray-400' : 'text-red-400';
             }
 
-            const sign = roundOffAmount >= 0 ? '+' : '';
-            const displayDiff = (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) ? `${sign}₹${roundOffAmount.toFixed(2)}` : '';         
+            const sign = roundOffAmount >= 0 ? '+' : '-';
+            const displayDiff = (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) ? `${sign}₹${Math.abs(roundOffAmount).toFixed(2)}` : '';         
             const AutoRoundOffBtn = !summaryState.showRoundOptions ? 'text-purple-500' : 'text-gray-500';
             const isRoundNeg = roundOffAmount < 0;
 	    const blinkBtn = (isRoundNeg && !summaryState.showRoundOptions) ? 'blink-active' : '';
