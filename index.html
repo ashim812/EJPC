@@ -3223,9 +3223,9 @@
                 const rounded = Math.round(runningTotal / m) * m;                
              
                 if (shareOptions.roundOff) {   // Only add the Round Off line if the user opted to share it
-                    const diff = Math.abs(rounded - runningTotal);
+                    const diff = rounded - runningTotal;
                     const sign = diff >= 0 ? '+' : '-';
-                    text += `Round Off : ${sign} ₹ ${diff.toFixed(2)}\n`;
+                    text += `Round Off : ${sign} ₹ ${Math.abs(diff).toFixed(2)}\n`;
                 }                
                 runningTotal = rounded; // Always update the total to the rounded value
             }
