@@ -3205,7 +3205,7 @@
                 const discountedTotal = runningTotal - amountSaved;
                 
                 if(shareOptions.discount) {
-                    text += `Discount (${discountData.percentage}%) : - ₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `Discount (${discountData.percentage}%) : - ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal = discountedTotal;
             }
@@ -3213,7 +3213,7 @@
             if(summaryState.tax) {
                 const tax = runningTotal * (taxConfig.rate/100);
                 if(shareOptions.tax) {
-                    text += `GST (3%) : + ₹${tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `GST (3%) : + ₹ ${tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
                 }
                 runningTotal += tax;
             }
@@ -3223,15 +3223,14 @@
                 const rounded = Math.round(runningTotal / m) * m;                
              
                 if (shareOptions.roundOff) {   // Only add the Round Off line if the user opted to share it
-                    const diff = rounded - runningTotal;
-                    const sign = diff >= 0 ? '+' : '';
-                    text += `Round Off : ${sign}₹${diff.toFixed(2)}\n`;
-                }
-                
+                    const diff = Math.abs(rounded - runningTotal);
+                    const sign = diff >= 0 ? '+' : '-';
+                    text += `Round Off : ${sign} ₹ ${diff.toFixed(2)}\n`;
+                }                
                 runningTotal = rounded; // Always update the total to the rounded value
             }
 
-            text += `Total Price : ₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+            text += `Total Price : ₹ ${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
 
 	    if (shareOptions.forex && globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
@@ -3246,14 +3245,9 @@
     function openNamePopup() {
         const modal = document.getElementById('name-popup');
         const input = document.getElementById('popup-item-name');
-        
         loadNameHistory(); // Load previous inputs
         input.value = '';  // Clear current input
-        
         modal.classList.add('active');
-        
-        // Auto-focus input after transition
-        setTimeout(() => input.focus(), 100);
     }
 
     function closeNamePopup() {
