@@ -3047,7 +3047,7 @@
             }
 
             const sign = roundOffAmount >= 0 ? '+' : '-';
-            const displayDiff = (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) ? `${sign}₹${Math.abs(roundOffAmount).toFixed(2)}` : '';         
+            const displayDiff = (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) ? `${sign}₹${Math.abs(roundOffAmount).toFixed(0)}` : '';         
             const AutoRoundOffBtn = !summaryState.showRoundOptions ? 'text-purple-500' : 'text-gray-500';
             const isRoundNeg = roundOffAmount < 0;
 	    const blinkBtn = (isRoundNeg && !summaryState.showRoundOptions) ? 'blink-active' : '';
@@ -3111,7 +3111,7 @@
                     <div class="flex items-center gap-2">
                         <span class="text-gray-400 text-sm">Est. in ${globalTargetCode}</span>
                     </div>
-                    <span class="invoice-val text-gray-300">${symbol} ${Math.ceil(convertedAmt).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
+                    <span class="invoice-val text-gray-300">${symbol}${Math.ceil(convertedAmt).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
                 </div>
                 `;
             }
@@ -3189,7 +3189,7 @@
                 if (shareOptions.roundOff) {   // Only add the Round Off line if the user opted to share it
                     const diff = rounded - runningTotal;
                     const sign = diff >= 0 ? '+' : '-';
-                    text += `Round Off : ${sign} ₹ ${Math.abs(diff).toFixed(2)}\n`;
+                    text += `Round Off : ${sign} ₹ ${Math.abs(diff).toFixed(0)}\n`;
                 }                
                 runningTotal = rounded; // Always update the total to the rounded value
             }
@@ -3198,7 +3198,7 @@
 
 	    if (shareOptions.forex && globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
-                text += `\nEst. in ${globalTargetCode} : ${Math.ceil(convertedAmt).toLocaleString('en-US', {style: 'currency', currency: globalTargetCode}).replace(/([^\d\s])(\d)/, '$1 $2')}`;
+                text += `\nEst. in ${globalTargetCode} : ${Math.ceil(convertedAmt).toLocaleString('en-US', {style: 'currency', currency: globalTargetCode, minimumFractionDigits: 0, maximumFractionDigits: 0}).replace(/([^\d\s])(\d)/, '$1 $2')}`;
             }
 	
         tempShareString = text;
