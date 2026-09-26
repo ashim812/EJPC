@@ -2953,7 +2953,7 @@
                     html += `
                     <div class="invoice-row">
                         <span>${nameLabel} <span class="text-xs text-gray-500">(${weightDisplay}${unit}${rateDisplay})</span></span>
-                        <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                        <span class="invoice-val">₹${priceWithMargin.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
                     </div>
                     `;
                 }
@@ -2985,7 +2985,7 @@
 	             onmousedown="startPress(event, 'discount')" ontouchstart="startPress(event, 'discount')"
 	             onmouseup="cancelPress()" onmouseleave="cancelPress()" ontouchend="cancelPress()" ontouchmove="cancelPress()">
                     <span>Discount (${discountData.percentage}%)</span>
-                    <span class="invoice-val text-green-400">-₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    <span class="invoice-val text-green-400">-₹${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
                 </div>
                 `;
             }
@@ -3006,7 +3006,7 @@
 	            <div class="flex items-center gap-2">
 	                <span>${taxName} (${taxRate}%)</span>
 	            </div>
-	            <span class="invoice-val text-yellow-500">+₹${taxAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+	            <span class="invoice-val text-yellow-500">+₹${taxAmount.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
 	        </div>
                 `;
                  runningTotal += taxAmount;
@@ -3098,7 +3098,7 @@
                 <div class="flex items-center gap-2">
                     <span class="text-white font-bold text-xl">Total Price</span>
                 </div>
-                <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
             </div>
             `;
 
@@ -3111,7 +3111,7 @@
                     <div class="flex items-center gap-2">
                         <span class="text-gray-400 text-sm">Est. in ${globalTargetCode}</span>
                     </div>
-                    <span class="invoice-val text-gray-300">${symbol} ${convertedAmt.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2})}</span>
+                    <span class="invoice-val text-gray-300">${symbol} ${Math.ceil(convertedAmt).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
                 </div>
                 `;
             }
@@ -3169,7 +3169,7 @@
                 const discountedTotal = runningTotal - amountSaved;
                 
                 if(shareOptions.discount) {
-                    text += `Discount (${discountData.percentage}%) : - ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `Discount (${discountData.percentage}%) : - ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}\n`;
                 }
                 runningTotal = discountedTotal;
             }
@@ -3177,7 +3177,7 @@
             if(summaryState.tax) {
                 const tax = runningTotal * (taxConfig.rate/100);
                 if(shareOptions.tax) {
-                    text += `GST (3%) : + ₹ ${tax.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}\n`;
+                    text += `GST (3%) : + ₹ ${tax.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}\n`;
                 }
                 runningTotal += tax;
             }
@@ -3198,7 +3198,7 @@
 
 	    if (shareOptions.forex && globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
-                text += `\nEst. in ${globalTargetCode} : ${convertedAmt.toLocaleString('en-US', {style: 'currency', currency: globalTargetCode}).replace(/([^\d\s])(\d)/, '$1 $2')}`;
+                text += `\nEst. in ${globalTargetCode} : ${Math.ceil(convertedAmt).toLocaleString('en-US', {style: 'currency', currency: globalTargetCode}).replace(/([^\d\s])(\d)/, '$1 $2')}`;
             }
 	
         tempShareString = text;
