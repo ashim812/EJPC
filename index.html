@@ -1587,7 +1587,7 @@
                     runningTotal += (runningTotal * (taxConfig.rate/100));    // Tax
                 }
 
-                if(summaryState.roundOffMode > 0) {
+                if(summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
                     const m = summaryState.roundOffMode;
                     runningTotal = Math.round(runningTotal / m) * m;    // Round Off
                 }
@@ -3421,7 +3421,6 @@
 	        let timer;
 	        let isLongPress = false;
 	        const DURATION = 1500; // 1.5 Seconds
-
 	        const start = (e) => {	        
 	            if (e.type === 'mousedown' && e.button !== 0) return;    // Only left click or touch
             
@@ -3464,10 +3463,8 @@
 	    function showQuoteDetails(id) {
 	        const quote = quotationHistory.find(q => q.id === id);
 	        if (!quote) return;
-
 	        const content = document.getElementById('qd-content');
-		let grossTotal = 0;
-        
+		let grossTotal = 0;        
 	        // Build the details HTML
 	        let html = `
 	            <div class="flex flex-col gap-1 mb-4 pb-2">
@@ -3485,9 +3482,7 @@
 	            const margin = item.type === 'metal' ? (quote.margins?.metal || 20) : (quote.margins?.stone || 50);
 	            const cost = item.weight * price;
 	            const final = cost * (1 + margin/100);
-
 		    grossTotal += final;
-
 	            html += `
 	                <div class="flex justify-between items-center p-2 rounded">
 	                    <div class="flex flex-col">
@@ -3500,10 +3495,8 @@
 	        });
 
 	        html += `</div>`;
-
 		const discountPercent = quote.discountPercent || 0;
-	        const discountAmount = grossTotal * (discountPercent / 100);
-        
+	        const discountAmount = grossTotal * (discountPercent / 100);        
 	        // Footer Totals
 	        html += `
 	            <div class="mt-4 pt-3 flex flex-col gap-1">
@@ -3555,7 +3548,6 @@
 	                if(stoneInput) stoneInput.value = profitMargins.stone;
 			checkMarginStatus();
 	            }
-
 	            const savedDiscount = quote.discountPercent || 0;
 	            const discountInput = document.getElementById('calc-percent');
 	            if(discountInput) discountInput.value = savedDiscount;            
@@ -3565,7 +3557,6 @@
 	                discountedTotal: 0,
 	                active: savedDiscount > 0
 	            };
-
 	            renderCalculator();
 	            calculateTotals();
 	            toggleHistory();
