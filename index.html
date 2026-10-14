@@ -3040,10 +3040,10 @@
                 }
                 let mode = summaryState.roundOffMode;
                 let rounded = Math.round(runningTotal / mode) * mode;
-		let roundOffAmount = rounded - runningTotal;
+		roundOffAmount = rounded - runningTotal;
 		if (!summaryState.showRoundOptions && mode === 5000 && rounded < 0) {
 		    summaryState.roundOffMode = 1000;
-		    mode = 1000;
+		    mode = summaryState.roundOffMode;
 		    rounded = Math.round(runningTotal / mode) * mode;
 	            roundOffAmount = rounded - runningTotal;
 		}                
