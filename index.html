@@ -3023,8 +3023,7 @@
 
             // Round Off Logic
             let roundOffAmount = 0;
-            let roundDiffClass = "text-gray-500";            
-          
+            let roundDiffClass = "text-gray-500";
             if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
 		if (!summaryState.showRoundOptions) {
                     if (runningTotal < 100) {
@@ -3039,8 +3038,13 @@
                         summaryState.roundOffMode = 5000;
                     }
                 }
-                const mode = summaryState.roundOffMode;
-                const rounded = Math.round(runningTotal / mode) * mode;
+                let mode = summaryState.roundOffMode;
+                let rounded = Math.round(runningTotal / mode) * mode;
+		if (mode === 5000 && rounded < 0) {
+		    summaryState.roundOffMode = 1000;
+		    mode = summaryState.roundOffMode;
+		    rounded = Math.round(runningTotal / mode) * mode;
+		}
                 roundOffAmount = rounded - runningTotal;
                 runningTotal = rounded;
                 roundDiffClass = roundOffAmount >= 0 ? 'text-gray-400' : 'text-red-400';
@@ -3301,10 +3305,8 @@
 	    }
 
 	    const totalEl = document.getElementById('display-total-price');
-	    const totalVal = totalEl ? totalEl.innerText : "0.00";
-    
-	    // Generate Default Name (e.g. Quote #1)
-	    const count = quotationHistory.length + 1;
+	    const totalVal = totalEl ? totalEl.innerText : "0.00";	  
+	    const count = quotationHistory.length + 1;  // Generate Default Name (e.g. Quote #1)
 	    const defaultName = `Quote #${count}`;
 
 	    const quote = {
@@ -3318,8 +3320,7 @@
 	    };
 
 	    quotationHistory.unshift(quote);
-	    if(quotationHistory.length > 50) quotationHistory.pop(); // Limit to 50 items
-    
+	    if(quotationHistory.length > 50) quotationHistory.pop(); // Limit to 50 items    
 	    localStorage.setItem('ejpc_quotations', JSON.stringify(quotationHistory));
 	    showToast("Quotation Saved!");
 	}
@@ -3422,8 +3423,7 @@
 	        let isLongPress = false;
 	        const DURATION = 1500; // 1.5 Seconds
 	        const start = (e) => {	        
-	            if (e.type === 'mousedown' && e.button !== 0) return;    // Only left click or touch
-            
+	            if (e.type === 'mousedown' && e.button !== 0) return;    // Only left click or touch            
 	            isLongPress = false;
 	            timer = setTimeout(() => {
 	                isLongPress = true;
