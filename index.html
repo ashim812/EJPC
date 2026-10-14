@@ -3040,12 +3040,13 @@
                 }
                 let mode = summaryState.roundOffMode;
                 let rounded = Math.round(runningTotal / mode) * mode;
-		if (mode === 5000 && rounded < 0) {
+		let roundOffAmount = rounded - runningTotal;
+		if (!summaryState.showRoundOptions && mode === 5000 && rounded < 0) {
 		    summaryState.roundOffMode = 1000;
-		    mode = summaryState.roundOffMode;
+		    mode = 1000;
 		    rounded = Math.round(runningTotal / mode) * mode;
-		}
-                roundOffAmount = rounded - runningTotal;
+	            roundOffAmount = rounded - runningTotal;
+		}                
                 runningTotal = rounded;
                 roundDiffClass = roundOffAmount >= 0 ? 'text-gray-400' : 'text-red-400';
             }
@@ -3358,7 +3359,6 @@
 	    const searchContainer = document.getElementById('history-search-container');
 	    const searchInput = document.getElementById('history-search-input');
 	    const list = document.getElementById('history-list');
-
 	    if (searchInput) searchInput.value = '';	    // Clear search input on open
 
 	    if (quotationHistory.length === 0) {    // Hide search if no history	    
