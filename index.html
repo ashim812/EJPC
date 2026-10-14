@@ -3025,6 +3025,7 @@
             let roundOffAmount = 0;
             let roundDiffClass = "text-gray-500";
             if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
+		let mode = summaryState.roundOffMode;
 		if (!summaryState.showRoundOptions) {
                     if (runningTotal < 100) {
                         summaryState.roundOffMode = 1;
@@ -3035,18 +3036,14 @@
                     } else if (runningTotal < 100000) {
                         summaryState.roundOffMode = 1000;
                     } else {
-                        summaryState.roundOffMode = 5000;
+			const testRounded = Math.round(runningTotal / 5000) * 5000;
+			mode = (testRounded - runningTotal < 0) ? 1000 : 5000;                        
                     }
-                }
-                let mode = summaryState.roundOffMode;
-                let rounded = Math.round(runningTotal / mode) * mode;
-		roundOffAmount = rounded - runningTotal;
-		if (!summaryState.showRoundOptions && mode === 5000 && rounded < 0) {
-		    mode = 1000;
 		    summaryState.roundOffMode = mode;
-		    rounded = Math.round(runningTotal / mode) * mode;
-	            roundOffAmount = rounded - runningTotal;
-		}                
+                }
+                
+                const rounded = Math.round(runningTotal / mode) * mode;
+		roundOffAmount = rounded - runningTotal;                
                 runningTotal = rounded;
                 roundDiffClass = roundOffAmount >= 0 ? 'text-gray-400' : 'text-red-400';
             }
@@ -3321,7 +3318,8 @@
 	    };
 
 	    quotationHistory.unshift(quote);
-	    if(quotationHistory.length > 50) quotationHistory.pop(); // Limit to 50 items    
+	    if(quotationHistory.length > 50) quotationHistory.pop(); // Limit to 50 items
+    
 	    localStorage.setItem('ejpc_quotations', JSON.stringify(quotationHistory));
 	    showToast("Quotation Saved!");
 	}
@@ -3359,6 +3357,7 @@
 	    const searchContainer = document.getElementById('history-search-container');
 	    const searchInput = document.getElementById('history-search-input');
 	    const list = document.getElementById('history-list');
+
 	    if (searchInput) searchInput.value = '';	    // Clear search input on open
 
 	    if (quotationHistory.length === 0) {    // Hide search if no history	    
@@ -3548,6 +3547,7 @@
 	                if(stoneInput) stoneInput.value = profitMargins.stone;
 			checkMarginStatus();
 	            }
+
 	            const savedDiscount = quote.discountPercent || 0;
 	            const discountInput = document.getElementById('calc-percent');
 	            if(discountInput) discountInput.value = savedDiscount;            
