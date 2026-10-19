@@ -3028,13 +3028,13 @@
 		let mode = summaryState.roundOffMode;
 		if (!summaryState.showRoundOptions) {
                     if (runningTotal < 100) {
-                        summaryState.roundOffMode = 1;
+                        mode = 1;
                     } else if (runningTotal < 1000) {
-                        summaryState.roundOffMode = 10;
+                        mode = 10;
                     } else if (runningTotal < 10000) {
-                        summaryState.roundOffMode = 100;
+                        mode = 100;
                     } else if (runningTotal < 100000) {
-                        summaryState.roundOffMode = 1000;
+                        mode = 1000;
                     } else {
 			const testRounded = Math.round(runningTotal / 5000) * 5000;
 			mode = (testRounded - runningTotal < 0) ? 1000 : 5000;                        
