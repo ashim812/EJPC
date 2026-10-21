@@ -677,7 +677,7 @@
             </div>
         </div>
         <div id="margin-main-view" class="p-5 flex flex-col items-center gap-4">            
-            <div class="flex items-center justify-between w-full bg-gray-900 border border-yellow-500/40 rounded-xl p-2 shadow-inner">
+            <div class="flex items-center justify-between w-full bg-gray-900 rounded-xl p-2">
                 <button onclick="stepMargin(-1)" class="w-10 h-10 rounded-lg bg-gray-800 hover:bg-gray-700 text-yellow-400 hover:text-yellow-300 font-bold flex items-center justify-center active:scale-90 transition-all select-none">
                     <i class="fas fa-chevron-left text-sm"></i>
                 </button>
@@ -690,30 +690,19 @@
                     <i class="fas fa-chevron-right text-sm"></i>
                 </button>
             </div>
-
-            <div class="flex justify-between w-full gap-2 mt-1">
-                <button onclick="applyMarginPreset('H')" class="flex-1 py-1.5 rounded-lg border border-yellow-500/50 bg-yellow-500/10 text-yellow-400 text-xs font-bold hover:bg-yellow-500 hover:text-black transition-all">
-                    Set H (<span id="label-preset-h">30</span>%)
-                </button>
-                <button onclick="applyMarginPreset('L')" class="flex-1 py-1.5 rounded-lg border border-gray-600 bg-gray-800 text-gray-300 text-xs font-bold hover:bg-gray-700 transition-all">
-                    Set L (<span id="label-preset-l">20</span>%)
-                </button>
-            </div>
         </div>
 
-        <div id="margin-edit-view" class="p-5 flex flex-col gap-4 hidden">
-            <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold text-center">Edit Margin %</span>            
-            <div class="flex justify-between items-center bg-gray-900 border border-gray-700 rounded-lg p-2.5">
+        <div id="margin-edit-view" class="p-3 flex flex-col gap-2 hidden">          
+            <div class="flex justify-between items-center bg-gray-900 rounded-lg p-2">
                 <label class="text-sm font-bold text-yellow-400 uppercase">H Margin %</label>
                 <input type="number" id="edit-preset-h-input" class="w-16 bg-gray-800 text-white text-base font-mono rounded px-2 py-1 text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
             </div>
-            <div class="flex justify-between items-center bg-gray-900 border border-gray-700 rounded-lg p-2.5">
+            <div class="flex justify-between items-center bg-gray-900 rounded-lg p-2">
                 <label class="text-sm font-bold text-blue-400 uppercase">L Margin %</label>
                 <input type="number" id="edit-preset-l-input" class="w-16 bg-gray-800 text-white text-base font-mono rounded px-2 py-1 text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
             </div>
-            <div class="flex justify-end gap-2 mt-2">
-                <button onclick="toggleMarginEditView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white border border-gray-700">Cancel</button>
-                <button onclick="saveMarginPresets()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-yellow-500 hover:bg-yellow-400 text-black shadow-md">Save</button>
+            <div class="flex justify-center">
+                <button onclick="saveMarginPresets()" class="px-3 py-2 rounded-lg text-xs font-bold bg-yellow-500 hover:bg-yellow-400 text-black shadow-md">Save</button>
             </div>
         </div>
     </div>
@@ -1464,30 +1453,26 @@
 	    const currentVal = profitMargins.metal;
 	    const singleInput = document.getElementById('margin-input');
 	    if (singleInput) singleInput.value = currentVal;
-	    const labelH = document.getElementById('label-preset-h');
-	    const labelL = document.getElementById('label-preset-l');
-	    if (labelH) labelH.innerText = presetMargins.H;
-	    if (labelL) labelL.innerText = presetMargins.L;
 	}
 
 	function toggleMarginType() {
-	    const isH = profitMargins.metal === 20 && profitMargins.stone === 40;
-	    const isL = profitMargins.metal === 5 && profitMargins.stone === 25;
+	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
+	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
 	    const isCustom = !isH && !isL;
 
 	    if (isCustom) {
 	        if (marginType === 'H') {
-	            profitMargins = { metal: 20, stone: 40 };
+	            profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	        } else {
-	            profitMargins = { metal: 5, stone: 25 };
+	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
 	        }
 	    } else {
 	        if (marginType === 'H') {
 	            marginType = 'L';
-	            profitMargins = { metal: 5, stone: 25 };
+	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
 	        } else {
 	            marginType = 'H';
-        	    profitMargins = { metal: 20, stone: 40 };
+        	    profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	        }
             }
 
@@ -1495,7 +1480,6 @@
             const sInput = document.getElementById('margin-stone-input');
             if(mInput) mInput.value = profitMargins.metal;
             if(sInput) sInput.value = profitMargins.stone;
-
             checkMarginStatus();
             generateSummary();
         }
@@ -1527,12 +1511,11 @@
 	function toggleMarginEditView() {
 	    const mainView = document.getElementById('margin-main-view');
 	    const editView = document.getElementById('margin-edit-view');
-	    const title = document.getElementById('margin-modal-title');
-    
+	    const title = document.getElementById('margin-modal-title');    
 	    if (editView.classList.contains('hidden')) {
 	        mainView.classList.add('hidden');
 	        editView.classList.remove('hidden');
-	        title.innerText = 'Edit Presets';
+	        title.innerText = 'Edit Margin %';
 	        document.getElementById('edit-preset-h-input').value = presetMargins.H;
 	        document.getElementById('edit-preset-l-input').value = presetMargins.L;
 	    } else {
