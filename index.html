@@ -669,30 +669,53 @@
     <div class="modal-content glass-panel w-60 max-w-xs rounded-2xl flex flex-col shadow-2xl border border-yellow-600">
         
         <div class="flex justify-between items-center p-4 pb-0">
-            <h3 class="text-lg font-bold text-white">Margin %</h3>
+            <h3 id="margin-modal-title" class="text-lg font-bold text-white">Margin %</h3>
             <div class="flex items-center gap-3">
-                <button onclick="toggleMarginModal()" class="text-gray-400 hover:text-white w-9 h-9 rounded-xl flex items-center justify-center hover:bg-white/5 transition-colors">
-                    <i class="fas fa-times text-xl"></i>
+                <button id="margin-edit-btn" onclick="toggleMarginEditView()" class="text-gray-400 hover:text-yellow-400 w-8 h-8 rounded-lg flex items-center justify-center hover:bg-white/5 transition-colors" title="Edit Margins">
+                    <i class="fas fa-pencil text-base"></i>
                 </button>
             </div>
         </div>
-        <div class="pl-10 pr-6 py-3 flex flex-col gap-6">
-	        <div class="flex flex-row justify-between items-center">
-	            <label class="text-lg text-yellow-500 font-bold uppercase tracking-wider">Metal</label>
-	            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2 w-14">
-	                <input type="number" id="margin-metal-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none text-center"
-	                       value="20" min="0" onchange="updateMargin('metal', this.value)">
-	            </div>
-	        </div>
+        <div id="margin-main-view" class="p-5 flex flex-col items-center gap-4">            
+            <div class="flex items-center justify-between w-full bg-gray-900 border border-yellow-500/40 rounded-xl p-2 shadow-inner">
+                <button onclick="stepMargin(-1)" class="w-10 h-10 rounded-lg bg-gray-800 hover:bg-gray-700 text-yellow-400 hover:text-yellow-300 font-bold flex items-center justify-center active:scale-90 transition-all select-none">
+                    <i class="fas fa-chevron-left text-sm"></i>
+                </button>
+                <div class="flex items-center justify-center px-2">
+                    <input type="number" id="margin-input" class="w-16 bg-transparent text-yellow-400 text-2xl font-bold font-mono text-center focus:outline-none"
+                           value="30" min="0" onchange="updateMargin(this.value)">
+                    <span class="text-yellow-500 font-bold text-lg ml-0.5">%</span>
+                </div>
+                <button onclick="stepMargin(1)" class="w-10 h-10 rounded-lg bg-gray-800 hover:bg-gray-700 text-yellow-400 hover:text-yellow-300 font-bold flex items-center justify-center active:scale-90 transition-all select-none">
+                    <i class="fas fa-chevron-right text-sm"></i>
+                </button>
+            </div>
 
-	        <div class="flex flex-row justify-between items-center">
-	            <label class="text-lg text-blue-400 font-bold uppercase tracking-wider">Stone</label>
-	            <div class="flex items-center bg-gray-900 border border-gray-700 rounded-lg p-2 w-14">
-	                <input type="number" id="margin-stone-input" class="w-full bg-transparent text-white text-lg font-mono focus:outline-none text-center"
-	                       value="70" min="0" onchange="updateMargin('stone', this.value)">
-	            </div>
-	        </div>
-	    </div>
+            <div class="flex justify-between w-full gap-2 mt-1">
+                <button onclick="applyMarginPreset('H')" class="flex-1 py-1.5 rounded-lg border border-yellow-500/50 bg-yellow-500/10 text-yellow-400 text-xs font-bold hover:bg-yellow-500 hover:text-black transition-all">
+                    Set H (<span id="label-preset-h">30</span>%)
+                </button>
+                <button onclick="applyMarginPreset('L')" class="flex-1 py-1.5 rounded-lg border border-gray-600 bg-gray-800 text-gray-300 text-xs font-bold hover:bg-gray-700 transition-all">
+                    Set L (<span id="label-preset-l">20</span>%)
+                </button>
+            </div>
+        </div>
+
+        <div id="margin-edit-view" class="p-5 flex flex-col gap-4 hidden">
+            <span class="text-xs text-gray-400 uppercase tracking-wider font-semibold text-center">Edit Margin %</span>            
+            <div class="flex justify-between items-center bg-gray-900 border border-gray-700 rounded-lg p-2.5">
+                <label class="text-sm font-bold text-yellow-400 uppercase">H Margin %</label>
+                <input type="number" id="edit-preset-h-input" class="w-16 bg-gray-800 text-white text-base font-mono rounded px-2 py-1 text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
+            </div>
+            <div class="flex justify-between items-center bg-gray-900 border border-gray-700 rounded-lg p-2.5">
+                <label class="text-sm font-bold text-blue-400 uppercase">L Margin %</label>
+                <input type="number" id="edit-preset-l-input" class="w-16 bg-gray-800 text-white text-base font-mono rounded px-2 py-1 text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
+            </div>
+            <div class="flex justify-end gap-2 mt-2">
+                <button onclick="toggleMarginEditView()" class="px-3 py-1.5 rounded-lg text-xs font-bold text-gray-400 hover:text-white border border-gray-700">Cancel</button>
+                <button onclick="saveMarginPresets()" class="px-4 py-1.5 rounded-lg text-xs font-bold bg-yellow-500 hover:bg-yellow-400 text-black shadow-md">Save</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -1223,7 +1246,8 @@
 	}
 
         let currentFetchedProduct = null;
-        let profitMargins = { metal: 20, stone: 40 }; // Default Margins
+	let presetMargins = JSON.parse(localStorage.getItem('ejpc_preset_margins')) || { H: 30, L: 20 }; // Default Margins
+        let profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	let marginType = 'H';
 
         const DEFAULT_RATES = [
@@ -1426,11 +1450,24 @@
 
 	function toggleMarginModal() {
 	    const modal = document.getElementById('margin-modal');
+	    if (!modal) return;
 	    modal.classList.toggle('active');
 	    if (modal.classList.contains('active')) {
-	        document.getElementById('margin-metal-input').value = profitMargins.metal;
-	        document.getElementById('margin-stone-input').value = profitMargins.stone;
+	        document.getElementById('margin-main-view').classList.remove('hidden');
+	        document.getElementById('margin-edit-view').classList.add('hidden');
+	        document.getElementById('margin-modal-title').innerText = 'Margin %';        
+	        syncMarginModalUI();
 	    }
+	}
+
+	function syncMarginModalUI() {
+	    const currentVal = profitMargins.metal;
+	    const singleInput = document.getElementById('margin-input');
+	    if (singleInput) singleInput.value = currentVal;
+	    const labelH = document.getElementById('label-preset-h');
+	    const labelL = document.getElementById('label-preset-l');
+	    if (labelH) labelH.innerText = presetMargins.H;
+	    if (labelL) labelL.innerText = presetMargins.L;
 	}
 
 	function toggleMarginType() {
@@ -1463,25 +1500,68 @@
             generateSummary();
         }
 
-	function updateMargin(type, val) {
+	function updateMargin(val) {
 	    let num = parseFloat(val);
 	    if (isNaN(num)) num = 0;
 	    if (num < 0) num = 0;
 	    if (num > 100) num = 100;
-	    const inputId = type === 'metal' ? 'margin-metal-input' : 'margin-stone-input';
-	    const el = document.getElementById(inputId);
-	    if (el && parseFloat(el.value) !== num) {
-	        el.value = num;
-	    }
-	    profitMargins[type] = num;
+	    profitMargins.metal = num;
+	    profitMargins.stone = num;
+	    const el = document.getElementById(margin-input);
+	    if (el) el.value = num;
             checkMarginStatus();
+	}
+
+	function stepMargin(delta) {
+	    let current = profitMargins.metal || 0;
+	    let updated = current + delta;
+	    updateMargin(updated);
+	}
+
+	function applyMarginPreset(type) {
+	    marginType = type;
+	    const targetVal = presetMargins[type] !== undefined ? presetMargins[type] : (type === 'H' ? 30 : 20);
+	    updateMargin(targetVal);
+	}
+
+	function toggleMarginEditView() {
+	    const mainView = document.getElementById('margin-main-view');
+	    const editView = document.getElementById('margin-edit-view');
+	    const title = document.getElementById('margin-modal-title');
+    
+	    if (editView.classList.contains('hidden')) {
+	        mainView.classList.add('hidden');
+	        editView.classList.remove('hidden');
+	        title.innerText = 'Edit Presets';
+	        document.getElementById('edit-preset-h-input').value = presetMargins.H;
+	        document.getElementById('edit-preset-l-input').value = presetMargins.L;
+	    } else {
+	        editView.classList.add('hidden');
+	        mainView.classList.remove('hidden');
+	        title.innerText = 'Margin %';
+	    }
+	}
+
+	function saveMarginPresets() {
+	    let hVal = parseFloat(document.getElementById('edit-preset-h-input').value);
+	    let lVal = parseFloat(document.getElementById('edit-preset-l-input').value);
+	    if (isNaN(hVal) || hVal < 0) hVal = 30;
+	    if (isNaN(lVal) || lVal < 0) lVal = 20;
+	    presetMargins.H = hVal;
+	    presetMargins.L = lVal;
+	    localStorage.setItem('ejpc_preset_margins', JSON.stringify(presetMargins));
+	    if (marginType === 'H') applyMarginPreset('H');
+	    else if (marginType === 'L') applyMarginPreset('L');    
+	    toggleMarginEditView();
+	    syncMarginModalUI();
+	    showToast("Default Margins Saved");
 	}
 
 	function checkMarginStatus() {
 	    const marginBtn = document.getElementById('margin-type-btn');
 	    if (!marginBtn) return;
-	    const isH = profitMargins.metal === 20 && profitMargins.stone === 40;
-	    const isL = profitMargins.metal === 5 && profitMargins.stone === 25;
+	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
+	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
 	    if (!isH && !isL) {
 	        marginBtn.classList.add('blink-active');
 	    } else {
