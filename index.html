@@ -3595,10 +3595,10 @@
 	    if(quote) {
 	        if(confirm(`Load "${quote.name}"? Current data will be replaced.`)) {
 	            items = JSON.parse(JSON.stringify(quote.items));
-		    const loadedMargin = quote.margin !== undefined ? quote.margin : (quote.margins?.metal !== undefined ? quote.margins.metal : 30);
-	            profitMargins = { metal: loadedMargin, stone: loadedMargin };
-		    syncMarginModalUI();
-		    checkMarginStatus();	            
+		    const savedMargin = quote.margin !== undefined ? parseFloat(quote.margin) : (quote.margins ? parseFloat(quote.margins.metal) : 30);
+	            profitMargins = { metal: savedMargin, stone: savedMargin };
+	            const singleInput = document.getElementById('margin-input');
+	            if (singleInput) singleInput.value = savedMargin;	            
 	            const savedDiscount = quote.discountPercent || 0;
 	            const discountInput = document.getElementById('calc-percent');
 	            if(discountInput) discountInput.value = savedDiscount;            
@@ -3608,6 +3608,7 @@
 	                discountedTotal: 0,
 	                active: savedDiscount > 0
 	            };
+		    checkMarginStatus();
 	            renderCalculator();
 	            calculateTotals();
 	            toggleHistory();
