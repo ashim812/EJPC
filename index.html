@@ -1939,7 +1939,16 @@
             const originalPrice = parseFloat(document.getElementById('calc-original').value);
             const percentInput = document.getElementById('calc-percent');
             const resultDiv = document.getElementById('calc-result');
+
             let discountPercentage = parseFloat(percentInput.value);
+	    // Min & Max Discount %
+	    if (discountPercentage > 15) {
+	        percentInput.value = 15;
+	        discountPercentage = 15;
+	    } else if (discountPercentage < 0) {
+	        percentInput.value = 0;
+	        discountPercentage = 0;
+	    }
 	    
             if (isNaN(originalPrice) || originalPrice < 0 || isNaN(discountPercentage)) {
                 resultDiv.classList.add('hidden');
@@ -3360,7 +3369,7 @@
 	        date: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'}),
 	        total: totalVal,
 	        items: JSON.parse(JSON.stringify(items)),
-		margins: JSON.parse(JSON.stringify(profitMargins.metal)),
+		margins: profitMargins.metal,
 	        discountPercent: discountData.percentage || 0
 	    };
 
@@ -3525,7 +3534,7 @@
 	            const name = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
 	            const unit = item.type === 'metal' ? 'g' : 'ct';
 	            const price = item.type === 'stone' ? (item.manualPrice || 0) : (rate ? rate.price : 0);
-	            const margin = quote.margin !== undefined ? quote.margin : 30;
+	            const margin = quote.margin !== undefined ? quote.margin : (quote.margins?.metal || 30);
 	            const cost = item.weight * price;
 	            const final = cost * (1 + margin/100);
 		    grossTotal += final;
@@ -3552,7 +3561,7 @@
 	                </div>
 	                 <div class="flex justify-between text-xs text-gray-400">
 	                    <span>Margins</span>
-	                    <span>${quote.margin !== undefined ? quote.margin : 30}%</span>
+	                    <span>${margin} %</span>
 	                </div>
 	                <div class="flex justify-between items-center mt-2">
 	                    <span class="text-white font-bold">Total Amount</span>
@@ -3588,7 +3597,9 @@
 	            items = JSON.parse(JSON.stringify(quote.items));
 		    const loadedMargin = quote.margin !== undefined ? quote.margin : (quote.margins?.metal || 30);
 	            profitMargins = { metal: loadedMargin, stone: loadedMargin };
-	            updateMargin(loadedMargin);	            
+	            updateMargin(loadedMargin);
+		    syncMarginModalUI();
+		    checkMarginStatus();	            
 	            const savedDiscount = quote.discountPercent || 0;
 	            const discountInput = document.getElementById('calc-percent');
 	            if(discountInput) discountInput.value = savedDiscount;            
