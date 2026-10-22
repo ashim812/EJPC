@@ -3369,7 +3369,7 @@
 	        date: new Date().toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute:'2-digit'}),
 	        total: totalVal,
 	        items: JSON.parse(JSON.stringify(items)),
-		margins: JSON.parse(JSON.stringify(profitMargins.metal)),
+		margins: profitMargins.metal,
 	        discountPercent: discountData.percentage || 0
 	    };
 
@@ -3595,7 +3595,7 @@
 	    if(quote) {
 	        if(confirm(`Load "${quote.name}"? Current data will be replaced.`)) {
 	            items = JSON.parse(JSON.stringify(quote.items));
-		    loadedMargin = JSON.parse(JSON.stringify(quote.margin));
+		    const loadedMargin = quote.margin !== undefined ? quote.margin : (quote.margins?.metal !== undefined ? quote.margins.metal : 30);
 	            profitMargins = { metal: loadedMargin, stone: loadedMargin };
 		    syncMarginModalUI();
 		    checkMarginStatus();	            
