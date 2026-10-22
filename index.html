@@ -3596,9 +3596,7 @@
 	        if(confirm(`Load "${quote.name}"? Current data will be replaced.`)) {
 	            items = JSON.parse(JSON.stringify(quote.items));
 		    const savedMargin = quote.margin !== undefined ? parseFloat(quote.margin) : (quote.margins ? parseFloat(quote.margins.metal) : 30);
-	            profitMargins = { metal: savedMargin, stone: savedMargin };
-	            const singleInput = document.getElementById('margin-input');
-	            if (singleInput) singleInput.value = savedMargin;	            
+	            profitMargins = { metal: savedMargin, stone: savedMargin };	            
 	            const savedDiscount = quote.discountPercent || 0;
 	            const discountInput = document.getElementById('calc-percent');
 	            if(discountInput) discountInput.value = savedDiscount;            
