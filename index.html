@@ -1438,29 +1438,32 @@
 	}
 
 	function syncMarginModalUI() {
-	    const currentVal = profitMargins.metal;
+	    const { margins } = getEffectiveMetalRateAndMargins();
 	    const singleInput = document.getElementById('margin-input');
 	    if (singleInput) singleInput.value = currentVal;
 	}
 
 	function toggleMarginType() {
-	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
-	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
+	    const currentH = isMetalsOnly ? (presetMargins.H_plain ?? 10) : presetMargins.H;
+	    const currentL = isMetalsOnly ? (presetMargins.L_plain ?? 5) : presetMargins.L;
+	    const isH = profitMargins.metal === currentH && profitMargins.stone === currentH;
+	    const isL = profitMargins.metal === currentL && profitMargins.stone === currentL;
 	    const isCustom = !isH && !isL;
 
 	    if (isCustom) {
 	        if (marginType === 'H') {
-	            profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
+	            profitMargins = { metal: currentH, stone: currentH };
 	        } else {
-	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
+	            profitMargins = { metal: currentL, stone: currentL };
 	        }
 	    } else {
 	        if (marginType === 'H') {
 	            marginType = 'L';
-	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
+	            profitMargins = { metal: currentL, stone: currentL };
 	        } else {
 	            marginType = 'H';
-        	    profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
+        	    profitMargins = { metal: currentH, stone: currentH };
 	        }
             }
 
@@ -1498,7 +1501,13 @@
 
 	function applyMarginPreset(type) {
 	    marginType = type;
-	    const targetVal = presetMargins[type] !== undefined ? presetMargins[type] : (type === 'H' ? 30 : 20);
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();    
+	    let targetVal;
+	    if (type === 'H') {
+	        targetVal = isMetalsOnly ? (presetMargins.H_plain ?? 10) : (presetMargins.H ?? 30);
+	    } else {
+	        targetVal = isMetalsOnly ? (presetMargins.L_plain ?? 5) : (presetMargins.L ?? 20);
+	    }
 	    updateMargin(targetVal);
 	}
 
@@ -1510,10 +1519,10 @@
 	        mainView.classList.add('hidden');
 	        editView.classList.remove('hidden');
 	        title.innerText = 'Edit Margin %';
-	        document.getElementById('edit-preset-h-input').value = presetMargins.H;
-	        document.getElementById('edit-preset-l-input').value = presetMargins.L;
-		document.getElementById('edit-preset-h-plain-input').value = presetMargins.H_plain;
-	        document.getElementById('edit-preset-l-plain-input').value = presetMargins.L_plain;
+	        document.getElementById('edit-preset-h-input').value = presetMargins.H ?? 30;
+	        document.getElementById('edit-preset-l-input').value = presetMargins.L ?? 20;
+		document.getElementById('edit-preset-h-plain-input').value = presetMargins.H_plain ?? 10;
+	        document.getElementById('edit-preset-l-plain-input').value = presetMargins.L_plain ?? 5;
 	    } else {
 	        editView.classList.add('hidden');
 	        mainView.classList.remove('hidden');
@@ -1544,8 +1553,11 @@
 	function checkMarginStatus() {
 	    const marginBtn = document.getElementById('margin-type-btn');
 	    if (!marginBtn) return;
-	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
-	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
+	    const currentH = isMetalsOnly ? (presetMargins.H_plain ?? 10) : presetMargins.H;
+	    const currentL = isMetalsOnly ? (presetMargins.L_plain ?? 5) : presetMargins.L;
+	    const isH = profitMargins.metal === currentH && profitMargins.stone === currentH;
+	    const isL = profitMargins.metal === currentL && profitMargins.stone === currentL;
 	    if (!isH && !isL) {
 	        marginBtn.classList.add('blink-active');
 	    } else {
@@ -1574,7 +1586,11 @@
 	        const baseName = rate.name.replace(/\s+Only$/i, '');
 	        const targetName = isMetalsOnly ? `${baseName} Only` : baseName;
 	        const matchedRate = rates.find(r => r.type === 'metal' && r.name.toLowerCase().trim() === targetName.toLowerCase().trim());
-	        if (matchedRate) rate = matchedRate;
+	        if (matchedRate) {rate = { ...matchedRate };
+	        }
+	    }
+	    if (rate && rate.type === 'metal' && !document.getElementById('settings-modal')?.classList.contains('active')) {
+	        rate = { ...rate, name: rate.name.replace(/\s+Only$/i, '') };
 	    }
 	    return rate;
 	}
@@ -2632,7 +2648,8 @@
         	    (item.type === 'stone' && item.manualPrice <= 0);
     		row.classList.toggle('opacity-60', invalid);
 	    }
-            const rate = rates.find(r => r.id === item.rateId);
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
+            const rate = getEffectiveRateForItem(item, isMetalsOnly);
             const totalSpan = document.getElementById(`total-${item.id}`);
             if(rate && totalSpan) {
                 const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
@@ -2770,10 +2787,10 @@
 
         function renderRow(item) {
             const container = document.getElementById(item.type === 'metal' ? 'metal-list' : 'stone-list');
-            const rate = rates.find(r => r.id === item.rateId);
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
+            const rate = getEffectiveRateForItem(item, isMetalsOnly);
             const label = rate ? rate.name : 'Unknown Item';
-            const isStone = item.type === 'stone';
-            
+            const isStone = item.type === 'stone';	            
             const div = document.createElement('div');
             div.id = item.id;
             div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
@@ -2841,7 +2858,7 @@
             const metalList = document.getElementById('settings-metals-list');           
             metalList.innerHTML = '';
             const metals = rates.filter(r => r.type === 'metal');
-            metals.forEach(r => metalList.appendChild(createCubeElement(r)));
+            metals.forEach(r => {metalList.appendChild(createCubeElement(r));});
 	    const hasSyncedMetals = metals.some(r => r.isSynced === true);    
 	    if (!hasSyncedMetals) {
 	        metalList.appendChild(createAddButton('metal'));
