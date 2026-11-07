@@ -692,14 +692,6 @@
                 <label class="text-sm font-bold text-blue-400 uppercase">L Margin %</label>
                 <input type="number" id="edit-preset-l-input" class="w-16 bg-gray-800 text-white text-lg rounded text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
             </div>
-	    <div class="flex justify-between items-center bg-gray-900 rounded-lg p-2">
-	        <label class="text-sm font-bold text-violet-400 uppercase">Plain H %</label>
-	        <input type="number" id="edit-preset-h-plain-input" class="w-16 bg-gray-800 text-white text-lg rounded text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
-	    </div>
-	    <div class="flex justify-between items-center bg-gray-900 rounded-lg p-2">
-	        <label class="text-sm font-bold text-blue-400 uppercase">Plain L %</label>
-	        <input type="number" id="edit-preset-l-plain-input" class="w-16 bg-gray-800 text-white text-lg rounded text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
-	    </div>
             <div class="flex justify-center">
                 <button onclick="setMargins()" class="px-3 py-2 rounded-lg text-xs font-bold bg-yellow-500 hover:bg-yellow-400 text-black shadow-md">SET</button>
             </div>
@@ -1223,7 +1215,7 @@
 	}
 
         let currentFetchedProduct = null;
-	let presetMargins = JSON.parse(localStorage.getItem('ejpc_preset_margins')) || { H: 30, L: 20, H_plain: 10, L_plain: 5 }; // Default Margins
+	let presetMargins = JSON.parse(localStorage.getItem('ejpc_preset_margins')) || { H: 30, L: 20 }; // Default Margins
         let profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	let marginType = 'H';
 
@@ -1438,29 +1430,29 @@
 	}
 
 	function syncMarginModalUI() {
+	    const currentVal = profitMargins.metal;
 	    const singleInput = document.getElementById('margin-input');
-	    if (singleInput) singleInput.value = profitMargins.metal;
+	    if (singleInput) singleInput.value = currentVal;
 	}
 
 	function toggleMarginType() {
-	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
-	    const currentH = isMetalsOnly ? (presetMargins.H_plain ?? 10) : presetMargins.H;
-	    const currentL = isMetalsOnly ? (presetMargins.L_plain ?? 5) : presetMargins.L;
-	    const isCustom = !currentH && !currentL;
+	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
+	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
+	    const isCustom = !isH && !isL;
 
 	    if (isCustom) {
 	        if (marginType === 'H') {
-	            profitMargins = { metal: currentH, stone: currentH };
+	            profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	        } else {
-	            profitMargins = { metal: currentL, stone: currentL };
+	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
 	        }
 	    } else {
 	        if (marginType === 'H') {
 	            marginType = 'L';
-	            profitMargins = { metal: currentL, stone: currentL };
+	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
 	        } else {
 	            marginType = 'H';
-        	    profitMargins = { metal: currentH, stone: currentH };
+        	    profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	        }
             }
 
@@ -1498,13 +1490,7 @@
 
 	function applyMarginPreset(type) {
 	    marginType = type;
-	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();    
-	    let targetVal;
-	    if (type === 'H') {
-	        targetVal = isMetalsOnly ? (presetMargins.H_plain ?? 10) : (presetMargins.H ?? 30);
-	    } else {
-	        targetVal = isMetalsOnly ? (presetMargins.L_plain ?? 5) : (presetMargins.L ?? 20);
-	    }
+	    const targetVal = presetMargins[type] !== undefined ? presetMargins[type] : (type === 'H' ? 30 : 20);
 	    updateMargin(targetVal);
 	}
 
@@ -1516,10 +1502,8 @@
 	        mainView.classList.add('hidden');
 	        editView.classList.remove('hidden');
 	        title.innerText = 'Edit Margin %';
-	        document.getElementById('edit-preset-h-input').value = presetMargins.H ?? 30;
-	        document.getElementById('edit-preset-l-input').value = presetMargins.L ?? 20;
-		document.getElementById('edit-preset-h-plain-input').value = presetMargins.H_plain ?? 10;
-	        document.getElementById('edit-preset-l-plain-input').value = presetMargins.L_plain ?? 5;
+	        document.getElementById('edit-preset-h-input').value = presetMargins.H;
+	        document.getElementById('edit-preset-l-input').value = presetMargins.L;
 	    } else {
 	        editView.classList.add('hidden');
 	        mainView.classList.remove('hidden');
@@ -1530,19 +1514,13 @@
 	function setMargins() {
 	    let hVal = parseFloat(document.getElementById('edit-preset-h-input').value);
 	    let lVal = parseFloat(document.getElementById('edit-preset-l-input').value);
-	    let hPlainVal = parseFloat(document.getElementById('edit-preset-h-plain-input').value);
-	    let lPlainVal = parseFloat(document.getElementById('edit-preset-l-plain-input').value);
 	    if (isNaN(hVal) || hVal < 0) hVal = 30;
 	    if (isNaN(lVal) || lVal < 0) lVal = 20;
-	    if (isNaN(hPlainVal) || hPlainVal < 0) hPlainVal = 10;
-	    if (isNaN(lPlainVal) || lPlainVal < 0) lPlainVal = 5;
 	    presetMargins.H = hVal;
 	    presetMargins.L = lVal;
-	    presetMargins.H_plain = hPlainVal;
-	    presetMargins.L_plain = lPlainVal;
 	    localStorage.setItem('ejpc_preset_margins', JSON.stringify(presetMargins));
-	    const { margins } = getEffectiveMetalRateAndMargins();
-	    updateMargin(margins.metal);   
+	    if (marginType === 'H') applyMarginPreset('H');
+	    else if (marginType === 'L') applyMarginPreset('L');    
 	    toggleMarginEditView();
 	    syncMarginModalUI();
 	}
@@ -1550,11 +1528,8 @@
 	function checkMarginStatus() {
 	    const marginBtn = document.getElementById('margin-type-btn');
 	    if (!marginBtn) return;
-	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
-	    const currentH = isMetalsOnly ? (presetMargins.H_plain ?? 10) : presetMargins.H;
-	    const currentL = isMetalsOnly ? (presetMargins.L_plain ?? 5) : presetMargins.L;
-	    const isH = profitMargins.metal === currentH && profitMargins.stone === currentH;
-	    const isL = profitMargins.metal === currentL && profitMargins.stone === currentL;
+	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
+	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
 	    if (!isH && !isL) {
 	        marginBtn.classList.add('blink-active');
 	    } else {
@@ -1562,37 +1537,6 @@
 	        if (isH) { marginType = 'H'; marginBtn.innerText = 'H'; }
 	        if (isL) { marginType = 'L'; marginBtn.innerText = 'L'; }
 	    }
-	}
-
-	function getEffectiveMetalRateAndMargins() {
-	    const hasMetals = items.some(i => i.type === 'metal' && i.weight > 0);
-	    const hasStones = items.some(i => i.type === 'stone' && i.weight > 0);
-	    const isMetalsOnly = hasMetals && !hasStones;
-	    const currentH = isMetalsOnly ? (presetMargins.H_plain ?? 10) : presetMargins.H;
-	    const currentL = isMetalsOnly ? (presetMargins.L_plain ?? 5) : presetMargins.L;    
-	    const activeMargin = marginType === 'H' ? currentH : currentL;
-	    return {
-	        isMetalsOnly,
-	        margins: { metal: activeMargin, stone: activeMargin }
-	    };
-	}
-
-	function getEffectiveRateForItem(item, isMetalsOnly) {
-	    let rate = rates.find(r => r.id === item.rateId);
-	    if (!rate) {
-	        rate = rates.find(r => r.type === item.type);
-	    }
-	    if (rate && item.type === 'metal') {
-	        const baseName = rate.name.replace(/\s+Only$/i, '');
-	        const targetName = isMetalsOnly ? `${baseName} Only` : baseName;
-	        const matchedRate = rates.find(r => r.type === 'metal' && r.name.toLowerCase().trim() === targetName.toLowerCase().trim());
-	        if (matchedRate) {rate = { ...matchedRate };
-	        }
-	    }
-	    if (rate && rate.type === 'metal' && !document.getElementById('settings-modal')?.classList.contains('active')) {
-	        rate = { ...rate, name: rate.name.replace(/\s+Only$/i, '') };
-	    }
-	    return rate;
 	}
 
 	function initBackdropClosing() {
@@ -1650,15 +1594,14 @@
         // Helper to calculate Grand Total inclusive of Margin (for Discount Modal consistency)
         function calculateTotalWithMargin() {
             let total = 0;
-	    const { isMetalsOnly, margins } = getEffectiveMetalRateAndMargins();
             items.forEach(item => {
-                const rate = getEffectiveRateForItem(item, isMetalsOnly);
+                const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
                     const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
                     
                     // Apply Profit Margin Logic
-		    const margin = item.type === 'metal' ? margins.metal : margins.stone;
+		    const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;
 	            const priceWithMargin = cost * (1 + margin/100);
                     total += priceWithMargin;
                 }
@@ -2014,9 +1957,8 @@
             }
 
 	    let baseValuation = 0;
-	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
 	    items.forEach(item => {
-	        const rate = getEffectiveRateForItem(item, isMetalsOnly);
+	        const rate = rates.find(r => r.id === item.rateId);
 	        if (rate && item.weight > 0) {
 	            const price = rate.price || 0;
 	            const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
@@ -2316,10 +2258,9 @@
             const typeIdx = headers.indexOf('type');
             const nameIdx = headers.indexOf('name');
             const rateIdx = headers.indexOf('rate');
-	    const plainRateIdx = headers.indexOf('plain');
 
-            if (typeIdx === -1 || nameIdx === -1 || rateIdx === -1 || plainRateIdx === -1) {
-                showToast("Sheet must have 'Type', 'Name', 'Rate', 'Plain' columns");
+            if (typeIdx === -1 || nameIdx === -1 || rateIdx === -1) {
+                showToast("Sheet must have 'Type', 'Name', 'Rate' columns");
                 return [];
             }
 
@@ -2346,46 +2287,19 @@
                             if (!isNaN(parsed)) priceVal = parsed;
                         }
 
-                        if (type === 'metal') {		// Standard Rate
-			    if (!isNaN(priceVal) && rateStr) {
-			        const uniqueKey = `${type}_${name.toLowerCase()}`;
-			        uniqueMap.set(uniqueKey, {
-			            id: `${type}_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-			            type: type,
-			            name: name,
-			            price: priceVal,
-			            isSynced: true,
-			            isPlain: false
-			        });
-			    }			   
-			    const plainRateStr = currentline[plainRateIdx]?.trim();	 // Plain Rate - with 'Only' suffix
-			    if (plainRateStr) {
-			        const cleanPlainRate = plainRateStr.replace(/[^\d.-]/g, '');
-			        const plainPriceVal = parseFloat(cleanPlainRate);
-			        if (!isNaN(plainPriceVal)) {
-			            const plainName = name.endsWith('Only') ? name : `${name} Only`;
-			            const uniqueKeyPlain = `${type}_${plainName.toLowerCase()}`;
-			            uniqueMap.set(uniqueKeyPlain, {
-			                id: `${type}_${plainName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-			                type: type,
-			                name: plainName,
-			                price: plainPriceVal,
-			                isSynced: true,
-			                isPlain: true
-			            });
-			        }
-			    }
-			} else if (type === 'stone') {
-			    const uniqueKey = `${type}_${name.toLowerCase()}`;
-			    uniqueMap.set(uniqueKey, {
-			        id: `${type}_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
-			        type: type,
-			        name: name,
-			        price: priceVal,
-			        isSynced: true,
-			        isPlain: false
-			    });
-			}
+                        // Allow entry if:
+                        // 1. It's a Metal AND has a valid price (>=0)
+                        // 2. It's a Stone (Name alone is sufficient, price defaults to 0 if missing)
+                        if (type === 'stone' || (!isNaN(priceVal) && rateStr)) {           
+                            const uniqueKey = `${type}_${name.toLowerCase()}`; // Create unique key to prevent duplicates                            
+                            uniqueMap.set(uniqueKey, {
+                                id: `${type}_${name.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+                                type: type,
+                                name: name,
+                                price: priceVal, // Will be 0 for stones without rate
+				isSynced: true
+                            });
+                        }
                     }
                 }
             }
@@ -2463,17 +2377,12 @@
                 .filter(r => r.type === 'stone' && r.name)
                 .sort(sortStones);
 
-            const addedMetalNames = new Set();
-	    validMetals.forEach(r => {
-		const displayName = r.name.replace(/\s+Only$/i, '');
-		if (!addedMetalNames.has(displayName)) {
-		    addedMetalNames.add(displayName);
-		    const btn = document.createElement('button');
-		    btn.className = 'add-chip metal';
-		    btn.onclick = () => addMetalByName(displayName);
-		    btn.innerHTML = `${displayName}`;
-		    metalMenu.appendChild(btn);
-		}
+            validMetals.forEach(r => {
+                const btn = document.createElement('button');
+                btn.className = 'add-chip metal';
+                btn.onclick = () => addItem('metal', r.id);
+                btn.innerHTML = `${r.name}`;
+                metalMenu.appendChild(btn);
             });
             
             validStones.forEach(r => {
@@ -2490,16 +2399,6 @@
             addBtn.innerHTML = `<i class="fas fa-plus"></i>`;
             stoneMenu.appendChild(addBtn);
         }
-
-	function addMetalByName(baseName) {    // Find matching non-plain rate first, or fallback to plain rate
-	    const rateToUse = rates.find(r => r.type === 'metal' && r.name.toLowerCase().trim() === baseName.toLowerCase().trim()) ||
-	                      rates.find(r => r.type === 'metal' && r.name.toLowerCase().trim() === `${baseName} Only`.toLowerCase().trim());
-	    if (rateToUse) {
-	        addItem('metal', rateToUse.id);
-	    } else {
-	        showToast(`Error: Rate for ${baseName} not found.`);
-	    }
-	}
 
 	function addNewStoneToMenu() {
             const name = prompt("Enter Stone Name:");
@@ -2648,8 +2547,7 @@
         	    (item.type === 'stone' && item.manualPrice <= 0);
     		row.classList.toggle('opacity-60', invalid);
 	    }
-	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
-            const rate = getEffectiveRateForItem(item, isMetalsOnly);
+            const rate = rates.find(r => r.id === item.rateId);
             const totalSpan = document.getElementById(`total-${item.id}`);
             if(rate && totalSpan) {
                 const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
@@ -2669,21 +2567,22 @@
             let totalWeightGrams = 0;
             let metalCost = 0;
             let stoneCost = 0;
-	    const { isMetalsOnly, margins } = getEffectiveMetalRateAndMargins();
+
             items.forEach(item => {
-                const rate = getEffectiveRateForItem(item, isMetalsOnly);
+                const rate = rates.find(r => r.id === item.rateId);
 		if (!rate || item.weight <= 0) return;
     		if (item.type === 'stone' && item.manualPrice <= 0) return;
-	        const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
-	        const margin = item.type === 'metal' ? margins.metal : margins.stone;
-	        const priceWithMargin = cost * (1 + margin / 100);           
-                totalCost += itemCost;                    
-                if(item.type === 'metal') {
-                   metalCost += itemCost;
-                   totalWeightGrams += item.weight;
-                } else {
-                    stoneCost += itemCost;
-                    totalWeightGrams += (item.weight * 0.2);
+                if(rate) {
+                    const itemCost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
+                    totalCost += itemCost;
+                    
+                    if(item.type === 'metal') {
+                        metalCost += itemCost;
+                        totalWeightGrams += item.weight;
+                    } else {
+                        stoneCost += itemCost;
+                        totalWeightGrams += (item.weight * 0.2);
+                    }
                 }
             });
 
@@ -2691,7 +2590,6 @@
             document.getElementById('display-gross-weight').innerText = totalWeightGrams.toFixed(3);
             document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('stone-subtotal').innerText = stoneCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-	    items.forEach(item => updateRowDisplay(item));
         }
 
         function animateValue(obj, end) {
@@ -2780,10 +2678,10 @@
 
         function renderRow(item) {
             const container = document.getElementById(item.type === 'metal' ? 'metal-list' : 'stone-list');
-	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
-            const rate = getEffectiveRateForItem(item, isMetalsOnly);
+            const rate = rates.find(r => r.id === item.rateId);
             const label = rate ? rate.name : 'Unknown Item';
-            const isStone = item.type === 'stone';	            
+            const isStone = item.type === 'stone';
+            
             const div = document.createElement('div');
             div.id = item.id;
             div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
@@ -2851,7 +2749,7 @@
             const metalList = document.getElementById('settings-metals-list');           
             metalList.innerHTML = '';
             const metals = rates.filter(r => r.type === 'metal');
-            metals.forEach(r => {metalList.appendChild(createCubeElement(r));});
+            metals.forEach(r => metalList.appendChild(createCubeElement(r)));
 	    const hasSyncedMetals = metals.some(r => r.isSynced === true);    
 	    if (!hasSyncedMetals) {
 	        metalList.appendChild(createAddButton('metal'));
@@ -3081,15 +2979,15 @@
             let html = '';
             let total = 0;
             let grossWeight = 0;
-	    const { isMetalsOnly, margins } = getEffectiveMetalRateAndMargins();
+
             items.forEach(item => {
-                const rate = getEffectiveRateForItem(item, isMetalsOnly);
+                const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
-                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
+                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
                     
                     // Apply Profit Margin
-                    const margin = item.type === 'metal' ? margins.metal : margins.stone;
+                    const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;
 		    const priceWithMargin = cost * (1 + margin/100);
                     total += priceWithMargin;
                     
@@ -3293,13 +3191,13 @@
             let text = "";
             let total = 0;
             let grossWeight = 0;
-	    const { isMetalsOnly, margins } = getEffectiveMetalRateAndMargins();
+
             items.forEach(item => {
-                const rate = getEffectiveRateForItem(item, isMetalsOnly);
+                const rate = rates.find(r => r.id === item.rateId);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
                     const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);                    
-                    const margin = item.type === 'metal' ? margins.metal : margins.stone;
+                    const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;
 		    const priceWithMargin = cost * (1 + margin/100);
                     total += priceWithMargin;                    
                     const unit = item.type === 'metal' ? 'g' : 'ct';
