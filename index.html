@@ -1438,18 +1438,15 @@
 	}
 
 	function syncMarginModalUI() {
-	    const { margins } = getEffectiveMetalRateAndMargins();
 	    const singleInput = document.getElementById('margin-input');
-	    if (singleInput) singleInput.value = currentVal;
+	    if (singleInput) singleInput.value = profitMargins.metal;
 	}
 
 	function toggleMarginType() {
 	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
 	    const currentH = isMetalsOnly ? (presetMargins.H_plain ?? 10) : presetMargins.H;
 	    const currentL = isMetalsOnly ? (presetMargins.L_plain ?? 5) : presetMargins.L;
-	    const isH = profitMargins.metal === currentH && profitMargins.stone === currentH;
-	    const isL = profitMargins.metal === currentL && profitMargins.stone === currentL;
-	    const isCustom = !isH && !isL;
+	    const isCustom = !currentH && !currentL;
 
 	    if (isCustom) {
 	        if (marginType === 'H') {
@@ -1582,6 +1579,9 @@
 
 	function getEffectiveRateForItem(item, isMetalsOnly) {
 	    let rate = rates.find(r => r.id === item.rateId);
+	    if (!rate) {
+	        rate = rates.find(r => r.type === item.type);
+	    }
 	    if (rate && item.type === 'metal') {
 	        const baseName = rate.name.replace(/\s+Only$/i, '');
 	        const targetName = isMetalsOnly ? `${baseName} Only` : baseName;
@@ -2674,24 +2674,16 @@
                 const rate = getEffectiveRateForItem(item, isMetalsOnly);
 		if (!rate || item.weight <= 0) return;
     		if (item.type === 'stone' && item.manualPrice <= 0) return;
-	        if (rate && item.weight > 0) {
-	            const price = rate.price || 0;
-	            const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-	            const margin = item.type === 'metal' ? margins.metal : margins.stone;
-	            const priceWithMargin = cost * (1 + margin / 100);
-		}
-		
-                if(rate) {
-                    const itemCost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
-                    totalCost += itemCost;
-                    
-                    if(item.type === 'metal') {
-                        metalCost += itemCost;
-                        totalWeightGrams += item.weight;
-                    } else {
-                        stoneCost += itemCost;
-                        totalWeightGrams += (item.weight * 0.2);
-                    }
+	        const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
+	        const margin = item.type === 'metal' ? margins.metal : margins.stone;
+	        const priceWithMargin = cost * (1 + margin / 100);           
+                totalCost += itemCost;                    
+                if(item.type === 'metal') {
+                   metalCost += itemCost;
+                   totalWeightGrams += item.weight;
+                } else {
+                    stoneCost += itemCost;
+                    totalWeightGrams += (item.weight * 0.2);
                 }
             });
 
@@ -2699,6 +2691,7 @@
             document.getElementById('display-gross-weight').innerText = totalWeightGrams.toFixed(3);
             document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('stone-subtotal').innerText = stoneCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+	    items.forEach(item => updateRowDisplay(item));
         }
 
         function animateValue(obj, end) {
