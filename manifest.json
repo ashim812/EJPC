@@ -3,8 +3,8 @@
     "short_name": "EJPC",
     "start_url": "./index.html",
     "display": "fullscreen",
-    "background_color": "#ffffff",
-    "theme_color": "#ffffff",
+    "background_color": "#0f0f0f",
+    "theme_color": "#0f0f0f",
     "icons": [
         {
             "src": "./EJPC-app-icon-192.png",
@@ -27,17 +27,17 @@
         {
             "name": "Scan QR / Enter Code",
             "url": "./index.html?action=scanner",
-            "icons": [{ "src": "./EJPC-app-icon-192.png", "sizes": "192x192" }]
+            "icons": [{ "src": "./scanner-icon.png", "sizes": "192x192", "type": "image/png" }]
         },
         {
             "name": "Discount Calculator",
             "url": "./index.html?action=discount",
-            "icons": [{ "src": "./EJPC-app-icon-192.png", "sizes": "192x192" }]
+            "icons": [{ "src": "./discount-icon.png", "sizes": "192x192", "type": "image/png" }]
         },
         {
             "name": "FOREX Calculator",
             "url": "./index.html?action=currency",
-            "icons": [{ "src": "./EJPC-app-icon-192.png", "sizes": "192x192" }]
+            "icons": [{ "src": "./currency-icon.png", "sizes": "192x192", "type": "image/png" }]
         }
     ]
 }
