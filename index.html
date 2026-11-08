@@ -1599,8 +1599,9 @@
 	function checkMarginStatus() {
 	    const marginBtn = document.getElementById('margin-type-btn');
 	    if (!marginBtn) return;
-	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
-	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
+	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
+	    const isH = profitMargins.metal === hMargin && profitMargins.stone === hMargin;
+	    const isL = profitMargins.metal === lMargin && profitMargins.stone === lMargin;
 	    if (!isH && !isL) {
 	        marginBtn.classList.add('blink-active');
 	    } else {
