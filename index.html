@@ -1424,11 +1424,36 @@
             renderAddMenus();
             renderShareAddons();
 	    syncRates(true);
-        
+            handleAppShortcuts();
             setInterval(() => {
                 syncRates(true); 
             }, 3600000);    // HOURLY AUTO SYNC RATES
         }
+
+	function handleAppShortcuts() {
+	    const params = new URLSearchParams(window.location.search);
+	    const action = params.get('action');
+	    if (!action) return;
+	    setTimeout(() => {
+	        switch (action) {
+	            let summaryOpen;
+	            case 'scanner':
+	                toggleScanner();
+	                break;
+	            case 'discount':
+	                summaryOpen = document.getElementById('summary-modal').classList.contains('active');
+	                if (!summaryOpen) toggleSummary();
+	                toggleDiscount();
+	                break;
+	            case 'currency':
+	                summaryOpen = document.getElementById('summary-modal').classList.contains('active');
+	                if (!summaryOpen) toggleSummary();
+	                toggleCurrency();
+	                break;
+	        }
+	        window.history.replaceState({}, document.title, window.location.pathname);
+	    }, 600);
+	}
 
 	function getEffectiveMetalRateAndMargins() {
 	    const activeMetals = items.filter(i => i.type === 'metal' && i.weight > 0);
