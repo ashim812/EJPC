@@ -2769,7 +2769,8 @@
 	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
             const container = document.getElementById(item.type === 'metal' ? 'metal-list' : 'stone-list');
             const rate = getEffectiveRateForItem(item, isMetalsOnly);
-            const label = rate ? rate.name : 'Unknown Item';
+            const rawName = rate ? rate.name : 'Unknown Item';
+	    const label = item.type === 'metal' ? getCleanMetalName(rawName) : rawName;
             const isStone = item.type === 'stone';            
             const div = document.createElement('div');
             div.id = item.id;
