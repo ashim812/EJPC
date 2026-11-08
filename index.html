@@ -2013,9 +2013,9 @@
 
             let discountPercentage = parseFloat(percentInput.value);
 	    // Min & Max Discount %
-	    if (discountPercentage > 15) {
-	        percentInput.value = 15;
-	        discountPercentage = 15;
+	    if (discountPercentage > 10) {
+	        percentInput.value = 10;
+	        discountPercentage = 10;
 	    } else if (discountPercentage < 0) {
 	        percentInput.value = 0;
 	        discountPercentage = 0;
@@ -2028,8 +2028,9 @@
             }
 
 	    let baseValuation = 0;
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
 	    items.forEach(item => {
-	        const rate = rates.find(r => r.id === item.rateId);
+	        const rate = getEffectiveRateForItem(item, isMetalsOnly);;
 	        if (rate && item.weight > 0) {
 	            const price = rate.price || 0;
 	            const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
