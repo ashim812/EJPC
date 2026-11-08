@@ -3066,30 +3066,25 @@
             let html = '';
             let total = 0;
             let grossWeight = 0;
-
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
             items.forEach(item => {
-                const rate = rates.find(r => r.id === item.rateId);
+                const rate = getEffectiveRateForItem(item, isMetalsOnly);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
                     const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-                    
-                    // Apply Profit Margin
                     const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;
 		    const priceWithMargin = cost * (1 + margin/100);
-                    total += priceWithMargin;
-                    
+                    total += priceWithMargin;                    
                     const unit = item.type === 'metal' ? 'g' : 'ct';
 		    const baseRate = item.type === 'stone' ? (item.manualPrice || 0) : price;
             	    const rateWithMargin = baseRate * (1 + margin/100);
             	    const displayRate = rateWithMargin / 1000;
 		    const weightDisplay = item.type === 'metal' ? item.weight.toFixed(3) : item.weight.toFixed(2);
-
                     if(item.type === 'metal') {
                         grossWeight += item.weight;
                     } else {
                         grossWeight += (item.weight * 0.2);
-                    }
-                    
+                    }                    
                     const nameLabel = rate.name || "Unnamed Item";
 		    const rateDisplay = isStealthMode ? "" : ` / ${displayRate.toFixed(2)}`;
 
@@ -3278,9 +3273,9 @@
             let text = "";
             let total = 0;
             let grossWeight = 0;
-
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
             items.forEach(item => {
-                const rate = rates.find(r => r.id === item.rateId);
+                const rate = getEffectiveRateForItem(item, isMetalsOnly);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
                     const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);                    
@@ -3607,7 +3602,8 @@
 	        if (!quote) return;
 	        const content = document.getElementById('qd-content');
 		let grossTotal = 0;        
-	        // Build the details HTML
+	        const quoteHasStones = quote.items.some(i => i.type === 'stone' && i.weight > 0);
+                const isQuoteMetalsOnly = quote.items.some(i => i.type === 'metal' && i.weight > 0) && !quoteHasStones;
 	        let html = `
 	            <div class="flex flex-col gap-1">
 	                <span class="text-white text-lg font-bold">${quote.name}</span>
@@ -3617,7 +3613,7 @@
 	        `;
 
 	        quote.items.forEach(item => {
-	            const rate = rates.find(r => r.id === item.rateId);
+	            const rate = getEffectiveRateForItem(item, isQuoteMetalsOnly);
 	            const name = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
 	            const unit = item.type === 'metal' ? 'g' : 'ct';
 	            const price = item.type === 'stone' ? (item.manualPrice || 0) : (rate ? rate.price : 0);
