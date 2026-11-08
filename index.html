@@ -1435,8 +1435,8 @@
 	    const action = params.get('action');
 	    if (!action) return;
 	    setTimeout(() => {
-	        switch (action) {
-	            let summaryOpen;
+	        let summaryOpen;
+		switch (action) {	            
 	            case 'scanner':
 	                toggleScanner();
 	                break;
