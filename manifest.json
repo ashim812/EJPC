@@ -26,22 +26,16 @@
     "shortcuts": [
         {
             "name": "Scan QR / Enter Code",
-            "short_name": "Scanner",
-            "description": "Open Scanner Modal to Scan QR or Enter Code",
             "url": "./index.html?action=scanner",
             "icons": [{ "src": "./EJPC-app-icon-192.png", "sizes": "192x192" }]
         },
         {
             "name": "Discount Calculator",
-            "short_name": "Discount",
-            "description": "Open Discount Calculator",
             "url": "./index.html?action=discount",
             "icons": [{ "src": "./EJPC-app-icon-192.png", "sizes": "192x192" }]
         },
         {
             "name": "FOREX Calculator",
-            "short_name": "currency",
-            "description": "Open Currency Modal",
             "url": "./index.html?action=currency",
             "icons": [{ "src": "./EJPC-app-icon-192.png", "sizes": "192x192" }]
         }
