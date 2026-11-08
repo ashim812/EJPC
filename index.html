@@ -1498,7 +1498,7 @@
 
 	function toggleMarginType() {
 	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
-	    const isH = profitMargins.metal === hMargin && profitMargins.stone === htMargin;
+	    const isH = profitMargins.metal === hMargin && profitMargins.stone === hMargin;
 	    const isL = profitMargins.metal === lMargin && profitMargins.stone === lMargin;
 	    const isCustom = !isH && !isL;
 
@@ -2324,7 +2324,7 @@
             const typeIdx = headers.indexOf('type');
             const nameIdx = headers.indexOf('name');
             const rateIdx = headers.indexOf('rate');
-	    const plainRateIdx = headers.indexof('plain');
+	    const plainRateIdx = headers.indexOf('plain');
             if (typeIdx === -1 || nameIdx === -1 || rateIdx === -1 || plainRateIdx === -1) {
                 showToast("Sheet must have 'Type', 'Name', 'Rate', 'Plain' columns");
                 return [];
