@@ -3323,7 +3323,7 @@
                 runningTotal += tax;
             }
 
-            if(summaryState.roundOffMode > 0) {
+            if(summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
                 const m = summaryState.roundOffMode;
                 const rounded = Math.round(runningTotal / m) * m;                
              
@@ -3629,7 +3629,7 @@
 	                        <span class="text-gray-200 font-medium">${name}</span>
 	                        <span class="text-[10px] text-gray-400">${item.weight} ${unit} @ ${price}</span>
 	                    </div>
-	                    <span class="text-yellow-500 font-mono">₹${final.toFixed(2)}</span>
+	                    <span class="text-yellow-500 font-mono">₹${cost.toFixed(2)}</span>
 	                </div>
 	            `;
 	        });
