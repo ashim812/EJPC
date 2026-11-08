@@ -692,6 +692,14 @@
                 <label class="text-sm font-bold text-blue-400 uppercase">L Margin %</label>
                 <input type="number" id="edit-preset-l-input" class="w-16 bg-gray-800 text-white text-lg rounded text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
             </div>
+	    <div class="flex justify-between items-center bg-gray-900 rounded-lg p-2">
+	        <label class="text-sm font-bold text-purple-400 uppercase">Plain H %</label>
+	        <input type="number" id="edit-preset-h-plain-input" class="w-16 bg-gray-800 text-white text-lg rounded text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
+	    </div>
+	    <div class="flex justify-between items-center bg-gray-900 rounded-lg p-2">
+	        <label class="text-sm font-bold text-teal-400 uppercase">Plain L %</label>
+	        <input type="number" id="edit-preset-l-plain-input" class="w-16 bg-gray-800 text-white text-lg rounded text-center border border-gray-600 focus:border-yellow-500 focus:outline-none" min="0">
+	    </div>
             <div class="flex justify-center">
                 <button onclick="setMargins()" class="px-3 py-2 rounded-lg text-xs font-bold bg-yellow-500 hover:bg-yellow-400 text-black shadow-md">SET</button>
             </div>
@@ -1215,7 +1223,7 @@
 	}
 
         let currentFetchedProduct = null;
-	let presetMargins = JSON.parse(localStorage.getItem('ejpc_preset_margins')) || { H: 30, L: 20 }; // Default Margins
+	let presetMargins = JSON.parse(localStorage.getItem('ejpc_preset_margins')) || { H: 30, L: 20, H_plain: 10, L_plain: 5 }; // Default Margins
         let profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	let marginType = 'H';
 
@@ -1235,6 +1243,11 @@
             { id: 's_def_7', name: 'Amethyst', type: 'stone', price: '' },
             { id: 's_def_8', name: 'Moonstone', type: 'stone', price: '' }
         ];
+
+	function getCleanMetalName(name) {
+	    if (!name) return '';
+	    return name.replace(/\s+Only$/i, '').trim();
+	}
 
         // CONFIGURATION
         // RATES DATABASE URL - PASTE YOUR RATES SHEET CSV URL HERE
@@ -1417,6 +1430,54 @@
             }, 3600000);    // HOURLY AUTO SYNC RATES
         }
 
+	function getEffectiveMetalRateAndMargins() {
+	    const activeMetals = items.filter(i => i.type === 'metal' && i.weight > 0);
+	    const activeStones = items.filter(i => i.type === 'stone' && i.weight > 0);
+	    const isMetalsOnly = activeMetals.length > 0 && activeStones.length === 0;
+	    const hMargin = isMetalsOnly ? (presetMargins.H_plain !== undefined ? presetMargins.H_plain : 10) : presetMargins.H;
+	    const lMargin = isMetalsOnly ? (presetMargins.L_plain !== undefined ? presetMargins.L_plain : 5) : presetMargins.L;
+	    const currentMetalMargin = profitMargins.metal;
+	    const isPresetH = currentMetalMargin === presetMargins.H || currentMetalMargin === (presetMargins.H_plain || 10);
+	    const isPresetL = currentMetalMargin === presetMargins.L || currentMetalMargin === (presetMargins.L_plain || 5);
+	    if (isPresetH) {
+	        profitMargins.metal = hMargin;
+	        profitMargins.stone = hMargin;
+	    } else if (isPresetL) {
+	        profitMargins.metal = lMargin;
+	        profitMargins.stone = lMargin;
+	    }
+	    return { isMetalsOnly, hMargin, lMargin };
+	}
+
+	function getEffectiveRateForItem(item, isMetalsOnly) {
+	    if (item.type !== 'metal') {
+	        return rates.find(r => r.id === item.rateId) || { price: 0, name: '', type: 'stone' };
+	    }
+	    const baseRate = rates.find(r => r.id === item.rateId);
+	    if (!baseRate) return { price: 0, name: '', type: 'metal' };
+	    const cleanName = getCleanMetalName(baseRate.name);
+	    if (isMetalsOnly) {
+	        const plainRate = rates.find(r => r.type === 'metal' && (r.isPlain || r.name.toLowerCase().includes('only')) && getCleanMetalName(r.name).toLowerCase() === cleanName.toLowerCase());
+	        if (plainRate) return plainRate;
+	    } else {
+	        const standardRate = rates.find(r => r.type === 'metal' && !r.isPlain && !r.name.toLowerCase().includes('only') && getCleanMetalName(r.name).toLowerCase() === cleanName.toLowerCase());
+	        if (standardRate) return standardRate;
+	    }
+	    return baseRate;
+	}
+
+	function addMetalByName(displayName) {
+	    const cleanTarget = getCleanMetalName(displayName).toLowerCase();
+	    const rate = rates.find(r => r.type === 'metal' && getCleanMetalName(r.name).toLowerCase() === cleanTarget && !r.isPlain);
+	    const fallbackRate = rates.find(r => r.type === 'metal' && getCleanMetalName(r.name).toLowerCase() === cleanTarget);    
+	    const targetRate = rate || fallbackRate;
+	    if (targetRate) {
+	        addItem('metal', targetRate.id);
+	    } else {
+	        showToast(`Rate not found for ${displayName}`);
+	    }
+	}
+
 	function toggleMarginModal() {
 	    const modal = document.getElementById('margin-modal');
 	    if (!modal) return;
@@ -1436,23 +1497,24 @@
 	}
 
 	function toggleMarginType() {
-	    const isH = profitMargins.metal === presetMargins.H && profitMargins.stone === presetMargins.H;
-	    const isL = profitMargins.metal === presetMargins.L && profitMargins.stone === presetMargins.L;
+	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
+	    const isH = profitMargins.metal === hMargin && profitMargins.stone === htMargin;
+	    const isL = profitMargins.metal === lMargin && profitMargins.stone === lMargin;
 	    const isCustom = !isH && !isL;
 
 	    if (isCustom) {
 	        if (marginType === 'H') {
-	            profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
+	            profitMargins = { metal: hMargin, stone: hMargin };
 	        } else {
-	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
+	            profitMargins = { metal: lMargin, stone: lMargin };
 	        }
 	    } else {
 	        if (marginType === 'H') {
 	            marginType = 'L';
-	            profitMargins = { metal: presetMargins.L, stone: presetMargins.L };
+	            profitMargins = { metal: lMargin, stone: lMargin };
 	        } else {
 	            marginType = 'H';
-        	    profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
+        	    profitMargins = { metal: hMargin, stone: hMargin };
 	        }
             }
 
@@ -1490,7 +1552,8 @@
 
 	function applyMarginPreset(type) {
 	    marginType = type;
-	    const targetVal = presetMargins[type] !== undefined ? presetMargins[type] : (type === 'H' ? 30 : 20);
+	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
+	    const targetVal = type === 'H' ? hMargin : lMargin;
 	    updateMargin(targetVal);
 	}
 
@@ -1504,6 +1567,8 @@
 	        title.innerText = 'Edit Margin %';
 	        document.getElementById('edit-preset-h-input').value = presetMargins.H;
 	        document.getElementById('edit-preset-l-input').value = presetMargins.L;
+		document.getElementById('edit-preset-h-plain-input').value = presetMargins.H_plain;
+	        document.getElementById('edit-preset-l-plain-input').value = presetMargins.L_plain;
 	    } else {
 	        editView.classList.add('hidden');
 	        mainView.classList.remove('hidden');
@@ -1514,10 +1579,16 @@
 	function setMargins() {
 	    let hVal = parseFloat(document.getElementById('edit-preset-h-input').value);
 	    let lVal = parseFloat(document.getElementById('edit-preset-l-input').value);
+	    let hPlainVal = parseFloat(document.getElementById('edit-preset-h-plain-input').value);
+	    let lPlainVal = parseFloat(document.getElementById('edit-preset-l-plain-input').value);
 	    if (isNaN(hVal) || hVal < 0) hVal = 30;
 	    if (isNaN(lVal) || lVal < 0) lVal = 20;
+	    if (isNaN(hPlainVal) || hPlainVal < 0) hPlainVal = 10;
+	    if (isNaN(lPlainVal) || lPlainVal < 0) lPlainVal = 5;
 	    presetMargins.H = hVal;
 	    presetMargins.L = lVal;
+	    presetMargins.H_plain = hPlainVal;
+	    presetMargins.L_plain = lPlainVal;
 	    localStorage.setItem('ejpc_preset_margins', JSON.stringify(presetMargins));
 	    if (marginType === 'H') applyMarginPreset('H');
 	    else if (marginType === 'L') applyMarginPreset('L');    
@@ -1594,14 +1665,13 @@
         // Helper to calculate Grand Total inclusive of Margin (for Discount Modal consistency)
         function calculateTotalWithMargin() {
             let total = 0;
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
             items.forEach(item => {
-                const rate = rates.find(r => r.id === item.rateId);
+                const rate = getEffectiveRateForItem(item, isMetalsOnly);
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
-                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-                    
-                    // Apply Profit Margin Logic
-		    const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;
+                    const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);             
+		    const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;      // Apply Profit Margin Logic
 	            const priceWithMargin = cost * (1 + margin/100);
                     total += priceWithMargin;
                 }
@@ -2228,8 +2298,6 @@
         function parseRatesCSV(csvText) {
             const lines = csvText.trim().split(/\r\n|\n/);
             if (lines.length < 1) return [];
-
-            // Helper to split CSV line respecting quotes
             const splitLine = (text) => {
                 const matches = [];
                 const regex = /(?:^|,)(\s*"(?:[^"]|"")*"\s*|[^,]*)/g;  // Regex matches: "quoted value" OR value_without_comma
@@ -2253,14 +2321,12 @@
 
             const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());         
             const uniqueMap = new Map();            // Map to store unique entries. Key: Type + Name (lowercase)
-
-            // Identify column indices
             const typeIdx = headers.indexOf('type');
             const nameIdx = headers.indexOf('name');
             const rateIdx = headers.indexOf('rate');
-
-            if (typeIdx === -1 || nameIdx === -1 || rateIdx === -1) {
-                showToast("Sheet must have 'Type', 'Name', 'Rate' columns");
+	    const plainRateIdx = headers.indexof('plain');
+            if (typeIdx === -1 || nameIdx === -1 || rateIdx === -1 || plainRateIdx === -1) {
+                showToast("Sheet must have 'Type', 'Name', 'Rate', 'Plain' columns");
                 return [];
             }
 
@@ -2272,24 +2338,18 @@
                 const typeRaw = currentline[typeIdx]?.trim().toLowerCase();
                 const name = currentline[nameIdx]?.trim();
                 let rateStr = currentline[rateIdx]?.trim();
-
+		let plainRateStr = currentline[plainRateIdx]?.trim();
                 if (typeRaw && name) {
                     let type = '';
                     if (typeRaw.includes('metal')) type = 'metal';
-                    else if (typeRaw.includes('stone') || typeRaw.includes('gem')) type = 'stone';
-                    
-                    if (type) {
-                        // Parse Rate
+                    else if (typeRaw.includes('stone') || typeRaw.includes('gem')) type = 'stone';                    
+                    if (type) {  // Parse Rate                      
                         let priceVal = 0;
                         if (rateStr) {
                             const cleanRate = rateStr.replace(/[^\d.-]/g, '');
                             const parsed = parseFloat(cleanRate);
                             if (!isNaN(parsed)) priceVal = parsed;
                         }
-
-                        // Allow entry if:
-                        // 1. It's a Metal AND has a valid price (>=0)
-                        // 2. It's a Stone (Name alone is sufficient, price defaults to 0 if missing)
                         if (type === 'stone' || (!isNaN(priceVal) && rateStr)) {           
                             const uniqueKey = `${type}_${name.toLowerCase()}`; // Create unique key to prevent duplicates                            
                             uniqueMap.set(uniqueKey, {
@@ -2297,9 +2357,31 @@
                                 type: type,
                                 name: name,
                                 price: priceVal, // Will be 0 for stones without rate
-				isSynced: true
+				isSynced: true,
+				isPlain: false
                             });
                         }
+			if (type === 'metal' && plainRateStr) {
+	                    let plainPriceVal = 0;
+	                    const cleanPlainRate = plainRateStr.replace(/[^\d.-]/g, '');
+	                    const parsedPlain = parseFloat(cleanPlainRate);
+	                    if (!isNaN(parsedPlain)) plainPriceVal = parsedPlain;
+	                    if (!isNaN(plainPriceVal) && plainRateStr) {
+	                        let plainName = name;
+	                        if (!plainName.toLowerCase().endsWith('only')) {
+	                            plainName = `${plainName} Only`;
+	                        }
+	                        const plainKey = `${type}_${plainName.toLowerCase()}`;
+	                        uniqueMap.set(plainKey, {
+	                            id: `${type}_${plainName.toLowerCase().replace(/[^a-z0-9]/g, '_')}`,
+	                            type: type,
+	                            name: plainName,
+	                            price: plainPriceVal,
+	                            isSynced: true,
+	                            isPlain: true
+	                        });
+	                    }
+	                }
                     }
                 }
             }
@@ -2366,22 +2448,26 @@
             const stoneMenu = document.getElementById('stone-add-menu');            
             metalMenu.innerHTML = '';
             stoneMenu.innerHTML = '';
-
-            // Filter and Sort Metals
-            const validMetals = rates
+	    const seenMetals = new Set();
+            const validMetals = rates    // Filter and Sort Metals
                 .filter(r => r.type === 'metal' && r.name && (r.price || r.price === 0))
+		.filter(r => {
+	            const clean = getCleanMetalName(r.name).toLowerCase();
+	            if (seenMetals.has(clean)) return false;
+	            seenMetals.add(clean);
+	            return true;
+	        })
                 .sort(sortMetals);
-
-            // Filter and Sort Stones
-            const validStones = rates
+            const validStones = rates    // Filter and Sort Stones
                 .filter(r => r.type === 'stone' && r.name)
                 .sort(sortStones);
 
             validMetals.forEach(r => {
+		const cleanName = getCleanMetalName(r.name);
                 const btn = document.createElement('button');
                 btn.className = 'add-chip metal';
-                btn.onclick = () => addItem('metal', r.id);
-                btn.innerHTML = `${r.name}`;
+                btn.onclick = () => addMetalByName(cleanName);
+                btn.innerHTML = `${cleanName}`;
                 metalMenu.appendChild(btn);
             });
             
@@ -2540,6 +2626,7 @@
         }
 
         function updateRowDisplay(item) {
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
 	    const row = document.getElementById(item.id);
 	    if (row) {
     		const invalid =
@@ -2547,7 +2634,7 @@
         	    (item.type === 'stone' && item.manualPrice <= 0);
     		row.classList.toggle('opacity-60', invalid);
 	    }
-            const rate = rates.find(r => r.id === item.rateId);
+            const rate = getEffectiveRateForItem(item, isMetalsOnly);
             const totalSpan = document.getElementById(`total-${item.id}`);
             if(rate && totalSpan) {
                 const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
@@ -2567,15 +2654,14 @@
             let totalWeightGrams = 0;
             let metalCost = 0;
             let stoneCost = 0;
-
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
             items.forEach(item => {
-                const rate = rates.find(r => r.id === item.rateId);
+                const rate = getEffectiveRateForItem(item, isMetalsOnly);
 		if (!rate || item.weight <= 0) return;
     		if (item.type === 'stone' && item.manualPrice <= 0) return;
                 if(rate) {
                     const itemCost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * (rate.price || 0));
-                    totalCost += itemCost;
-                    
+                    totalCost += itemCost;                    
                     if(item.type === 'metal') {
                         metalCost += itemCost;
                         totalWeightGrams += item.weight;
@@ -2590,6 +2676,7 @@
             document.getElementById('display-gross-weight').innerText = totalWeightGrams.toFixed(3);
             document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('stone-subtotal').innerText = stoneCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+	    items.forEach(item => updateRowDisplay(item));
         }
 
         function animateValue(obj, end) {
@@ -2677,15 +2764,14 @@
         }
 
         function renderRow(item) {
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
             const container = document.getElementById(item.type === 'metal' ? 'metal-list' : 'stone-list');
-            const rate = rates.find(r => r.id === item.rateId);
+            const rate = getEffectiveRateForItem(item, isMetalsOnly);
             const label = rate ? rate.name : 'Unknown Item';
-            const isStone = item.type === 'stone';
-            
+            const isStone = item.type === 'stone';            
             const div = document.createElement('div');
             div.id = item.id;
-            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';
-            
+            div.className = 'item-row bg-gray-800 bg-opacity-60 rounded-lg px-3 py-0.1 flex flex-wrap md:flex-nowrap gap-3 items-center border border-gray-700 hover:border-gray-500 transition-colors';            
             const unitLabel = isStone ? 'ct' : 'g';           
             const precision = isStone ? 2 : 3;  // Logic for decimals
             const stepVal = isStone ? '0.01' : '0.001';
