@@ -3085,7 +3085,7 @@
                     } else {
                         grossWeight += (item.weight * 0.2);
                     }                    
-                    const nameLabel = rate.name || "Unnamed Item";
+                    const nameLabel = item.type === 'metal' ? getCleanMetalName(rate.name || "Unnamed Item") : (rate.name || "Unnamed Item");
 		    const rateDisplay = isStealthMode ? "" : ` / ${displayRate.toFixed(2)}`;
 
                     html += `
@@ -3288,9 +3288,9 @@
                         grossWeight += item.weight;
                     } else {
                         grossWeight += (item.weight * 0.2); 
-                    }
-                    
-                    const nameLabel = rate.name || "Unnamed Item";
+                    }                    
+                    const rawName = rate.name || "Unnamed Item";
+                    const nameLabel = item.type === 'metal' ? getCleanMetalName(rawName) : rawName;
                     text += `${nameLabel} : ${weightDisplay} ${unit}\n`;
                 }
             });
@@ -3614,7 +3614,8 @@
 
 	        quote.items.forEach(item => {
 	            const rate = getEffectiveRateForItem(item, isQuoteMetalsOnly);
-	            const name = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
+	            const rawName = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
+	            const name = item.type === 'metal' ? getCleanMetalName(rawName) : rawName;
 	            const unit = item.type === 'metal' ? 'g' : 'ct';
 	            const price = item.type === 'stone' ? (item.manualPrice || 0) : (rate ? rate.price : 0);
 	            const margin = quote.margin !== undefined ? quote.margin : 30;
