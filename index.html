@@ -2035,40 +2035,28 @@
             const originalPrice = parseFloat(document.getElementById('calc-original').value);
             const percentInput = document.getElementById('calc-percent');
             const resultDiv = document.getElementById('calc-result');
-
             let discountPercentage = parseFloat(percentInput.value);
-	    // Min & Max Discount %
-	    if (discountPercentage > 10) {
-	        percentInput.value = 10;
-	        discountPercentage = 10;
+	    const hasCalculatorInput = items.some(i => i.weight > 0);            
+            let maxDiscount = 100;
+            if (hasCalculatorInput) {
+                const currentMargin = profitMargins.metal;
+                maxDiscount = currentMargin / 2;
+            }
+	    if (discountPercentage > maxDiscount) {
+	        percentInput.value = maxDiscount;
+	        discountPercentage = maxDiscount;
 	    } else if (discountPercentage < 0) {
 	        percentInput.value = 0;
 	        discountPercentage = 0;
-	    }
-	    
+	    }	    
             if (isNaN(originalPrice) || originalPrice < 0 || isNaN(discountPercentage)) {
                 resultDiv.classList.add('hidden');
                 discountData.active = false;
                 return;
             }
-
-	    let baseValuation = 0;
-	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
-	    items.forEach(item => {
-	        const rate = getEffectiveRateForItem(item, isMetalsOnly);;
-	        if (rate && item.weight > 0) {
-	            const price = rate.price || 0;
-	            const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
-	            baseValuation += cost;
-	        }
-	    });
-
             const amountSaved = originalPrice * (discountPercentage / 100);
-            const discountedPrice = originalPrice - amountSaved;
-	    const lossAmount = baseValuation - discountedPrice;
-	    const isLoss = lossAmount > 0;
-        
-            discountData = {    // Update Global Discount Data
+            const discountedPrice = originalPrice - amountSaved;        
+            discountData = {
                 percentage: discountPercentage,
                 amount: amountSaved,
                 discountedTotal: discountedPrice,
@@ -2080,16 +2068,7 @@
             let html = `
                 <div class="text-red-600 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 <div class="text-red-500 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
-            `;
-
-	    if (isLoss) {
-	        html += `
-	            <div class="mt-1 text-red-500 text-xs font-bold flex items-center gap-2">
-			<i class="fas fa-triangle-exclamation text-yellow-400 blink-active"></i>
-	                <span>LOSS: ₹ ${lossAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})} below Cost</span>
-	            </div>
-	        `;
-	    }	
+            `;	
 	    resultDiv.innerHTML = html;
         }
 
@@ -3612,13 +3591,11 @@
 	        // Touch Events
 	        element.addEventListener('touchstart', start, { passive: true });
 	        element.addEventListener('touchend', end);
-	        element.addEventListener('touchmove', end);
-        
+	        element.addEventListener('touchmove', end);        
 	        // Mouse Events
 	        element.addEventListener('mousedown', start);
 	        element.addEventListener('mouseup', end);
-	        element.addEventListener('mouseleave', end);
-        
+	        element.addEventListener('mouseleave', end);        
 	        // Click Event (Decider)
 	        element.addEventListener('click', click);
 	    }
