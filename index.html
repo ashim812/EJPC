@@ -1540,6 +1540,7 @@
 	    if (num > 100) num = 100;
 	    profitMargins.metal = num;
 	    profitMargins.stone = num;
+	    marginType = 'custom';
 	    const el = document.getElementById('margin-input');
 	    if (el && document.activeElement !== el) {
 		el.value = num;
@@ -3678,7 +3679,8 @@
 	            } else {
 	                marginType = 'custom';
 	            }
-	            updateMargin(loadedMargin);
+	            const el = document.getElementById('margin-input');
+	            if (el) el.value = loadedMargin;
 		    syncMarginModalUI();
 		    checkMarginStatus();	            
 	            const savedDiscount = quote.discountPercent || 0;
