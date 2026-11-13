@@ -1520,10 +1520,6 @@
 
 	function toggleMarginType() {
 	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
-	    const isH = profitMargins.metal === hMargin && profitMargins.stone === hMargin;
-	    const isL = profitMargins.metal === lMargin && profitMargins.stone === lMargin;
-	    const isCustom = !isH && !isL;
-
 	    if (marginType === 'H') {
 	        marginType = 'L';
 	        profitMargins = { metal: lMargin, stone: lMargin };
@@ -1693,7 +1689,7 @@
                 if(rate && item.weight > 0) {
                     const price = rate.price || 0;
                     const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);             
-		    const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;      // Apply Profit Margin Logic
+		    const margin = item.type === 'metal' ? profitMargins.metal : profitMargins.stone;
 	            const priceWithMargin = cost * (1 + margin/100);
                     total += priceWithMargin;
                 }
@@ -3622,7 +3618,7 @@
 	            const name = item.type === 'metal' ? getCleanMetalName(rawName) : rawName;
 	            const unit = item.type === 'metal' ? 'g' : 'ct';
 	            const price = item.type === 'stone' ? (item.manualPrice || 0) : (rate ? rate.price : 0);
-	            const margin = quote.margin !== undefined ? quote.margin : 30;
+	            const margin = quote.margin;
 	            const cost = item.weight * price;
 	            const final = cost * (1 + margin/100);
 		    grossTotal += final;
@@ -3649,7 +3645,7 @@
 	                </div>
 	                 <div class="flex justify-between text-xs text-gray-400">
 	                    <span>Margin</span>
-	                    <span>${quote.margin !== undefined ? quote.margin : 30} %</span>
+	                    <span>${quote.margin} %</span>
 	                </div>
 	                <div class="flex justify-between items-center mt-2">
 	                    <span class="text-white font-bold">Total Amount</span>
@@ -3683,7 +3679,15 @@
 	    if(quote) {
 	        if(confirm(`Load "${quote.name}"? Current data will be replaced.`)) {
 	            items = JSON.parse(JSON.stringify(quote.items));
-		    const loadedMargin = quote.margin !== undefined ? quote.margin : (quote.margins?.metal || 30);
+		    const loadedMargin = quote.margin;
+		    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
+	            if (loadedMargin === hMargin) {
+	                marginType = 'H';
+	            } else if (loadedMargin === lMargin) {
+	                marginType = 'L';
+	            } else {
+	                marginType = 'custom';
+	            }
 	            profitMargins = { metal: loadedMargin, stone: loadedMargin };
 	            updateMargin(loadedMargin);
 		    syncMarginModalUI();
