@@ -1556,10 +1556,7 @@
 	    profitMargins.metal = updated;
 	    profitMargins.stone = updated;
 	    marginType = 'custom';
-	    const el = document.getElementById('margin-input');
-	    if (el) el.value = updated;
-	    checkMarginStatus();
-	    generateSummary();
+	    updateMargin(updated);
 	}
 
 	function applyMarginPreset(type) {
@@ -1568,10 +1565,7 @@
 	    const targetVal = type === 'H' ? hMargin : lMargin;
 	    profitMargins.metal = targetVal;
 	    profitMargins.stone = targetVal;
-	    const el = document.getElementById('margin-input');
-	    if (el) el.value = targetVal;
-	    checkMarginStatus();
-	    generateSummary();
+	    updateMargin(targetVal);
 	}
 
 	function toggleMarginEditView() {
@@ -1598,10 +1592,6 @@
 	    let lVal = parseFloat(document.getElementById('edit-preset-l-input').value);
 	    let hPlainVal = parseFloat(document.getElementById('edit-preset-h-plain-input').value);
 	    let lPlainVal = parseFloat(document.getElementById('edit-preset-l-plain-input').value);
-	    if (isNaN(hVal) || hVal < 0) hVal = 30;
-	    if (isNaN(lVal) || lVal < 0) lVal = 20;
-	    if (isNaN(hPlainVal) || hPlainVal < 0) hPlainVal = 10;
-	    if (isNaN(lPlainVal) || lPlainVal < 0) lPlainVal = 5;
 	    presetMargins.H = hVal;
 	    presetMargins.L = lVal;
 	    presetMargins.H_plain = hPlainVal;
@@ -3680,6 +3670,7 @@
 	        if(confirm(`Load "${quote.name}"? Current data will be replaced.`)) {
 	            items = JSON.parse(JSON.stringify(quote.items));
 		    const loadedMargin = quote.margin;
+	            profitMargins = { metal: loadedMargin, stone: loadedMargin };
 		    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
 	            if (loadedMargin === hMargin) {
 	                marginType = 'H';
@@ -3688,7 +3679,6 @@
 	            } else {
 	                marginType = 'custom';
 	            }
-	            profitMargins = { metal: loadedMargin, stone: loadedMargin };
 	            updateMargin(loadedMargin);
 		    syncMarginModalUI();
 		    checkMarginStatus();	            
