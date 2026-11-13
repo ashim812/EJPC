@@ -681,6 +681,9 @@
                     <i class="fas fa-chevron-right text-sm"></i>
                 </button>
             </div>
+	    <div class="text-xs text-gray-400 text-center">
+	        + <span id="margin-profit" class="text-yellow-500 font-mono font-bold">₹0.00</span>
+	    </div>
         </div>
 
         <div id="margin-edit-view" class="p-3 flex flex-col gap-2 hidden">          
@@ -1639,6 +1642,26 @@
 	        if (isH) { marginType = 'H'; marginBtn.innerText = 'H'; }
 	        if (isL) { marginType = 'L'; marginBtn.innerText = 'L'; }
 	    }
+	}
+
+	function updateMarginProfit() {
+	    const profitDisplayEl = document.getElementById('margin-profit');
+	    if (!profitDisplayEl) return;
+	    let baseTotal = 0;
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
+	    items.forEach(item => {
+	        const rate = getEffectiveRateForItem(item, isMetalsOnly);
+	        if (rate && item.weight > 0) {
+	            const price = rate.price || 0;
+	            const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
+	            if (cost > 0 && !(item.type === 'stone' && item.manualPrice <= 0)) {
+	                baseTotal += cost;
+	            }
+	        }
+	    });
+	    const totalWithMargin = calculateTotalWithMargin();
+	    const profitAmount = totalWithMargin - baseTotal;
+	    profitDisplayEl.innerText = `₹${profitAmount.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 	}
 
 	function initBackdropClosing() {
@@ -2688,6 +2711,7 @@
             document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('stone-subtotal').innerText = stoneCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 	    items.forEach(item => updateRowDisplay(item));
+	    updateMarginProfit();
         }
 
         function animateValue(obj, end) {
