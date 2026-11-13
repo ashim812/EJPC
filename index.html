@@ -1520,7 +1520,9 @@
 
 	function toggleMarginType() {
 	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
-	    if (marginType === 'H') {
+	    const marginBtn = document.getElementById('margin-type-btn');
+	    const currentText = marginBtn ? marginBtn.innerText : 'H';
+	    if (currentText === 'H' && marginType !== 'custom') {
 	        marginType = 'L';
 	        profitMargins = { metal: lMargin, stone: lMargin };
 	    } else {
