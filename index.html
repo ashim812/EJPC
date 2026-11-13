@@ -1320,31 +1320,23 @@
                 }
             })
         }
-	// STEALTH MODE LOCK
-	let isStealthMode = false;
 
+	let isStealthMode = false;	// STEALTH MODE LOCK
 	function initStealthMode() {
     	    const pill = document.getElementById('summary-header-pill');
-    	    let timer;
-  
-    	    const startPress = (e) => {    // Helper to start the 2-second timer        
-        	if(e.type === 'touchstart') e.stopPropagation();  // Prevent default browser context menu on long press
-        
+    	    let timer;  
+    	    const startPress = (e) => {       
+        	if(e.type === 'touchstart') e.stopPropagation();        
         	timer = setTimeout(() => {
             	    toggleStealthMode();
-        	}, 2000); // 2 Seconds Hold to Toggle
-    	    };
-    	  
-    	    const cancelPress = () => {  // Helper to cancel if finger moves or releases
+        	}, 2000);
+    	    };    	  
+    	    const cancelPress = () => {
         	clearTimeout(timer);
     	    };
-
-    	    // Touch Events (Mobile)
     	    pill.addEventListener('touchstart', startPress, {passive: true});
     	    pill.addEventListener('touchend', cancelPress);
     	    pill.addEventListener('touchmove', cancelPress);
-
-    	    // Mouse Events (Desktop)
     	    pill.addEventListener('mousedown', startPress);
     	    pill.addEventListener('mouseup', cancelPress);
     	    pill.addEventListener('mouseleave', cancelPress);
@@ -1353,21 +1345,17 @@
 	function initLogoLongPress() {
 	    const btn = document.getElementById('app-logo');
             if (!btn) return;
-
             let timer;
             let isLongPress = false;
-
             const start = () => {
                 isLongPress = false;
                 timer = setTimeout(() => {
                     isLongPress = true;
-                    if (navigator.vibrate) navigator.vibrate([50, 50]);
-                    toggleMarginModal();
-                }, 3000); // 3 Seconds Trigger
+                    if (navigator.vibrate) navigator.vibrate([50, 50, 50]);
+                    window.location.reload();
+                }, 1500);
             };
-
             const end = () => clearTimeout(timer);
-
             const click = (e) => {
                 if (isLongPress) {
                     e.preventDefault();
@@ -1376,29 +1364,52 @@
                     toggleSettings();
                 }
             };
-
-            // Touch Events
             btn.addEventListener('touchstart', start, { passive: true });
             btn.addEventListener('touchend', end);
             btn.addEventListener('touchcancel', end);
-
-            // Mouse Events
             btn.addEventListener('mousedown', start);
             btn.addEventListener('mouseup', end);
             btn.addEventListener('mouseleave', end);
-
-            // Click & Context Handling
             btn.addEventListener('click', click);
             btn.addEventListener('contextmenu', e => e.preventDefault());
         }
 
+	function initMarginBtnLongPress() {
+	    const btn = document.getElementById('margin-type-btn');
+	    if (!btn) return;
+	    let timer;
+	    let isLongPress = false;
+	    const start = (e) => {
+	        if (e.type === 'mousedown' && e.button !== 0) return;
+	        isLongPress = false;
+	        timer = setTimeout(() => {
+	            isLongPress = true;
+	            if (navigator.vibrate) navigator.vibrate([50, 50]);
+	            toggleMarginModal();
+	        }, 3000);
+	    };
+	    const end = () => clearTimeout(timer);
+	    const click = (e) => {
+	        if (isLongPress) {
+	            e.preventDefault();
+	            e.stopPropagation();
+	        }
+	    };
+	    btn.addEventListener('touchstart', start, { passive: true });
+	    btn.addEventListener('touchend', end);
+	    btn.addEventListener('touchcancel', end);
+	    btn.addEventListener('mousedown', start);
+	    btn.addEventListener('mouseup', end);
+	    btn.addEventListener('mouseleave', end);
+	    btn.addEventListener('click', click);
+	    btn.addEventListener('contextmenu', e => { if (isLongPress) e.preventDefault(); });
+	}
+
 	function toggleStealthMode() {
-    	    isStealthMode = !isStealthMode;
-    
+    	    isStealthMode = !isStealthMode;    
     	    const closeBtn = document.getElementById('summary-close-btn');
 	    const stealthBtn = document.getElementById('stealth-btn');
-	    const discBtn = document.getElementById('summary-discount-btn');
-    
+	    const discBtn = document.getElementById('summary-discount-btn');    
     	    // Hide/Show Buttons
     	    if(closeBtn) closeBtn.style.display = isStealthMode ? 'none' : 'flex';
 	    if(stealthBtn) stealthBtn.style.display = isStealthMode ? 'none' : 'block';
@@ -1420,7 +1431,8 @@
 	    initBackdropClosing();
             initCurrencyConverter();
 	    initStealthMode();
-	    initLogoLongPress();             
+	    initLogoLongPress();
+	    initMarginBtnLongPress();             
 	    checkMarginStatus();          
             renderCalculator();
             renderSettings();
