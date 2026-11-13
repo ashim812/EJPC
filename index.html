@@ -1121,6 +1121,9 @@
                             if (allowedEmails.includes(userEmail)) {                                
                                 status.className = "text-green-400 text-sm font-bold mb-2";
                                 status.innerText = `Welcome ${user.displayName}`; // SUCCESS: ACCESS GRANTED
+				const loadingDiv = document.getElementById('auth-loading');
+				    if (loadingDiv) {
+				        loadingDiv.innerHTML = '<i class="fas fa-check text-green-400 text-2xl font-bold"></i><span class="text-green-400 text-xs block mt-2 font-bold">Verified User</span>';    }
                                 
                                 if(vaultElement) {
                                     vaultElement.innerHTML = secureAppHTML;
@@ -3294,20 +3297,14 @@
                     text += `${nameLabel} : ${weightDisplay} ${unit}\n`;
                 }
             });
-
             if(items.filter(i => i.weight > 0).length === 0) {
                 text += "No item is added.\n";
-            }
-
-            text += `----------------------------------------------------------\n`;            
-            text += `G.Wt. : ${grossWeight.toFixed(3)} g\n`;
-            
+            }           
+            text += `\nG.Wt. : ${grossWeight.toFixed(3)} g\n`;            
             let runningTotal = total;
-
             if(discountData.active) {
                 const amountSaved = runningTotal * (discountData.percentage / 100);   // Calc discount relative to running total (inclusive of margin)
-                const discountedTotal = runningTotal - amountSaved;
-                
+                const discountedTotal = runningTotal - amountSaved;                
                 if(shareOptions.discount) {
                     text += `Discount (${discountData.percentage}%) : - ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}\n`;
                 }
