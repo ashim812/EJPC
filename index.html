@@ -1520,23 +1520,23 @@
 
 	function toggleMarginType() {
 	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
-	    const isH = profitMargins.metal === hMargin && profitMargins.stone === hMargin;
-	    const isL = profitMargins.metal === lMargin && profitMargins.stone === lMargin;
-	    if (!isH && !isL) {
-	        if (marginType === 'H') {
-	            profitMargins = { metal: hMargin, stone: hMargin };
-	        } else {
-	            profitMargins = { metal: lMargin, stone: lMargin };
-	        }
-	    } else {
-	        if (marginType === 'H') {
+	    const marginBtn = document.getElementById('margin-type-btn');
+	    if (marginType === 'custom') {
+	        const currentLabel = marginBtn ? marginBtn.innerText.trim() : 'H';
+	        if (currentLabel === 'L') {
 	            marginType = 'L';
 	            profitMargins = { metal: lMargin, stone: lMargin };
 	        } else {
 	            marginType = 'H';
-        	    profitMargins = { metal: hMargin, stone: hMargin };
+	            profitMargins = { metal: hMargin, stone: hMargin };
 	        }
-            }
+	    } else if (marginType === 'H') {
+	        marginType = 'L';
+	        profitMargins = { metal: lMargin, stone: lMargin };
+	    } else {
+	        marginType = 'H';
+	        profitMargins = { metal: hMargin, stone: hMargin };
+	    }
             syncMarginModalUI();
             checkMarginStatus();
             generateSummary();
