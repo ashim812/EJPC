@@ -1459,15 +1459,12 @@
 	    const activeMetals = items.filter(i => i.type === 'metal' && i.weight > 0);
 	    const activeStones = items.filter(i => i.type === 'stone' && i.weight > 0);
 	    const isMetalsOnly = activeMetals.length > 0 && activeStones.length === 0;
-	    const hMargin = isMetalsOnly ? (presetMargins.H_plain !== undefined ? presetMargins.H_plain : 10) : presetMargins.H;
-	    const lMargin = isMetalsOnly ? (presetMargins.L_plain !== undefined ? presetMargins.L_plain : 5) : presetMargins.L;
-	    const currentMetalMargin = profitMargins.metal;
-	    const isPresetH = currentMetalMargin === presetMargins.H || currentMetalMargin === (presetMargins.H_plain || 10);
-	    const isPresetL = currentMetalMargin === presetMargins.L || currentMetalMargin === (presetMargins.L_plain || 5);
-	    if (isPresetH) {
+	    const hMargin = isMetalsOnly ? presetMargins.H_plain : presetMargins.H;
+	    const lMargin = isMetalsOnly ? presetMargins.L_plain : presetMargins.L;
+	    if (marginType === 'H') {
 	        profitMargins.metal = hMargin;
 	        profitMargins.stone = hMargin;
-	    } else if (isPresetL) {
+	    } else if (marginType === 'L') {
 	        profitMargins.metal = lMargin;
 	        profitMargins.stone = lMargin;
 	    }
@@ -1527,20 +1524,12 @@
 	    const isL = profitMargins.metal === lMargin && profitMargins.stone === lMargin;
 	    const isCustom = !isH && !isL;
 
-	    if (isCustom) {
-	        if (marginType === 'H') {
-	            profitMargins = { metal: hMargin, stone: hMargin };
-	        } else {
-	            profitMargins = { metal: lMargin, stone: lMargin };
-	        }
+	    if (marginType === 'H') {
+	        marginType = 'L';
+	        profitMargins = { metal: lMargin, stone: lMargin };
 	    } else {
-	        if (marginType === 'H') {
-	            marginType = 'L';
-	            profitMargins = { metal: lMargin, stone: lMargin };
-	        } else {
-	            marginType = 'H';
-        	    profitMargins = { metal: hMargin, stone: hMargin };
-	        }
+	        marginType = 'H';
+        	profitMargins = { metal: hMargin, stone: hMargin };
             }
 
             syncMarginModalUI();
@@ -1555,6 +1544,7 @@
 	    if (num > 100) num = 100;
 	    profitMargins.metal = num;
 	    profitMargins.stone = num;
+	    marginType = 'custom';
 	    const el = document.getElementById('margin-input');
 	    if (el && document.activeElement !== el) {
 		el.value = num;
@@ -1569,6 +1559,7 @@
 	    if (updated < 0) updated = 0;
 	    profitMargins.metal = updated;
 	    profitMargins.stone = updated;
+	    marginType = 'custom';
 	    const el = document.getElementById('margin-input');
 	    if (el) el.value = updated;
 	    checkMarginStatus();
@@ -1579,7 +1570,12 @@
 	    marginType = type;
 	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
 	    const targetVal = type === 'H' ? hMargin : lMargin;
-	    updateMargin(targetVal);
+	    profitMargins.metal = targetVal;
+	    profitMargins.stone = targetVal;
+	    const el = document.getElementById('margin-input');
+	    if (el) el.value = targetVal;
+	    checkMarginStatus();
+	    generateSummary();
 	}
 
 	function toggleMarginEditView() {
@@ -1627,7 +1623,7 @@
 	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
 	    const isH = profitMargins.metal === hMargin && profitMargins.stone === hMargin;
 	    const isL = profitMargins.metal === lMargin && profitMargins.stone === lMargin;
-	    if (!isH && !isL) {
+	    if (marginType === 'custom' || (!isH && !isL)) {
 	        marginBtn.classList.add('blink-active');
 	    } else {
                 marginBtn.classList.remove('blink-active');
