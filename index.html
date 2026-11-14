@@ -681,7 +681,7 @@
                     <i class="fas fa-chevron-right text-sm"></i>
                 </button>
             </div>
-	    <div class="text-md text-yellow-500 font-mono font-bold text-center"><span id="margin-profit"></span>
+	    <div class="text-md text-yellow-500 font-mono font-bold text-center"><span id="margin-profit"></span> <span id="margin-profit-pct"></span>
 	    </div>
         </div>
 
@@ -1660,7 +1660,7 @@
 
 	function updateMarginProfit() {
 	    const profitEl = document.getElementById('margin-profit');
-	    if (!profitEl) return;
+	    const pctEl = document.getElementById('margin-profit-pct');
 	    let baseTotal = 0;
 	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
 	    items.forEach(item => {
@@ -1699,6 +1699,8 @@
 	    }
 	    const profitAmt = (runningTotal - taxAmount) - baseTotal;
 	    profitEl.innerText = `${profitAmt.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
+	    const profitPct = (profitAmt / baseTotal) * 100;
+	    pctEl.innerText = `(${profitPct.toFixed(2)}%)`;
 	}
 
 	function initBackdropClosing() {
