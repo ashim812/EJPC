@@ -675,7 +675,7 @@
                     <i class="fas fa-chevron-left text-sm"></i>
                 </button>
                 <div class="flex items-center justify-center px-2">
-                    <input type="number" id="margin-input" class="w-16 bg-transparent text-4xl font-bold text-center focus:outline-none" value="30" min="0" oninput="updateMargin(this.value)">
+                    <input type="number" id="margin-input" class="w-16 bg-transparent text-4xl font-bold text-center focus:outline-none" value="30" min="0" oninput="updateMargin(this.value) onchange="updateMargin(this.value)">
                 </div>
                 <button onclick="stepMargin(1)" class="w-10 h-10 rounded-lg bg-gray-800 hover:bg-gray-700 text-yellow-400 hover:text-yellow-300 font-bold flex items-center justify-center active:scale-90 transition-all select-none">
                     <i class="fas fa-chevron-right text-sm"></i>
@@ -1564,6 +1564,14 @@
 	    if (isNaN(num)) num = 0;
 	    if (num < 0) num = 0;
 	    if (num > 100) num = 100;
+	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
+	    if (updated === hMargin) {
+	        marginType = 'H';
+	    } else if (updated === lMargin) {
+	        marginType = 'L';
+	    } else {
+	        marginType = 'custom';
+	    }
 	    profitMargins.metal = num;
 	    profitMargins.stone = num;
 	    const el = document.getElementById('margin-input');
@@ -3324,6 +3332,7 @@
                      marginToggleBtn.classList.remove('hidden');
 	        }
 	    }
+	    updateMarginProfit();
         }
 
 	let tempShareString = "";
@@ -3609,7 +3618,6 @@
 	    });
 	}
 
-	// LONG PRESS HANDLER
 	    function attachLongPressLogic(element, id) {
 	        let timer;
 	        let isLongPress = false;
@@ -3623,34 +3631,27 @@
 	                showQuoteDetails(id);
 	            }, DURATION);
 	        };
-
 	        const end = (e) => {
 	            clearTimeout(timer);
 	        };
-
 	        const click = (e) => {
 	            if (isLongPress) {	            
-	                e.preventDefault();    // If it was a long press, prevent the normal load action
+	                e.preventDefault();
 	                e.stopPropagation();
 	            } else {	            
-	                loadQuotation(id);    // Normal Click: Load the quotation
+	                loadQuotation(id);
 	            }
 	        };
-
-	        // Touch Events
 	        element.addEventListener('touchstart', start, { passive: true });
 	        element.addEventListener('touchend', end);
 	        element.addEventListener('touchmove', end);        
-	        // Mouse Events
 	        element.addEventListener('mousedown', start);
 	        element.addEventListener('mouseup', end);
 	        element.addEventListener('mouseleave', end);        
-	        // Click Event (Decider)
 	        element.addEventListener('click', click);
 	    }
 
-	    // SHOW DETAILS MODAL LOGIC
-	    function showQuoteDetails(id) {
+	    function showQuoteDetails(id) {	    // SHOW DETAILS MODAL LOGIC
 	        const quote = quotationHistory.find(q => q.id === id);
 	        if (!quote) return;
 	        const content = document.getElementById('qd-content');
