@@ -1113,10 +1113,10 @@
 	                return;
                     }
                     if (user) {
-                        status.innerHTML = "Finding Access Key...<br><span class='text-xs text-gray-500'>Unlocking for Authorized Users.</span>";
+                        status.innerHTML = "Finding Access Key...";
                         
                         try {                        
-                            const csvText = await fetchSmart(USERS_DB_URL);    // FETCH USERBASE
+                            const csvText = await fetchSmart(USERS_DB_URL);
                             const allowedEmails = parseUsersCSV(csvText);                    
                             const userEmail = user.email.toLowerCase().trim();
                             
@@ -1146,7 +1146,7 @@
                         } catch (err) {                 
                             console.warn(err);
                             status.className = "text-red-500 text-sm font-bold text-center";
-                            status.innerHTML = `ACCESS DENIED.<br>${user.email} is not authorized.`;
+                            status.innerHTML = `ACCESS DENIED<br><br>${user.email} is not authorized`;
                             signOut(auth);
                             
                             btn.classList.remove('hidden');
@@ -1674,16 +1674,16 @@
 	        }
 	    });
 	    let runningTotal = calculateTotalWithMargin();
-	    if (discountData.active) {    // Active discount if present
+	    if (discountData.active) {
 	        const amountSaved = runningTotal * (discountData.percentage / 100);
 	        runningTotal -= amountSaved;
 	    }
-	    let taxAmount = 0;    // 4. Account for tax if enabled in summary state
+	    let taxAmount = 0;
 	    if (summaryState.tax) {
 	        taxAmount = runningTotal * (taxConfig.rate / 100);
 	        runningTotal += taxAmount;
 	    }
-	    if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {    // Round off if enabled
+	    if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
 	        let mode = summaryState.roundOffMode;
 	        if (!summaryState.showRoundOptions) {
 	            if (runningTotal < 100) mode = 1;
@@ -1698,7 +1698,7 @@
 	        runningTotal = Math.round(runningTotal / mode) * mode;
 	    }
 	    const profitAmt = (runningTotal - taxAmount) - baseTotal;
-	    profitEl.innerText = `${profitAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+	    profitEl.innerText = `${profitAmt.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
 	}
 
 	function initBackdropClosing() {
