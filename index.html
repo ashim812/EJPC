@@ -681,6 +681,9 @@
                     <i class="fas fa-chevron-right text-sm"></i>
                 </button>
             </div>
+	    <div class="text-xs text-yellow-500 font-mono font-bold text-center">
+	        + <span id="margin-profit">₹0.00</span>
+	    </div>
         </div>
 
         <div id="margin-edit-view" class="p-3 flex flex-col gap-2 hidden">          
@@ -1570,6 +1573,7 @@
 	    }
             checkMarginStatus();
 	    generateSummary();
+	    updateMarginProfit();
 	}
 
 	function stepMargin(delta) {
@@ -1639,6 +1643,49 @@
 	        if (isH) { marginType = 'H'; marginBtn.innerText = 'H'; }
 	        if (isL) { marginType = 'L'; marginBtn.innerText = 'L'; }
 	    }
+	}
+
+	function updateMarginProfit() {
+	    const profitEl = document.getElementById('margin-profit');
+	    if (!profitEl) return;
+	    let baseTotal = 0;
+	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
+	    items.forEach(item => {
+	        const rate = getEffectiveRateForItem(item, isMetalsOnly);
+	        if (rate && item.weight > 0) {
+	            const price = rate.price || 0;
+	            const cost = item.type === 'stone' ? (item.weight * (item.manualPrice || 0)) : (item.weight * price);
+	            if (cost > 0 && !(item.type === 'stone' && item.manualPrice <= 0)) {
+	                baseTotal += cost;
+	            }
+	        }
+	    });
+	    let runningTotal = calculateTotalWithMargin();
+	    if (discountData.active) {    // Active discount if present
+	        const amountSaved = runningTotal * (discountData.percentage / 100);
+	        runningTotal -= amountSaved;
+	    }
+	    let taxAmount = 0;    // 4. Account for tax if enabled in summary state
+	    if (summaryState.tax) {
+	        taxAmount = runningTotal * (taxConfig.rate / 100);
+	        runningTotal += taxAmount;
+	    }
+	    if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {    // Round off if enabled
+	        let mode = summaryState.roundOffMode;
+	        if (!summaryState.showRoundOptions) {
+	            if (runningTotal < 100) mode = 1;
+	            else if (runningTotal < 1000) mode = 10;
+	            else if (runningTotal < 10000) mode = 100;
+	            else if (runningTotal < 100000) mode = 1000;
+	            else {
+	                const testRounded = Math.round(runningTotal / 5000) * 5000;
+	                mode = (testRounded - runningTotal < 0) ? 1000 : 5000;
+	            }
+	        }
+	        runningTotal = Math.round(runningTotal / mode) * mode;
+	    }
+	    const profitAmt = (runningTotal - taxAmount) - baseTotal;
+	    profitEl.innerText = `₹${profitAmt.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 	}
 
 	function initBackdropClosing() {
@@ -2688,6 +2735,7 @@
             document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
             document.getElementById('stone-subtotal').innerText = stoneCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
 	    items.forEach(item => updateRowDisplay(item));
+	    updateMarginProfit();
         }
 
         function animateValue(obj, end) {
