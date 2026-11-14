@@ -681,7 +681,7 @@
                     <i class="fas fa-chevron-right text-sm"></i>
                 </button>
             </div>
-	    <div class="text-md text-yellow-500 font-mono font-bold text-center"><span id="margin-profit"></span> <span id="margin-profit-pct"></span>
+	    <div class="text-md text-yellow-500 font-mono font-bold text-center"><span id="margin-profit"></span> <span id="margin-profit-pct" class="text-xs"></span>
 	    </div>
         </div>
 
@@ -1699,8 +1699,12 @@
 	    }
 	    const profitAmt = (runningTotal - taxAmount) - baseTotal;
 	    profitEl.innerText = `${profitAmt.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-	    const profitPct = (profitAmt / baseTotal) * 100;
-	    pctEl.innerText = `(${profitPct.toFixed(2)}%)`;
+	    if (baseTotal > 0) {
+	        const profitPct = (profitAmt / baseTotal) * 100;
+	        pctEl.innerText = `(${profitPct.toFixed(2)}%)`;
+	    } else {
+	        pctEl.innerText = `(0.00%)`;
+	    }
 	}
 
 	function initBackdropClosing() {
@@ -3575,7 +3579,6 @@
 	        list.innerHTML = `<div class="text-gray-500 text-center mt-10 italic text-sm">No saved quotations</div>`;
 	        return;
 	    }
-
 	    if (searchContainer) searchContainer.classList.remove('hidden');
 	    renderHistoryList(quotationHistory);
 	}
