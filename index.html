@@ -1565,21 +1565,17 @@
 	    if (num < 0) num = 0;
 	    if (num > 100) num = 100;
 	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
-	    if (marginType !== 'H' && marginType !== 'L') {
-	        if (num === hMargin) {
-	            marginType = 'H';
-	        } else if (num === lMargin) {
-	            marginType = 'L';
-	        } else {
-	            marginType = 'custom';
-	        }
-	    }    
+	    if (num === hMargin) {
+	        marginType = 'H';
+	    } else if (num === lMargin) {
+	        marginType = 'L';
+	    } else {
+	        marginType = 'custom';
+	    } 
 	    profitMargins.metal = num;
 	    profitMargins.stone = num;
 	    const el = document.getElementById('margin-input');
-	    if (el && document.activeElement !== el && el.value != num) {
-		el.value = num;
-	    }
+	    if (el) { el.value = num;}
             checkMarginStatus();
 	    generateSummary();
 	    updateMarginProfit();
