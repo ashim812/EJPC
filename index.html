@@ -1563,17 +1563,7 @@
 	    let num = parseFloat(val);
 	    if (isNaN(num)) num = 0;
 	    if (num < 0) num = 0;
-	    if (num > 100) num = 100;
-	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
-	    if (marginType !== 'H' && marginType !== 'L') {
-	        if (num === hMargin) {
-	            marginType = 'H';
-	        } else if (num === lMargin) {
-	            marginType = 'L';
-	        } else {
-	            marginType = 'custom';
-	        }
-	    }
+	    if (num > 100) num = 100;	    
 	    profitMargins.metal = num;
 	    profitMargins.stone = num;
 	    const el = document.getElementById('margin-input');
@@ -1589,6 +1579,14 @@
 	    let current = profitMargins.metal || 0;
 	    let updated = current + delta;
 	    if (updated < 0) updated = 0;
+	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
+	    if (updated === hMargin) {
+	        marginType = 'H';
+	    } else if (updated === lMargin) {
+	        marginType = 'L';
+	    } else {
+	        marginType = 'custom';
+	    }
 	    profitMargins.metal = updated;
 	    profitMargins.stone = updated;
 	    updateMargin(updated);
