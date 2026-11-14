@@ -1563,7 +1563,17 @@
 	    let num = parseFloat(val);
 	    if (isNaN(num)) num = 0;
 	    if (num < 0) num = 0;
-	    if (num > 100) num = 100;	    
+	    if (num > 100) num = 100;
+	    const { hMargin, lMargin } = getEffectiveMetalRateAndMargins();
+	    if (marginType !== 'H' && marginType !== 'L') {
+	        if (num === hMargin) {
+	            marginType = 'H';
+	        } else if (num === lMargin) {
+	            marginType = 'L';
+	        } else {
+	            marginType = 'custom';
+	        }
+	    }    
 	    profitMargins.metal = num;
 	    profitMargins.stone = num;
 	    const el = document.getElementById('margin-input');
@@ -3575,20 +3585,16 @@
 	function renderHistoryList(data) {
 	    const list = document.getElementById('history-list');
 	    list.innerHTML = '';
-
 	    if (data.length === 0) {
 	        list.innerHTML = `<div class="text-gray-500 text-center mt-4 text-xs italic">No matching results found</div>`;
 	        return;
 	    }
-
 	    data.forEach(q => {
 	        const metalCount = q.items.filter(i => i.type === 'metal').length;
 	        const stoneCount = q.items.filter(i => i.type === 'stone').length;
 	        const displayName = q.name || `Quote ${q.date}`;
-
 	        const div = document.createElement('div');
 	        div.className = "bg-gray-800/50 quote-card border border-gray-700 p-1.5 rounded-xl flex items-center gap-3 hover:border-yellow-500/50 transition-colors group animate-[slideIn_0.2s_ease-out]";
-
 	        div.innerHTML = `
 	            <div class="flex-grow cursor-pointer min-w-0 select-none" id="quote-card-${q.id}">
                         <div class="flex justify-between items-start gap-2">
@@ -3602,7 +3608,6 @@
 	                    Hold to view details
 	                </div>
 	            </div>
-
 	            <div class="flex flex-col gap-1 border-l border-gray-700 pl-2 flex-none">
 	                <button onclick="editQuotationName(event, ${q.id})" class="text-gray-500 hover:text-blue-400 p-2 rounded hover:bg-white/5 transition-colors" title="Rename">
 	                    <i class="fas fa-pen text-xs"></i>
@@ -3621,7 +3626,6 @@
 	    function attachLongPressLogic(element, id) {
 	        let timer;
 	        let isLongPress = false;
-	        const DURATION = 1500; // 1.5 Seconds
 	        const start = (e) => {	        
 	            if (e.type === 'mousedown' && e.button !== 0) return;    // Only left click or touch            
 	            isLongPress = false;
@@ -3629,7 +3633,7 @@
 	                isLongPress = true;
 	                if (navigator.vibrate) navigator.vibrate([50, 30, 50]); // Distinct vibration feedback
 	                showQuoteDetails(id);
-	            }, DURATION);
+	            }, 1500);
 	        };
 	        const end = (e) => {
 	            clearTimeout(timer);
@@ -3665,7 +3669,6 @@
 	            </div>
 	            <div class="space-y-2">
 	        `;
-
 	        quote.items.forEach(item => {
 	            const rate = getEffectiveRateForItem(item, isQuoteMetalsOnly);
 	            const rawName = rate ? rate.name : (item.type === 'metal' ? 'Unknown Metal' : 'Unknown Stone');
@@ -3686,7 +3689,6 @@
 	                </div>
 	            `;
 	        });
-
 	        html += `</div>`;
 		const discountPercent = quote.discountPercent || 0;
 	        const discountAmount = grossTotal * (discountPercent / 100);        
@@ -3707,7 +3709,6 @@
 	                </div>
 	            </div>
 	        `;
-
 	        content.innerHTML = html;
 	        document.getElementById('quote-details-modal').classList.add('active');
 	    }
