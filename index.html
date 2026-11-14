@@ -1577,7 +1577,7 @@
 	    profitMargins.metal = num;
 	    profitMargins.stone = num;
 	    const el = document.getElementById('margin-input');
-	    if (el && document.activeElement !== el) {
+	    if (el && document.activeElement !== el && el.value != num) {
 		el.value = num;
 	    }
             checkMarginStatus();
