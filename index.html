@@ -2912,13 +2912,13 @@
             if(items.filter(i => i.weight > 0).length === 0) { html += `<div class="text-center text-gray-500 py-4">No item added yet</div>`; }
             html += `<div class="invoice-divider"></div>`;
             html += `
-            <div class="invoice-row">            // Gross Weight Row
+            <div class="invoice-row">
                 <span>Gross Weight</span>
                 <span class="invoice-val">${grossWeight.toFixed(3)} g</span>
             </div>
             `;
             let runningTotal = total;
-            if (discountData.active) {            // Discount Row
+            if (discountData.active) {
                 const amountSaved = runningTotal * (discountData.percentage / 100);
                 const discountedTotal = runningTotal - amountSaved;                
                 runningTotal = discountedTotal;                
@@ -2931,14 +2931,14 @@
                 </div>
                 `;
             }
-            let taxAmount = 0;            // Tax Logic
+            let taxAmount = 0;
             if (summaryState.tax) {
 	        const taxName = taxConfig.name;
 	 	const taxRate = taxConfig.rate;
 		taxAmount = runningTotal * (taxRate / 100);
         	const taxEvents = `onmousedown="startPress(event, 'tax')" ontouchstart="startPress(event, 'tax')" onmouseup="cancelPress()" onmouseleave="cancelPress()" ontouchend="cancelPress()" ontouchmove="cancelPress()"`;                
 		html += `
-		<div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded select-none" onclick="toggleSummaryOption('tax')" ${taxEvents}>                // Tax Row
+		<div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded select-none" onclick="toggleSummaryOption('tax')" ${taxEvents}>
 	            <div class="flex items-center gap-2">
 	                <span>${taxName} (${taxRate}%)</span>
 	            </div>
@@ -2948,14 +2948,14 @@
                  runningTotal += taxAmount;
             } else {
                 html += `
-                <div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleSummaryOption('tax')">                // Disabled Tax Row
+                <div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleSummaryOption('tax')">
 	            <div class="flex items-center gap-2">
 	                <span class="text-gray-500">${taxConfig.name} (${taxConfig.rate}%)</span>
 	            </div>
 	        </div>
                 `;
             }
-            let roundOffAmount = 0;            // Round Off Logic
+            let roundOffAmount = 0;
             let roundDiffClass = "text-gray-500";
             if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
 		let mode = summaryState.roundOffMode;
@@ -3023,14 +3023,14 @@
                 }
             }
             html += `
-            <div class="invoice-row mt-4 pt-2 pb-0 border-t border-gray-800">            // Final Total Row
+            <div class="invoice-row mt-4 pt-2 pb-0 border-t border-gray-800">
                 <div class="flex items-center gap-2">
                     <span class="text-white font-bold text-xl">Total Price</span>
                 </div>
                 <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
             </div>
             `;
-            if (globalExchangeRate > 0) {	// Currency Row
+            if (globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
                 const symbol = currencySymbols[globalTargetCode] || globalTargetCode;
                 html += `
