@@ -3,22 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>EJPC</title>
-    
+    <title>EJPC</title>    
     <meta name="theme-color" content="#0f0f0f">
-    <link rel="manifest" href="manifest.json">
-    
+    <link rel="manifest" href="manifest.json">    
     <link rel="icon" type="image/png" href="EJPC-app-icon-favicon.png">
-
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="EJPC">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="apple-touch-icon" href="EJPC-app-icon-ati.png">
-
     <meta name="msapplication-TileColor" content="#0f0f0f">
     <meta name="msapplication-TileImage" content="EJPC-app-icon-512.png">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
     	if (!window.tailwind) {
@@ -31,8 +26,7 @@
             document.write('<script src="qr-scanner.umd.min.js"><\/script>');
     	}
     </script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">    
     <style>
         :root {
             --gold-primary: #D4AF37;
@@ -412,7 +406,6 @@
         body .hover-purple:hover, body.light .hover-purple:hover { color: #c084fc !important; }
 	body .hover-green:hover, body.light .hover-green:hover { color: #4ade80 !important; }
         body .hover-yellow:hover, body.light .hover-yellow:hover { color: #facc15 !important; }
-
         body.light .text-gray-200 { color: #1f2937; }
         body.light .text-gray-300 { color: #374151; }
         body.light .text-gray-400 { color: #6b7280; }
@@ -513,21 +506,14 @@
     <!-- AUTHENTICATION OVERLAY -->
     <div id="auth-overlay" class="fixed inset-0 z-[9999] bg-[#0f0f0f] flex flex-col items-center justify-center p-4 transition-opacity duration-500">
         <div class="glass-panel p-8 rounded-2xl flex flex-col items-center gap-6 max-w-sm w-full border border-yellow-500/20 shadow-2xl">
-            <!-- Branding -->
-            <h1 class="text-4xl font-bold text-yellow-500 brand-font tracking-wider mb-2">EJPC</h1>
+            <h1 class="text-4xl font-bold text-yellow-500 brand-font tracking-wider mb-2">EJPC</h1>            <!-- Branding -->
             <p class="text-gray-400 text-center text-sm">Authorized Users Only</p>
-            
-            <!-- Status Message -->
-            <div id="auth-status" class="text-red-400 text-sm font-bold min-h-[20px] text-center"></div>
-    
-            <!-- Google Sign In Button -->
+            <div id="auth-status" class="text-red-400 text-sm font-bold min-h-[20px] text-center"></div>            <!-- Status Message -->
             <button id="google-login-btn" onclick="signIn()" class="hidden w-full bg-white text-gray-900 font-bold py-3 px-4 rounded-lg flex items-center justify-center gap-3 hover:bg-gray-100 transition-all active:scale-95">
                 <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="w-5 h-5">
                 <span>Sign in with Google</span>
             </button>
-    
-            <!-- Loading Spinner -->
-            <div id="auth-loading" class="block text-center">
+            <div id="auth-loading" class="block text-center">            <!-- Loading Spinner -->
                 <i class="fas fa-spinner fa-spin text-yellow-500 text-2xl"></i>
                 <span class="text-gray-500 text-xs block mt-2">Verifying User...</span>
             </div>
@@ -577,8 +563,7 @@
         <div class="flex-none grid grid-cols-2 gap-2 w-full">
 		<div onclick="togglePrivacy()" class="glass-panel p-3 rounded-xl flex flex-col items-center justify-center text-center relative overflow-hidden group cursor-pointer">
                 <div class="absolute inset-0 bg-yellow-500 opacity-5 group-hover:opacity-10 transition-opacity"></div>
-                <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest mb-1">Valuation</span>
-                
+                <span class="text-gray-400 text-xs md:text-sm uppercase tracking-widest mb-1">Valuation</span>                
                 <div id="val-blur-target" class="text-xl md:text-3xl font-bold text-yellow-400 brand-font val-mask">
                     ₹<span id="display-total-price">0.00</span>
                 </div>
@@ -591,36 +576,27 @@
                 </div>
             </div>
         </div>
-
         <div class="flex-grow flex flex-col gap-2 min-h-0 w-full">
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                 <div class="flex-none p-3 pb-0 flex justify-between items-center bg-black bg-opacity-20">
                     <h2 class="text-lg text-gray-200"><i class="fas fa-cube mr-2 text-yellow-500"></i>Metals</h2>
                     <span class="text-xs text-gray-400">Subtotal: <span class="text-yellow-500 font-bold">₹<span id="metal-subtotal">0.00</span></span></span>
-                </div>
-                
-                <div id="metal-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll">
-                    </div>
-                
+                </div>                
+                <div id="metal-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll"></div>                
                 <div class="flex-none p-1 pt-0.5 border-t border-gray-800 bg-black bg-opacity-20">
                     <div id="metal-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll p-1"></div>
                 </div>
             </div>
-
             <div class="glass-panel rounded-xl flex-1 flex flex-col min-h-0 w-full relative overflow-hidden">
                 <div class="flex-none p-3 pb-0 flex justify-between items-center bg-black bg-opacity-20">
                     <h2 class="text-lg text-gray-200"><i class="far fa-gem mr-2 text-blue-400"></i>Stones</h2>
                     <span class="text-xs text-gray-400">Subtotal: <span class="text-blue-400 font-bold">₹<span id="stone-subtotal">0.00</span></span></span>
                 </div>
-
-                <div id="stone-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll">
-                    </div>
-
+                <div id="stone-list" class="flex-grow overflow-y-auto p-3 space-y-2 custom-scroll"></div>
                 <div class="flex-none p-1 pt-0.5 border-t border-gray-800 bg-black bg-opacity-20">
                     <div id="stone-add-menu" class="flex flex-wrap gap-2 mb-2 max-h-20 overflow-y-auto custom-scroll p-1"></div>
                 </div>
             </div>
-
         </div>
     </main>
 
@@ -628,33 +604,25 @@
         <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border border-yellow-900">
             <div class="flex justify-between items-center p-4 pb-1 flex-shrink-0">
                 <div class="flex items-center gap-5">
-                    <h2 class="text-3xl md:text-4xl text-white font-bold">Metal Rates</h2>
+                    <h2 class="text-2xl md:text-4xl text-white font-bold">Metal Rates</h2>
 		    <div class="theme-toggle scale-90" id="themeToggle" title="Toggle Theme Mode">
                     	<div class="toggle-circle"><i class="fas fa-sun"></i></div>
                     </div>
                 </div>
-            </div>
-            
+		<button onclick="clearRates()" class="text-xs text-red-500 hover:text-red-400 font-bold uppercase tracking-wider flex items-center gap-2">
+                    <i class="fas fa-trash"></i> Clear All
+                </button>  
+            </div>            
             <div class="px-3 py-1 overflow-y-auto custom-scroll flex-grow">
                 <div class="bg-gray-900 bg-opacity-40 flex flex-col">
                     <div id="settings-metals-list" class="auto-grid content-start"></div>
                 </div>                
             </div>
-            <div class="px-4 py-2 bg-gray-900 bg-opacity-80 rounded-b-2xl flex flex-col gap-3 flex-shrink-0">                
-                <div class="flex justify-between items-center w-full">
-                    <button onclick="clearRates()" class="text-xs text-red-500 hover:text-red-400 font-bold uppercase tracking-wider flex items-center gap-2">
-                        <i class="fas fa-trash"></i> Clear All
-                    </button>
-                    
-                    <div class="flex items-center gap-3">
-                        <span class="text-[10px] md:text-xs text-gray-500 italic text-right leading-tight max-w-[120px]">
-                            *Updates take ~5 mins
-                        </span>
-                        <button id="sync-btn" onclick="syncRates()" class="bg-green-700 hover:bg-green-600 text-white px-2 py-1 rounded-lg transition-colors flex items-center gap-2">
-                            <i id="sync-icon" class="fas fa-sync"></i> SYNC
-                        </button>
-                    </div>
-                </div>
+            <div class="px-4 py-2 bg-gray-900 bg-opacity-80 rounded-b-2xl flex justify-between items-center flex-shrink-0">                
+                <span class="text-[10px] md:text-xs text-gray-500 italic">*Updates may take ~5 minutes</span>
+                <button id="sync-btn" onclick="syncRates()" class="bg-green-700 hover:bg-green-600 text-white px-2 py-1 rounded-lg transition-colors flex items-center gap-2">
+                    <i id="sync-icon" class="fas fa-sync"></i> SYNC
+                </button>
             </div>
         </div>
     </div>
@@ -715,8 +683,7 @@
                 <div>
                     <h2 class="text-2xl md:text-3xl text-white font-bold">Discount Calculator</h2>
                 </div>
-            </div>
-            
+            </div>            
             <div class="p-4 pt-0">
                 <form onsubmit="return false;" class="flex flex-col gap-3">
                     <div class="flex justify-between items-center">
@@ -755,8 +722,7 @@
                         </div>
                     </div>
                 </div>
-            </div>
-            
+            </div>            
             <div class="p-6 pt-2 flex flex-col gap-4">
                 <div class="conv-card">
                         <label class="conv-label">Convert To</label>
@@ -774,14 +740,12 @@
                         <label class="conv-label">Estimated Amount in <span id="conv-label">USD</span></label>
                         <input id="conv-out" type="number" class="conv-input" placeholder="0.00" min="0" step="any">
                     </div>                    
-                </div>                
-
+                </div>
                 <div class="flex items-center justify-between mt-2">
                     <div class="text-[10px] text-gray-500 flex items-center gap-2">
                         <span id="conv-status-dot" class="w-2 h-2 rounded-full bg-yellow-500"></span>
                         <span id="conv-updated">Fetching...</span>
-                    </div>
-		
+                    </div>		
 		    <span id="conv-rate-2" class="conv-pill-small cursor-pointer transition-all hover:scale-105 active:scale-95" title="Refresh Exchange Rates">
 			<span id="conv-rate-text"> $ 1 = ... </span>
         		<i id="conv-pill-icon" class="fas fa-sync-alt ml-2 text-[10px]"></i>
@@ -791,7 +755,6 @@
         </div>
     </div>
 
-    <!-- QUOTATION HISTORY -->    
 	<div id="history-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
 	    <div class="modal-content glass-panel w-full max-w-md h-[80vh] rounded-2xl flex flex-col shadow-2xl border-green-500">
 	        <div class="flex justify-between items-center p-4 pb-0.5 border-gray-700">
@@ -800,19 +763,15 @@
                         Clear ALL
                     </button>
 	        </div>
-	    <div id="history-search-container" class="px-4 py-1 hidden flex-none">
-                <div class="relative w-full group">
-                    <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs group-focus-within:text-yellow-500 transition-colors"></i>
-                    <input type="text" id="history-search-input" oninput="filterHistory()" placeholder="Search saved quotes..." 
-                        class="w-full bg-gray-900 border border-gray-600 rounded-full pl-9 pr-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 placeholder-gray-600 transition-all shadow-inner" autocomplete="on">
-                </div>
-            </div>
-
-	        <div id="history-list" class="flex-grow overflow-y-auto p-2 custom-scroll space-y-3">
+	    	<div id="history-search-container" class="px-4 py-1 hidden flex-none">
+                    <div class="relative w-full group">
+                        <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 text-xs group-focus-within:text-yellow-500 transition-colors"></i>
+	                <input type="text" id="history-search-input" oninput="filterHistory()" placeholder="Search saved quotes..." class="w-full bg-gray-900 border border-gray-600 rounded-full pl-9 pr-3 py-2 text-sm text-gray-300 focus:outline-none focus:border-yellow-500 focus:ring-1 focus:ring-yellow-500 placeholder-gray-600 transition-all shadow-inner" autocomplete="on">
+	             </div>
 	        </div>
+	    	<div id="history-list" class="flex-grow overflow-y-auto p-2 custom-scroll space-y-3"></div>
             </div>
 	</div>
-
 	<div id="quote-details-modal" class="modal fixed inset-0 z-[70] flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">
 	    <div class="modal-content glass-panel w-full max-w-sm rounded-2xl flex flex-col shadow-2xl border-green-500/50">	             
 	        <div id="qd-content" class="p-3 overflow-y-auto custom-scroll text-gray-300 text-sm space-y-3 max-h-[60vh]">
@@ -820,16 +779,13 @@
 	    </div>
 	</div>
 
-    	<!-- SCANNER MODAL -->
 	<div id="scanner-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-80 backdrop-blur-sm p-4">       
         <input type="file" id="qr-image-input" hidden accept="image/*" onchange="handleImageScan(event)">
         <input type="file" id="qr-camera-input" hidden accept="image/*" capture="environment" onchange="handleImageScan(event)">
-
         <div class="modal-content glass-panel w-50 rounded-2xl flex flex-col shadow-2xl border-purple-700">            
             <div class="flex justify-center p-4 pb-0">
                 <h2 class="text-2xl text-[var(--text-main)] font-bold tracking-wide">Scan QR / Enter Code</h2>
-            </div>
-            
+            </div>            
             <div class="flex flex-col justify-center p-4">                
                 <div class="w-full">
                     <div class="flex flex-col gap-3">
@@ -839,66 +795,36 @@
                         </button>
                     </div>
                 </div>
-            </div>
-        
+            </div>        
             <div class="flex-none p-6 pt-2 flex items-center justify-around">                
                 <button onclick="triggerGallery()" class="flex flex-col items-center gap-1 group" title="Scan from Gallery">
                     <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
                         <i class="far fa-image text-lg"></i>
                     </div>
-		    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-white transition-colors">
-		        Upload QR
-		    </span>
+		    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-white transition-colors">Upload QR</span>
                 </button>          
-
                 <button onclick="triggerCamera()" id="camera-btn" class="flex flex-col items-center gap-1 group" title="Scan with Camera">
                     <div class="w-10 h-10 rounded-full bg-gray-800 border border-gray-600 group-hover:border-white group-hover:bg-gray-200 flex items-center justify-center transition-all shadow-lg">
-                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                                <!-- Corners -->
-                                <path d="M3 7V5a2 2 0 0 1 2-2h2"></path>
-                                <path d="M17 3h2a2 2 0 0 1 2 2v2"></path>
-                                <path d="M21 17v2a2 2 0 0 1-2 2h-2"></path>
-                                <path d="M7 21H5a2 2 0 0 1-2-2v-2"></path>
-                                <!-- Inner Markers -->
-                                <rect x="7" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
-                                <rect x="14" y="7" width="3" height="3" rx="0.5" stroke-width="2"></rect>
-                                <rect x="7" y="14" width="3" height="3" rx="0.5" stroke-width="2"></rect>
-                                <path d="M14.5 14.5h.5v.5h-.5z" stroke-width="2.5"></path>
-                                <path d="M16.5 16.5h.5v.5h-.5z" stroke-width="2.5"></path>
-	                    </svg>
-                         </div>
-			 <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-white transition-colors">
-		             Scan QR
-		         </span>
+                        <i class="fas fa-camera-retro text-lg"></i>
+                    </div>
+		    <span class="text-[10px] text-gray-400 font-bold uppercase tracking-widest group-hover:text-white transition-colors">Scan QR</span>
                 </button>
-
             </div>
         </div>
     </div>
 
     <div id="summary-modal" class="modal fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm p-4">
-        <div class="w-full h-full flex flex-col items-center justify-center relative">
-            
+        <div class="w-full h-full flex flex-col items-center justify-center relative">            
             <button id="summary-close-btn" onclick="toggleSummary()" class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors bg-gray-800 rounded-full w-10 h-10 flex items-center justify-center z-50">
                 <i class="fas fa-times text-2xl"></i>
             </button>
-
-            <div class="flex flex-col items-center w-full max-w-md animate-[slideIn_0.3s_ease-out]">
-                
+            <div class="flex flex-col items-center w-full max-w-md animate-[slideIn_0.3s_ease-out]">                
                 <div id="summary-header-pill" class="invoice-pill select-none cursor-pointer">APPROXIMATE PRICE</div>
-
 		<div class="invoice-card p-5 w-full relative"> <div id="summary-content"></div>
                     <div class="p-3 pb-0 flex justify-between items-center relative">
 			<button onclick="saveQuotation()" class="text-yellow-400 text-lg font-bold tracking-wide flex items-center gap-2 transition-colors" title="Save">
 			    <i class="fas fa-bookmark"></i>
 			</button>
-
-                        <button id="margin-type-btn" onclick="toggleMarginType()" class="w-5 h-5 rounded-md text-sm font-bold text-gray-500 border border-gray-500 flex items-center justify-center active:scale-90 select-none" title="Toggle Margin Type">H</button>
-
-			<button id="stealth-btn" onclick="toggleStealthMode()" class="text-gray-600 hover:text-white transition-colors" title="Presentation Mode">
-                            <i class="fas fa-user-lock"></i>
-                        </button>
-
 			<button id="summary-discount-btn" onclick="toggleDiscount()" class="text-gray-500 hover:text-green-400 transition-colors" title="Apply Discount">
 			    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
 		        	<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
@@ -906,7 +832,10 @@
 		            	<text x="16" y="16" font-family="Arial" font-size="5" font-weight="bold" fill="currentColor" stroke="none" text-anchor="middle" transform="rotate(-45 15 16.5)">OFF</text>
 			    </svg>
 			</button>
-
+			<button id="stealth-btn" onclick="toggleStealthMode()" class="text-gray-600 hover:text-white transition-colors" title="Presentation Mode">
+                            <i class="fas fa-user-lock"></i>
+                        </button>
+			<button id="margin-type-btn" onclick="toggleMarginType()" class="w-5 h-5 rounded-md text-sm font-bold text-gray-500 border border-gray-500 flex items-center justify-center active:scale-90 select-none" title="Toggle Margin Type">H</button>
                         <div class="flex items-center gap-2">
 			     <button id="summary-settings-btn" onclick="toggleShareAddons()" class="text-gray-500 hover:text-white transition-colors" title="Share Add-Ons">
                                 <i class="fas fa-circle-plus text-xs"></i>
@@ -925,8 +854,7 @@
     <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col shadow-2xl border border-gray-700">
         <div class="flex justify-center p-3 pb-0 border-gray-700">
             <h3 class="text-lg font-bold text-white">Tax Settings</h3>
-        </div>
-        
+        </div>        
         <div class="p-4 flex flex-col gap-5">
             <div class="flex items-center justify-center gap-3 w-full">
                 <button onclick="setTaxMode('india')" id="btn-tax-india" class="flex-1 h-10 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400 text-xs font-bold uppercase">
@@ -936,7 +864,6 @@
                     Abroad
                 </button>
             </div>
-
            <div class="flex gap-3 w-full">
                 <div class="flex-1">
                     <label class="text-[10px] text-gray-500 uppercase tracking-wider mb-1 block">Tax Name</label>
@@ -952,17 +879,14 @@
 </div>
 
 <div id="name-popup" class="modal fixed inset-0 z-[80] flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm p-4">
-    <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col gap-5 p-6 shadow-2xl border border-gray-600 relative overflow-hidden">
-      
-        <h3 class="text-center text-[var(--text-main)] font-bold text-lg tracking-wide">Item Name</h3>
-        
+    <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col gap-5 p-6 shadow-2xl border border-gray-600 relative overflow-hidden">      
+        <h3 class="text-center text-[var(--text-main)] font-bold text-lg tracking-wide">Item Name</h3>        
         <div class="relative w-full group">
             <input type="text" id="popup-item-name" list="name-history-list" 
                 class="w-full bg-[var(--input-bg)] text-[var(--text-main)] border border-[var(--border-color)] rounded-none pl-3 pr-5 py-3 focus:outline-none focus:border-[var(--gold-primary)] focus:ring-1 focus:ring-[var(--gold-primary)] transition-all shadow-inner placeholder-gray-500 font-medium"
                 placeholder="Enter Item Name..." autocomplete="off">
             <datalist id="name-history-list"></datalist>
         </div>
-
         <div class="flex justify-center gap-8 mt-1">
              <button onclick="rejectName()" class="w-12 h-12 rounded-full border border-red-500/30 text-red-500 bg-red-500/5 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center text-xl shadow-lg active:scale-90" title="Share without Name">
                 <i class="fas fa-times"></i>
@@ -978,8 +902,7 @@
         <div class="modal-content glass-panel w-full max-w-xs rounded-2xl flex flex-col shadow-2xl border border-gray-700">
             <div class="flex justify-center p-3.5 pb-0 border-gray-700">
                 <h3 class="text-2xl font-bold text-white">Share Add-Ons</h3>
-            </div>
-            
+            </div>            
             <div class="p-5 flex flex-col gap-4 items-center">                
                 <div class="grid grid-cols-2 gap-3 w-full">
                     <button onclick="toggleShareOption('discount')" id="btn-share-discount" class="flex-1 h-12 rounded-lg border border-gray-600 flex items-center justify-center transition-all hover:border-gray-400">
@@ -995,7 +918,6 @@
 	                <span class="text-sm font-bold uppercase">Forex</span>
         	    </button>
                 </div>
-
                 <button onclick="toggleAllShareOptions()" class="w-full bg-yellow-600 hover:bg-yellow-500 text-black py-3 rounded-xl text-md font-bold tracking-wider transition-colors shadow-lg uppercase">
                     Select All
                 </button>
@@ -1081,28 +1003,21 @@
                         loading.classList.add('hidden');
                     });
                 };
-
 		const keyText = await fetchSmart(API_DB_URL);     // FETCH API KEY               
                 const fetchedApiKey = keyText.trim().split(/[\r\n,]+/)[0].replace(/['"]+/g, '').trim();
                 if (!fetchedApiKey) throw new Error("Authentication Failed.");
-
-                // Construct Configuration
-                const firebaseConfig = {
+                const firebaseConfig = {                // Construct Configuration
                     apiKey: fetchedApiKey,
                     authDomain: "ejpc-vault.firebaseapp.com",
                     projectId: "ejpc-vault",
                     storageBucket: "ejpc-vault.firebasestorage.app",
                     messagingSenderId: "640002447814",
                     appId: "1:640002447814:web:4be6d2b288c539af8efac7"
-                };
-
-                // INITIALIZE FIREBASE
-                const app = initializeApp(firebaseConfig);
+                };          
+                const app = initializeApp(firebaseConfig);      // INITIALIZE FIREBASE
                 const auth = getAuth(app);
-                const provider = new GoogleAuthProvider();
-
-                // AUTH OBSERVER
-                onAuthStateChanged(auth, async (user) => {
+                const provider = new GoogleAuthProvider();            
+                onAuthStateChanged(auth, async (user) => {    // AUTH OBSERVER
                     const overlay = document.getElementById('auth-overlay');
                     const vaultElement = document.getElementById('protected-content');
                     const btn = document.getElementById('google-login-btn');
@@ -1113,59 +1028,49 @@
 	                return;
                     }
                     if (user) {
-                        status.innerHTML = "Finding Access Key...";
-                        
+                        status.innerHTML = "Finding Access Key...";                        
                         try {                        
                             const csvText = await fetchSmart(USERS_DB_URL);
                             const allowedEmails = parseUsersCSV(csvText);                    
-                            const userEmail = user.email.toLowerCase().trim();
-                            
+                            const userEmail = user.email.toLowerCase().trim();                            
                             if (allowedEmails.includes(userEmail)) {                                
                                 status.className = "text-green-400 text-sm font-bold mb-2";
                                 status.innerText = `Welcome ${user.displayName}`; // SUCCESS: ACCESS GRANTED
 				const loadingDiv = document.getElementById('auth-loading');
 				if (loadingDiv) {
 				    loadingDiv.innerHTML = '<i class="fas fa-check text-green-400 text-2xl font-bold"></i><span class="text-green-400 text-xs block mt-2 font-bold">User Verified</span>';
-				}
-                                
+				}                                
                                 if(vaultElement) {
                                     vaultElement.innerHTML = secureAppHTML;
 				    vaultElement.style.display = 'flex';
                                     if (typeof window.init === "function") window.init();
-                                }
-                             
+                                }                             
                                 setTimeout(() => {
                                     overlay.style.opacity = '0';
                                     setTimeout(() => overlay.style.display = 'none', 500);
                                 }, 800);
-
                             } else {
                                 throw new Error("ACCESS NOT GRANTED");
                             }
-
                         } catch (err) {                 
                             console.warn(err);
                             status.className = "text-red-500 text-sm font-bold text-center";
                             status.innerHTML = `ACCESS DENIED<br><br>${user.email} is not authorized`;
-                            signOut(auth);
-                            
+                            signOut(auth);                            
                             btn.classList.remove('hidden');
                             loading.classList.add('hidden');
                             if(vaultElement) vaultElement.innerHTML = "";
                         }
-
                     } else {    // LOGGED OUT                    
                         if (overlay) {
                             overlay.style.display = 'flex';
                             overlay.style.opacity = '1';
                         }
                         if (btn) btn.classList.remove('hidden');
-                        if (loading) loading.classList.add('hidden');                
-                        
+                        if (loading) loading.classList.add('hidden');                       
                         if(vaultElement) vaultElement.innerHTML = "";
                     }
-                });
-             
+                });             
                 setInterval(() => {
                     const overlay = document.getElementById('auth-overlay');
                     const user = auth.currentUser;           
@@ -1175,7 +1080,6 @@
                         }
                     }
                 }, 1500);
-
             } catch (err) {
                 console.error("Initialization Failed:", err);
                 const status = document.getElementById('auth-status');
@@ -1187,8 +1091,7 @@
     <script>	
 	async function fetchSmart(url) {
 	    const uniqueUrl = url + (url.includes('?') ? '&' : '?') + '_t=' + Date.now();
-	    let text = '';
-    
+	    let text = '';    
 	    try {
 	        const response = await fetch(uniqueUrl);
 	        if (!response.ok) throw new Error('Direct fetch failed');
@@ -1232,7 +1135,6 @@
 	let presetMargins = JSON.parse(localStorage.getItem('ejpc_preset_margins')) || { H: 30, L: 20, H_plain: 10, L_plain: 5 }; // Default Margins
         let profitMargins = { metal: presetMargins.H, stone: presetMargins.H };
 	let marginType = 'H';
-
         const DEFAULT_RATES = [
             { id: 'm_def_1', name: 'Gold 24K', type: 'metal', price: '' },
             { id: 'm_def_2', name: 'Gold 22K', type: 'metal', price: '' },
@@ -1284,8 +1186,7 @@
 	    forex: false
         };
 
-        let storedRates = JSON.parse(localStorage.getItem('jewelleryRates'));
-        
+        let storedRates = JSON.parse(localStorage.getItem('jewelleryRates'));        
         let rates = (storedRates && storedRates.length > 0) ? storedRates : JSON.parse(JSON.stringify(DEFAULT_RATES));
         let items = [];
 	let globalExchangeRate = 0;
@@ -1297,7 +1198,6 @@
             const toggle = document.getElementById('themeToggle');
             const circle = toggle.querySelector('.toggle-circle');
             const savedTheme = localStorage.getItem('theme');
-
             const setTheme = (mode) => {
                 if (mode === 'light') {
                     document.body.classList.add('light');
@@ -1308,13 +1208,11 @@
                 }
                 localStorage.setItem('theme', mode);
             };
-
             if (savedTheme) {
                 setTheme(savedTheme);
             } else {
                 setTheme('light');
             }
-
             toggle.addEventListener('click', () => {
                 if (document.body.classList.contains('light')) {
                     setTheme('dark');
@@ -1419,7 +1317,7 @@
 	    if(discBtn) discBtn.style.display = isStealthMode ? 'none' : 'block';
     	    generateSummary();    	    
     	    if(isStealthMode) {
-        	if(navigator.vibrate) navigator.vibrate([50, 50, 50]);  // Vibrate to let the owner know it locked
+        	if(navigator.vibrate) navigator.vibrate([50, 50, 50]);
     	    } else {
         	if(navigator.vibrate) navigator.vibrate(100);
    	    }
@@ -1757,10 +1655,9 @@
              if(modal.classList.contains('active')) {
                  renderShareAddons();
              }
-        }
-        
-        // Helper to calculate Grand Total inclusive of Margin (for Discount Modal consistency)
-        function calculateTotalWithMargin() {
+        }        
+
+        function calculateTotalWithMargin() {        // Helper to calculate Grand Total inclusive of Margin (for Discount Modal consistency)
             let total = 0;
 	    const { isMetalsOnly } = getEffectiveMetalRateAndMargins();
             items.forEach(item => {
@@ -1778,8 +1675,7 @@
 
         function toggleDiscount() {
 	    if (toggleModal('discount-modal')) {           
-	        const totalVal = calculateTotalWithMargin(); // Get total using the Margin logic to match Summary Modal
-            
+	        const totalVal = calculateTotalWithMargin(); // Get total using the Margin logic to match Summary Modal            
         	if(!isNaN(totalVal) && totalVal > 0) {
 	            document.getElementById('calc-original').value = totalVal.toFixed(2);               
 	            runDiscountCalc(); // Auto calculate with existing percentage (or 0)
@@ -1791,22 +1687,18 @@
 
         function toggleCurrency() { 
             if(toggleModal('currency-modal')) {    // Pre-fill Logic: Calculate current Total (with discount/tax/rounding/margin)                
-                let runningTotal = calculateTotalWithMargin();    // Get Base Total with Margin      
-
-                if(discountData.active) {	// Discount
+                let runningTotal = calculateTotalWithMargin();
+                if(discountData.active) {
                     const amountSaved = runningTotal * (discountData.percentage / 100);  // Recalculate discount based on current margin-inclusive total
                     runningTotal = runningTotal - amountSaved;
-                }                
-            
+                }            
                 if(summaryState.tax) {
-                    runningTotal += (runningTotal * (taxConfig.rate/100));    // Tax
+                    runningTotal += (runningTotal * (taxConfig.rate/100));
                 }
-
                 if(summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
                     const m = summaryState.roundOffMode;
-                    runningTotal = Math.round(runningTotal / m) * m;    // Round Off
+                    runningTotal = Math.round(runningTotal / m) * m;
                 }
-
                 const convInr = document.getElementById('conv-inr');
                 if(convInr) {
                     convInr.value = runningTotal.toFixed(2);
@@ -1817,49 +1709,37 @@
             }
         }
 
-        // PRODUCT DETAILS MODAL LOGIC
-        function openProductModal(title = "PRODUCT DETAILS") {
+        function openProductModal(title = "PRODUCT DETAILS") {        // PRODUCT DETAILS MODAL LOGIC
             const modal = document.getElementById('product-modal');
             const content = document.getElementById('product-details-content');
             const errorDiv = document.getElementById('product-error');
             const actionBtn = document.getElementById('prod-action-btn');
             actionBtn.innerText = "LOAD";
             actionBtn.onclick = closeProductModal;
-
 	    const modalHeader = document.querySelector('#product-modal h2');
 	    if (modalHeader) modalHeader.innerText = title;
-
             errorDiv.classList.add('hidden');
             content.innerHTML = `<div class="flex justify-center p-8"><i class="fas fa-circle-notch fa-spin text-3xl text-yellow-600"></i></div>`;
             modal.classList.add('active');
         }
 
-        function closeProductModal() {
-            document.getElementById('product-modal').classList.remove('active');
-        }
-        
-        function retryScan() {
-            closeProductModal();
-            toggleScanner();
-        }
+        function closeProductModal() { document.getElementById('product-modal').classList.remove('active'); }        
+        function retryScan() { closeProductModal(); toggleScanner(); }
 
         async function fetchProductDetails(code) {
             if(!code) return;
             const upperCode = code.toUpperCase();            
             openProductModal("PRODUCT DETAILS");
-
             if (!PRODUCT_DB_URL) {
                 document.getElementById('product-details-content').innerHTML = "No Inventory DB configured.\nPlease contact the Developer.";
                 return;
             }
-
 	    try {
 	        const csvText = await fetchSmart(PRODUCT_DB_URL);            
                 const product = parseProductCSV(csvText, upperCode);    // Parse and Find Product
                 const actionBtn = document.getElementById('prod-action-btn');
-
                 if(product) {
-                    currentFetchedProduct = product; // Store it
+                    currentFetchedProduct = product;
                     renderProductDetails(product);                
                     actionBtn.innerText = "LOAD";
                     actionBtn.onclick = loadProductToCalculator;    // Success State
@@ -1870,7 +1750,6 @@
                     actionBtn.innerText = "RETRY";   // Error State -> Retry
                     actionBtn.onclick = retryScan;
                 }
-
             } catch (error) {
                 console.error("Product Fetch Error:", error);
                 document.getElementById('product-details-content').innerHTML = `<div class="text-center text-red-500">Connection Failed</div>`;
@@ -1885,13 +1764,10 @@
 	    items = []; // Clear existing items
 	    const p = currentFetchedProduct;
             let loadedCount = 0;
-
-            // Load Metal
-            if (p.metal && parseFloat(p.netWt) > 0) {                // Find rate where rate name contains the metal string or vice versa
+            if (p.metal && parseFloat(p.netWt) > 0) {                // Load Metal & Find rate where rate name contains the metal string or vice versa
                 const normalize = s => s.toLowerCase().replace(/gold/g, '').replace(/silver/g, '').trim();// Normalizing: remove 'Gold', spaces, case insensitive
                 const pMetalClean = normalize(p.metal);      
-                const metalRate = rates.find(r => r.type === 'metal' && normalize(r.name).includes(pMetalClean));
-                
+                const metalRate = rates.find(r => r.type === 'metal' && normalize(r.name).includes(pMetalClean));                
                 if (metalRate) {
                     items.push({ 
                     id: 'item_' + Date.now() + Math.random().toString(36).substr(2, 9), 
@@ -1917,9 +1793,7 @@
                      }
                 }
             }
-
-            // Load Diamond
-            if (parseFloat(p.diaWt) > 0) {
+            if (parseFloat(p.diaWt) > 0) {            // Load Diamond
                 const diaRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes('diamond')); // Look for "Diamond" in rates
                 if (diaRate) {
                     items.push({ 
@@ -1931,18 +1805,14 @@
 	            });
                     loadedCount++;
                 }
-            }
-
-            // Load Stone
-            if ((p.stone && p.stone !== '-') && parseFloat(p.stoneWt) > 0) {
-                let stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase())); // fuzzy match stone name
-                             
+            }    
+            if ((p.stone && p.stone !== '-') && parseFloat(p.stoneWt) > 0) {        // Load Stone
+                let stoneRate = rates.find(r => r.type === 'stone' && r.name.toLowerCase().includes(p.stone.toLowerCase())); // fuzzy match stone name                             
                 if (!stoneRate) {    // If no match found, create dynamic rate for display            
                     const newId = 'dyn_' + Date.now();
                     stoneRate = { id: newId, name: p.stone, type: 'stone', price: 0 };
                     rates.push(stoneRate);
                 }
-
                 items.push({ 
                     id: 'item_' + Date.now() + Math.random().toString(36).substr(2, 9), 
 	            type: 'stone', 
@@ -1952,7 +1822,6 @@
 	        });
                 loadedCount++;
             }
-
             if (loadedCount > 0) {
 		renderCalculator(); // Clear UI rows
 	        calculateTotals(); // Reset totals
@@ -1968,8 +1837,7 @@
             const lines = csvText.trim().split(/\r\n|\n/);
             if (lines.length < 1) return null;
             const headers = splitCSVLine(lines[0]).map(h => h.toLowerCase().trim());                        
-            const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt
-            
+            const getIdx = (name) => headers.indexOf(name.toLowerCase());  // Expected Columns mapping: Prod ID, Item, Sourcing, Origin, Metal, Net Wt, Dia Wt, Dia Rate, Stone, Stone Wt, Stone Rate, Gross Wt            
             const idx = {
                 id: getIdx('prod id'),
                 item: getIdx('item'),
@@ -1984,16 +1852,13 @@
                 stoneRate: getIdx('stone rate'),
                 grossWt: getIdx('gross wt')
             };
-
             if (idx.id === -1) {
                 console.error("Prod ID column not found");
                 return null;
             }
-
             for (let i = 1; i < lines.length; i++) {
                 const row = splitCSVLine(lines[i]);
-                const rowId = row[idx.id]?.toUpperCase().trim();
-                
+                const rowId = row[idx.id]?.toUpperCase().trim();                
                 if (rowId === searchId) {
                     return {
                         id: rowId,
@@ -2015,35 +1880,29 @@
         }
 
         function renderProductDetails(p) {
-            const container = document.getElementById('product-details-content');
-            
+            const container = document.getElementById('product-details-content');            
             let html = `
                 <div>Product ID : ${p.id}</div>
                 <div>Product : ${p.item}</div>
                 <div>${p.sourcing ? p.sourcing : 'Sourcing'} from ${p.origin ? p.origin : 'Origin'}</div>
                 <div>Gross Weight : ${p.grossWt} g</div>                
-            `;
-	
+            `;	
             if (parseFloat(p.netWt) > 0) {    // Conditional Metal Row
                 html += `<div>${p.metal} : ${parseFloat(p.netWt).toFixed(3)} g</div>`;
-            }
-        
+            }        
             if (parseFloat(p.diaWt) > 0) {    // Conditional Diamond Row
                 html += `<div>Dia : ${parseFloat(p.diaWt).toFixed(2)} ct @ ₹${parseFloat(p.diaRate).toFixed(2)}/ct</div>`;
             }
-
             if (parseFloat(p.stoneWt) > 0 || (p.stone && p.stone !== '-')) {    // Conditional Stone Row (If Stone Name exists but weight is 0/empty, handle accordingly)
                 const sName = p.stone || "Stone";
                 const sWt = p.stoneWt || "0";
                 const sRate = p.stoneRate || "0";
                 html += `<div>${sName} : ${parseFloat(sWt).toFixed(2)} ct @ ₹${parseFloat(sRate).toFixed(2)}/ct</div>`;
             }
-
             container.innerHTML = html;
         }
-        
-        // SCANNER LOGIC
-        function toggleScanner() {
+
+        function toggleScanner() {        // SCANNER LOGIC
 	    const modal = document.getElementById('scanner-modal');
 	    if (!modal) return;
     	    modal.classList.toggle('active');
@@ -2055,24 +1914,18 @@
 	function renderScanner() {
 	    const manInput = document.getElementById('manual-code-input');
 	    if(manInput) manInput.value = 'E';
-	}
-               
-        // Gallery Scan & Camera Scan Logic     
-        function triggerGallery() {
-            document.getElementById('qr-image-input').click();
-        }
+	}               
+   
+        function triggerGallery() { document.getElementById('qr-image-input').click(); }        // Gallery Scan Logic  
 
-	function triggerCamera() {
+	function triggerCamera() { 	// Camera Scan Logic
 	    const cameraInput = document.getElementById('qr-camera-input');
-            if(cameraInput) {
-                cameraInput.click();
-            }
+            if(cameraInput) { cameraInput.click(); }
 	}
 
         async function handleImageScan(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             try {
                 const result = await QrScanner.scanImage(file, { returnDetailedScanResult: true });  // Use library to decode image file directly
                 handleScannedCode(result.data);
@@ -2101,8 +1954,7 @@
             }
         }
 
-        // DISCOUNT CALCULATOR LOGIC
-        function runDiscountCalc() {
+        function runDiscountCalc() {        // DISCOUNT CALCULATOR LOGIC
             const originalPrice = parseFloat(document.getElementById('calc-original').value);
             const percentInput = document.getElementById('calc-percent');
             const resultDiv = document.getElementById('calc-result');
@@ -2133,9 +1985,7 @@
                 discountedTotal: discountedPrice,
                 active: discountPercentage > 0
             };
-
             resultDiv.classList.remove('hidden');
-
             let html = `
                 <div class="text-red-600 font-bold text-lg mb-1">Discounted Price: ₹ ${discountedPrice.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
                 <div class="text-red-500 text-sm">Discount: ₹ ${amountSaved.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</div>
@@ -2152,8 +2002,7 @@
             runDiscountCalc();
         }
 
-        // CURRENCY CONVERTER LOGIC
-        function initCurrencyConverter() {
+        function initCurrencyConverter() {        // CURRENCY CONVERTER LOGIC
             const inrEl = document.getElementById('conv-inr');
             const outEl = document.getElementById('conv-out');
             const searchEl = document.getElementById('conv-search');
@@ -2162,12 +2011,10 @@
             const rateLabel2 = document.getElementById('conv-rate-2');
             const updatedEl = document.getElementById('conv-updated');
             const statusDot = document.getElementById('conv-status-dot');
-
             let rateINRtoTarget = null;
             let targetCurrency = 'USD';
 	    let previousCurrencyText = "USD";
 	    let currencySelected = false;
-
             function updateConv(from='INR') {
                 if(!rateINRtoTarget) return;
                 if(from === 'INR'){
@@ -2180,14 +2027,12 @@
                     else inrEl.value = '';
                 }
             }
-
 	    const FX_CACHE_RATES = "ejpc_fx_rates";
 	    const FX_CACHE_TIME = "ejpc_fx_timestamp";
 	    const FX_SYMBOLS_CACHE = "ejpc_fx_symbols";
 	    const FX_SYMBOLS_TIME = "ejpc_fx_symbols_time";
 	    const FX_CACHE_DURATION = 60 * 60 * 1000; // Every hour
 	    const SYMBOL_CACHE_DURATION = 24 * 60 * 60 * 1000; // Every day
-
             async function fetchSymbols() {
                 try {
 		    const cache = localStorage.getItem(FX_SYMBOLS_CACHE);
@@ -2260,7 +2105,6 @@
 		    }
                 }
 
-            // Events
             inrEl.addEventListener('input', () => updateConv('INR'));
             outEl.addEventListener('input', () => updateConv('OUT'));
             const ratePill = document.getElementById("conv-rate-2");
@@ -2281,15 +2125,13 @@
 		    }
 		    listEl.style.display = "none";
 	        }, 150);
-	    });
-            
+	    });            
             searchEl.addEventListener('input', () => {
                 const term = searchEl.value.toLowerCase();
                 Array.from(listEl.children).forEach(div => {
                     div.style.display = div.textContent.toLowerCase().includes(term) ? 'block' : 'none';
                 });
             });
-
             listEl.addEventListener('click', (e) => {
                 if(e.target.dataset.code) {
 		    currencySelected = true;
@@ -2304,17 +2146,10 @@
             fetchSymbols();
         }
 
-
-        // SETTINGS RATES SYNC LOGIC
-        async function syncRates(isAuto = false) {
+        async function syncRates(isAuto = false) {        // SETTINGS RATES SYNC LOGIC
             const btn = document.getElementById('sync-btn');
-            const icon = document.getElementById('sync-icon');            
-           
-            if (!RATES_DB_URL) {
-                showToast("No Rates DB configured.\nPlease contact the Developer.");
-                return;
-            }
-
+            const icon = document.getElementById('sync-icon');           
+            if (!RATES_DB_URL) { showToast("No Rates DB configured.\nPlease contact the Developer."); return; }
 	    try {
             	if (btn && icon && !isAuto) { // UI Loading State
 	            btn.disabled = true;
@@ -2326,7 +2161,6 @@
                 if (newRates.length > 0) {
                     items.forEach(item => {
                         const currentRate = rates.find(r => r.id === item.rateId);
-
                         if (currentRate) {    // If identify the current item's name, try to find it in the new list
                             const match = newRates.find(nr => 
                                 nr.type === currentRate.type && 
@@ -2337,16 +2171,13 @@
                             }
                         }
                     });
-
                     rates = newRates;
                     saveRates();
                     renderSettings();
                     renderAddMenus();
                     renderCalculator(); 
                     calculateTotals();
-
-		    const metalCount = newRates.filter(r => r.type === 'metal').length;
-                    
+		    const metalCount = newRates.filter(r => r.type === 'metal').length;                    
 		    if (isAuto) {
 			showToast(`${metalCount} Rates Auto-Synced`);
 	            } else {
@@ -2371,8 +2202,7 @@
             }
         }
 
-        // Rates CSV Parser
-        function parseRatesCSV(csvText) {
+        function parseRatesCSV(csvText) {        // Rates CSV Parser
             const lines = csvText.trim().split(/\r\n|\n/);
             if (lines.length < 1) return [];
             const splitLine = (text) => {
@@ -2395,7 +2225,6 @@
                 }
                 return matches;
             };
-
             const headers = splitLine(lines[0]).map(h => h.toLowerCase().trim());         
             const uniqueMap = new Map();            // Map to store unique entries. Key: Type + Name (lowercase)
             const typeIdx = headers.indexOf('type');
@@ -2406,11 +2235,9 @@
                 showToast("Sheet must have 'Type', 'Name', 'Rate', 'Plain' columns");
                 return [];
             }
-
             for (let i = 1; i < lines.length; i++) {
                 const line = lines[i].trim();
-                if (!line) continue;
-                
+                if (!line) continue;                
                 const currentline = splitLine(line);                 
                 const typeRaw = currentline[typeIdx]?.trim().toLowerCase();
                 const name = currentline[nameIdx]?.trim();
@@ -2465,17 +2292,10 @@
             return Array.from(uniqueMap.values());    // Convert Map values back to array
         }
 
-        // RENDER ADD MENUS & SORTING      
-        // Sorting logic for Metals: Gold > Silver > Others
-        function sortMetals(a, b) {
+        function sortMetals(a, b) {        // RENDER ADD MENUS & SORTING (Sorting logic for Metals: Gold > Silver > Others)
             const nameA = a.name.toLowerCase();
             const nameB = b.name.toLowerCase();
-
-            // Helper to get score. Higher score = Higher priority.
-            // Gold: 10000 + Purity
-            // Silver: 5000 + Purity
-            // Others: 0
-            function getMetalScore(name) {
+            function getMetalScore(name) {            // Helper to get score. Higher score = Higher priority [Gold: 10000 + Purity, Silver: 5000 + Purity, Others: 0]
                 if (name.includes('gold')) {
                     const match = name.match(/(\d+)/);
                     const purity = match ? parseInt(match[0]) : 0;
@@ -2488,35 +2308,23 @@
                 }
                 return 0; 
             }
-
             const scoreA = getMetalScore(nameA);
             const scoreB = getMetalScore(nameB);
-
-            if (scoreA !== scoreB) {
-                return scoreB - scoreA; // Descending score
-            }
+            if (scoreA !== scoreB) { return scoreB - scoreA; } // Descending score           
             return nameA.localeCompare(nameB); // Fallback to alphabetical
         }
 
-        // Sorting logic for Stones: Diamond > Ruby > Emerald > Sapphire > Pearl > Others
-        function sortStones(a, b) {
+        function sortStones(a, b) {        // Sorting logic for Stones: Diamond > Ruby > Emerald > Sapphire > Pearl > Others
             const priorities = ['diamond', 'ruby', 'emerald', 'sapphire', 'pearl'];
             const nameA = a.name.toLowerCase();
             const nameB = b.name.toLowerCase();
-
             function getStoneRank(name) {
-                for (let i = 0; i < priorities.length; i++) {
-                    if (name.includes(priorities[i])) return i;
-                }
+                for (let i = 0; i < priorities.length; i++) { if (name.includes(priorities[i])) return i; }
                 return 100; // Last priority
             }
-
             const rankA = getStoneRank(nameA);
             const rankB = getStoneRank(nameB);
-
-            if (rankA !== rankB) {
-                return rankA - rankB; // Ascending rank (0 is best)
-            }
+            if (rankA !== rankB) { return rankA - rankB; } // Ascending rank (0 is best)           
             return nameA.localeCompare(nameB); // Fallback to alphabetical
         }
 
@@ -2538,7 +2346,6 @@
             const validStones = rates    // Filter and Sort Stones
                 .filter(r => r.type === 'stone' && r.name)
                 .sort(sortStones);
-
             validMetals.forEach(r => {
 		const cleanName = getCleanMetalName(r.name);
                 const btn = document.createElement('button');
@@ -2546,8 +2353,7 @@
                 btn.onclick = () => addMetalByName(cleanName);
                 btn.innerHTML = `${cleanName}`;
                 metalMenu.appendChild(btn);
-            });
-            
+            });            
             validStones.forEach(r => {
                 const btn = document.createElement('button');
                 btn.className = 'add-chip stone';
@@ -2555,7 +2361,6 @@
                 btn.innerHTML = `${r.name}`;
                 stoneMenu.appendChild(btn);
             });
-
             const addBtn = document.createElement('button');
             addBtn.className = 'add-chip border-dashed border-blue-500 text-blue-400';
             addBtn.onclick = () => addNewStoneToMenu();
@@ -2573,8 +2378,7 @@
                     type: 'stone', 
                     price: 0, 
                     isSynced: false 
-                };
-                
+                };                
                 rates.push(newStone);
                 renderAddMenus(); // Refresh buttons to show the new one
                 addItem('stone', newId); // Automatically add it to the calculator
@@ -2582,16 +2386,10 @@
             }
         }
 
-        // CALCULATOR LOGIC
-        function addItem(type, specificRateId) {
+        function addItem(type, specificRateId) {        // CALCULATOR LOGIC
             const id = 'item_' + Date.now() + Math.random().toString(36).substr(2, 9);
-            const rateToUse = rates.find(r => r.id === specificRateId);
-            
-            if (!rateToUse) {
-                showToast(`Error: Rate not found.`);
-                return;
-            }
-
+            const rateToUse = rates.find(r => r.id === specificRateId);            
+            if (!rateToUse) { showToast(`Error: Rate not found.`); return; }
             items.push({ id: id, type: type, rateId: rateToUse.id, weight: 0, manualPrice: 0 });
             renderRow(items[items.length - 1]);
             calculateTotals();
@@ -2608,17 +2406,12 @@
                     calculateTotals();
                 }, 300);
             }
-        }
-        
-        // STONE PRICE DECODING LOGIC      
-        function decodePrice(inputStr) {
+        }        
+      
+        function decodePrice(inputStr) {        // STONE PRICE DECODING LOGIC
             if(!inputStr) return 0;    //Clean input
             const cleanStr = inputStr.toString().toUpperCase().trim();
-
-            if (!isNaN(parseFloat(cleanStr)) && isFinite(cleanStr)) {    //Check if it's already a pure number
-                return parseFloat(cleanStr);
-            }
-
+            if (!isNaN(parseFloat(cleanStr)) && isFinite(cleanStr)) { return parseFloat(cleanStr); }    //Check if it's already a pure number
             const encodingMap = {'B':1, 'R':2, 'I':3, 'J':4, 'M':5, 'O':6, 'H':7, 'A':8, 'N':9, 'X':0};
             let decodedNumStr = "";
             for (let char of cleanStr) {
@@ -2630,16 +2423,13 @@
                     return 0;
                 }
             }
-
             if (decodedNumStr.length > 0) {   //Apply Multiplier (*1000)
                 return parseFloat(decodedNumStr) * 1000;
             }
-
             return 0;
         }
 
-	// Inline Icon Validation
-	function setIcon(input, message) {
+	function setIcon(input, message) {	// Inline Icon Validation
     	    let icon = input.parentElement.querySelector('.error-icon');
             if (!icon) {
         	icon = document.createElement('span');
@@ -2695,8 +2485,7 @@
                 }
                 else if(field === 'manualPrice') {
                     item.manualPrice = decodePrice(value);
-                }
-                
+                }                
                 updateRowDisplay(item);
                 calculateTotals();
             }
@@ -2748,7 +2537,6 @@
                     }
                 }
             });
-
             animateValue(document.getElementById('display-total-price'), totalCost);
             document.getElementById('display-gross-weight').innerText = totalWeightGrams.toFixed(3);
             document.getElementById('metal-subtotal').innerText = metalCost.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
@@ -2757,43 +2545,34 @@
 	    updateMarginProfit();
         }
 
-        function animateValue(obj, end) {
-            obj.innerText = end.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
-        }
+        function animateValue(obj, end) { obj.innerText = end.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
 
 	function togglePrivacy() {
             const el = document.getElementById('val-blur-target');
             if (el) el.classList.toggle('revealed');
         }
 
-        // RENDERING CALCULATOR
-        function renderCalculator() {
+        function renderCalculator() {        // RENDERING CALCULATOR
             document.getElementById('metal-list').innerHTML = '';
             document.getElementById('stone-list').innerHTML = '';
             items.forEach(item => renderRow(item));
         }
 
-        // Helper function to format input on blur
-        function formatRowInput(id, input) {
+        function formatRowInput(id, input) {        // Helper function to format input on blur
 	    clearIcon(input);
             const item = items.find(i => i.id === id);
-            if(!item) return;
-            
+            if(!item) return;            
             const isMetal = item.type === 'metal';
-            const precision = isMetal ? 3 : 2;
-            
+            const precision = isMetal ? 3 : 2;            
             let val = parseFloat(input.value);
-            if(isNaN(val)) val = 0;            
-
+            if(isNaN(val)) val = 0;
             const rounded = parseFloat(val.toFixed(precision));   // Round logic
-            item.weight = rounded;            
-
+            item.weight = rounded;
             if(rounded > 0) {       // Update UI if value > 0
                 input.value = rounded.toFixed(precision);
             } else {
                 input.value = '';  // Keep empty or placeholder visible if 0
-            }
-            
+            }            
             updateRowDisplay(item);
             calculateTotals();
         }
@@ -2812,16 +2591,10 @@
 	    return true;
 	}
 
-	function validateWeight(input) {
-	    validateInput(input, 'Required', 'Must be greater than 0');
-	}
+	function validateWeight(input) { validateInput(input, 'Required', 'Must be greater than 0'); }
+	function validateRate(input) { validateInput(input, 'Rate missing', 'Invalid rate'); }
 
-	function validateRate(input) {
-	    validateInput(input, 'Rate missing', 'Invalid rate');
-	}
-
-        // Helper for Rounding Rate Input (Stones)
-        function formatRateInput(id, input) {
+        function formatRateInput(id, input) {        // Helper for Rounding Rate Input (Stones)
 	    clearIcon(input);
             const item = items.find(i => i.id === id);
             if(!item) return;            
@@ -2835,8 +2608,7 @@
 		input.value = val.toFixed(2);
             } else {
                 input.value = ''; 
-            }
-            
+            }            
             updateRowDisplay(item);
             calculateTotals();
         }
@@ -2856,7 +2628,6 @@
             const stepVal = isStone ? '0.01' : '0.001';
             const displayVal = item.weight > 0 ? item.weight.toFixed(precision) : ''; // Only force format if value exists, otherwise empty string lets placeholder show
             const placeholderVal = isStone ? '0.00' : '0.000';
-
             let rateInputHtml = '';            // Rate Input for Stones
             if (isStone) {
                 const isTotalMode = item.rateMode === 'total';
@@ -2901,15 +2672,6 @@
             updateRowDisplay(item);
         }
 
-        // SETTINGS LOGIC
-        function toggleSettings() {
-            const modal = document.getElementById('settings-modal');
-            modal.classList.toggle('active');
-            if(modal.classList.contains('active')) {
-                renderSettings();
-            }
-        }
-
         function renderSettings() {
             const metalList = document.getElementById('settings-metals-list');           
             metalList.innerHTML = '';
@@ -2933,7 +2695,6 @@
     	    const deleteBtn = isSynced ?     // Delete Button Logic: Hide if synced
         	`<div class="delete-btn-corner text-gray-600"><i class="fas fa-lock"></i></div>` : 
 	        `<button onclick="deleteRate('${rate.id}')" class="delete-btn-corner text-gray-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"><i class="fas fa-times"></i></button>`;
-
             div.innerHTML = `
         	${deleteBtn}
 	        <input type="text" value="${rate.name}" ${!isSynced ? `oninput="updateRateInline('${rate.id}', 'name', this.value)"` : ''} 
@@ -2988,15 +2749,6 @@
             }
         }
 
-        // SUMMARY & SHARE LOGIC
-        function toggleSummary() {
-            const modal = document.getElementById('summary-modal');
-            modal.classList.toggle('active');
-            if(modal.classList.contains('active')) {
-                generateSummary();
-            }
-        }
-
         function toggleSummaryOption(option) {
             summaryState[option] = !summaryState[option];
             generateSummary();
@@ -3020,17 +2772,14 @@
 	    generateSummary();
 	}
         
-        // SHARE ADDONS FUNCTIONS
-        function toggleShareOption(option) {
+        function toggleShareOption(option) {        // SHARE ADDONS FUNCTIONS
             shareOptions[option] = !shareOptions[option];
             renderShareAddons();
         }
         
         function toggleAllShareOptions() {
             const allTrue = shareOptions.discount && shareOptions.tax && shareOptions.roundOff && shareOptions.forex;   // Check if all individual options are currently true
-            
-            // Toggle to opposite
-            const newState = !allTrue;
+            const newState = !allTrue;            // Toggle to opposite
             shareOptions.discount = newState;
             shareOptions.tax = newState;
             shareOptions.roundOff = newState;
@@ -3049,32 +2798,24 @@
                     btn.classList.add('border-gray-600', 'text-gray-300');
                 }
             };
-
             updateBtn('btn-share-discount', shareOptions.discount);
             updateBtn('btn-share-tax', shareOptions.tax);
             updateBtn('btn-share-round', shareOptions.roundOff);
 	    updateBtn('btn-share-forex', shareOptions.forex);
         }
 
-	// Tax Configuration
-	let taxConfig = JSON.parse(localStorage.getItem('ejpc_tax_config')) || { mode: 'india', name: 'GST', rate: 3 };
-
-	// Long Press Handling
-	let pressTimer = null;
+	let taxConfig = JSON.parse(localStorage.getItem('ejpc_tax_config')) || { mode: 'india', name: 'GST', rate: 3 };	// Tax Configuration
+	let pressTimer = null;	// Long Press Handling
 	const TAX_PRESS_DURATION = 3000; // 3 seconds
 	const DISC_PRESS_DURATION = 3500; // 3.5 seconds
-
 	function startPress(e, type) {
 	    if (e.type === 'mousedown' && e.button !== 0) return;    
-	    cancelPress(); // clear any existing
-    
-	    const duration = type === 'tax' ? TAX_PRESS_DURATION : DISC_PRESS_DURATION;
-    
+	    cancelPress(); // clear any existing    
+	    const duration = type === 'tax' ? TAX_PRESS_DURATION : DISC_PRESS_DURATION;    
 	    pressTimer = setTimeout(() => {
 	        if (navigator.vibrate) navigator.vibrate([50, 50, 50]);        
 	        if (type === 'tax') toggleTaxSettings();
-	        if (type === 'discount') toggleDiscount();
-        
+	        if (type === 'discount') toggleDiscount();        
 	        pressTimer = null;
 	    }, duration);
 	}
@@ -3088,8 +2829,7 @@
 
 	function toggleTaxSettings() {
 	    const modal = document.getElementById('tax-settings-modal');
-	    modal.classList.toggle('active');
-    
+	    modal.classList.toggle('active');    
 	    if (modal.classList.contains('active')) {
 	        renderTaxSettings();
 	    }
@@ -3097,8 +2837,7 @@
 
 	function renderTaxSettings() {
 	    const btnIndia = document.getElementById('btn-tax-india');
-	    const btnAbroad = document.getElementById('btn-tax-abroad');
-    
+	    const btnAbroad = document.getElementById('btn-tax-abroad');    
 	    if (taxConfig.mode === 'india') {
 	        btnIndia.classList.add('bg-yellow-500', 'text-black', 'border-yellow-500');
 	        btnIndia.classList.remove('text-gray-300', 'border-gray-600');
@@ -3110,19 +2849,16 @@
 	        btnIndia.classList.remove('bg-yellow-500', 'text-black', 'border-yellow-500');
 	        btnIndia.classList.add('text-gray-300', 'border-gray-600');
 	    }
-
 	    document.getElementById('tax-name-input').value = taxConfig.name;
 	    document.getElementById('tax-rate-input').value = taxConfig.rate;
 	}
 
 	function setTaxMode(mode) {
-	    taxConfig.mode = mode;
-    
+	    taxConfig.mode = mode;    
 	    if (mode === 'india') {
 	        taxConfig.name = 'GST'; //Default Indian Tax Name
 	        taxConfig.rate = 3;  //Default Indian Tax %
-	    }
-    
+	    }    
 	    localStorage.setItem('ejpc_tax_config', JSON.stringify(taxConfig));
 	    renderTaxSettings();
 	    generateSummary();
@@ -3130,11 +2866,9 @@
 
 	function updateTaxConfig() {
 	    const name = document.getElementById('tax-name-input').value;
-	    const rate = parseFloat(document.getElementById('tax-rate-input').value);
-    
+	    const rate = parseFloat(document.getElementById('tax-rate-input').value);    
 	    if (name) taxConfig.name = name;
-	    if (!isNaN(rate)) taxConfig.rate = rate;
-    
+	    if (!isNaN(rate)) taxConfig.rate = rate;    
 	    localStorage.setItem('ejpc_tax_config', JSON.stringify(taxConfig));
 	    generateSummary();
 	}
@@ -3167,7 +2901,6 @@
                     }                    
                     const nameLabel = item.type === 'metal' ? getCleanMetalName(rate.name || "Unnamed Item") : (rate.name || "Unnamed Item");
 		    const rateDisplay = isStealthMode ? "" : ` / ${displayRate.toFixed(2)}`;
-
                     html += `
                     <div class="invoice-row">
                         <span>${nameLabel} <span class="text-xs text-gray-500">(${weightDisplay}${unit}${rateDisplay})</span></span>
@@ -3176,25 +2909,16 @@
                     `;
                 }
             });
-
-            if(items.filter(i => i.weight > 0).length === 0) {
-                html += `<div class="text-center text-gray-500 py-4">No item added yet</div>`;
-            }
-
+            if(items.filter(i => i.weight > 0).length === 0) { html += `<div class="text-center text-gray-500 py-4">No item added yet</div>`; }
             html += `<div class="invoice-divider"></div>`;
-
-            // Gross Weight Row
             html += `
-            <div class="invoice-row">
+            <div class="invoice-row">            // Gross Weight Row
                 <span>Gross Weight</span>
                 <span class="invoice-val">${grossWeight.toFixed(3)} g</span>
             </div>
             `;
-
             let runningTotal = total;
-
-            // Discount Row
-            if (discountData.active) {
+            if (discountData.active) {            // Discount Row
                 const amountSaved = runningTotal * (discountData.percentage / 100);
                 const discountedTotal = runningTotal - amountSaved;                
                 runningTotal = discountedTotal;                
@@ -3207,20 +2931,14 @@
                 </div>
                 `;
             }
-
-            // Tax Logic
-            let taxAmount = 0;
-
+            let taxAmount = 0;            // Tax Logic
             if (summaryState.tax) {
 	        const taxName = taxConfig.name;
 	 	const taxRate = taxConfig.rate;
 		taxAmount = runningTotal * (taxRate / 100);
-                
-                // Tax Row
-        	const taxEvents = `onmousedown="startPress(event, 'tax')" ontouchstart="startPress(event, 'tax')" onmouseup="cancelPress()" onmouseleave="cancelPress()" ontouchend="cancelPress()" ontouchmove="cancelPress()"`;
-                
+        	const taxEvents = `onmousedown="startPress(event, 'tax')" ontouchstart="startPress(event, 'tax')" onmouseup="cancelPress()" onmouseleave="cancelPress()" ontouchend="cancelPress()" ontouchmove="cancelPress()"`;                
 		html += `
-		<div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded select-none" onclick="toggleSummaryOption('tax')" ${taxEvents}>
+		<div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded select-none" onclick="toggleSummaryOption('tax')" ${taxEvents}>                // Tax Row
 	            <div class="flex items-center gap-2">
 	                <span>${taxName} (${taxRate}%)</span>
 	            </div>
@@ -3229,18 +2947,15 @@
                 `;
                  runningTotal += taxAmount;
             } else {
-                // Disabled Tax Row
                 html += `
-                <div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleSummaryOption('tax')">
+                <div class="invoice-row items-center cursor-pointer hover:bg-white/5 p-1 -mx-1 rounded" onclick="toggleSummaryOption('tax')">                // Disabled Tax Row
 	            <div class="flex items-center gap-2">
 	                <span class="text-gray-500">${taxConfig.name} (${taxConfig.rate}%)</span>
 	            </div>
 	        </div>
                 `;
             }
-
-            // Round Off Logic
-            let roundOffAmount = 0;
+            let roundOffAmount = 0;            // Round Off Logic
             let roundDiffClass = "text-gray-500";
             if (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
 		let mode = summaryState.roundOffMode;
@@ -3258,20 +2973,17 @@
 			mode = (testRounded - runningTotal < 0) ? 1000 : 5000;                        
                     }
 		    summaryState.roundOffMode = mode;
-                }
-                
+                }                
                 const rounded = Math.round(runningTotal / mode) * mode;
 		roundOffAmount = rounded - runningTotal;                
                 runningTotal = rounded;
                 roundDiffClass = roundOffAmount >= 0 ? 'text-gray-400' : 'text-red-400';
             }
-
             const sign = roundOffAmount >= 0 ? '+' : '-';
             const displayDiff = (summaryState.roundOffEnabled && summaryState.roundOffMode > 0) ? `${sign}₹${Math.abs(roundOffAmount).toFixed(0)}` : '';         
             const AutoRoundOffBtn = !summaryState.showRoundOptions ? 'text-purple-500' : 'text-gray-500';
             const isRoundNeg = roundOffAmount < 0;
-	    const blinkBtn = (isRoundNeg && !summaryState.showRoundOptions) ? 'blink-active' : '';
-  
+	    const blinkBtn = (isRoundNeg && !summaryState.showRoundOptions) ? 'blink-active' : '';  
             if (!isStealthMode) {      // Render Row ONLY if not in stealth mode
 		if (summaryState.roundOffEnabled) {
                     html += `
@@ -3290,8 +3002,7 @@
                                 </button>
                             </div>
                             <span class="invoice-val ${roundDiffClass}">${displayDiff}</span>
-                        </div>
-                    
+                        </div>                    
                     <div class="${summaryState.showRoundOptions ? 'flex' : 'hidden'} justify-start gap-3 mb-2 animate-[slideIn_0.2s_ease-out]">
                         <button onclick="setRoundMode(1)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 1 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">1</button>
                         <button onclick="setRoundMode(10)" class="w-8 h-8 rounded border ${summaryState.roundOffMode === 10 ? 'border-yellow-500 bg-yellow-500 text-black' : 'border-gray-600 text-gray-400 hover:border-gray-400'} font-bold text-xs flex items-center justify-center transition-all">10</button>
@@ -3310,20 +3021,16 @@
                     </div>
                     `;
                 }
-            }	    
-
-            // Final Total Row
+            }
             html += `
-            <div class="invoice-row mt-4 pt-2 pb-0 border-t border-gray-800">
+            <div class="invoice-row mt-4 pt-2 pb-0 border-t border-gray-800">            // Final Total Row
                 <div class="flex items-center gap-2">
                     <span class="text-white font-bold text-xl">Total Price</span>
                 </div>
                 <span class="invoice-total">₹${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span>
             </div>
             `;
-
-	// Currency Row
-            if (globalExchangeRate > 0) {
+            if (globalExchangeRate > 0) {	// Currency Row
                 const convertedAmt = runningTotal * globalExchangeRate;
                 const symbol = currencySymbols[globalTargetCode] || globalTargetCode;
                 html += `
@@ -3336,7 +3043,6 @@
                 `;
             }
             container.innerHTML = html;
-
 	    const marginToggleBtn = document.getElementById('margin-type-btn');
             if (marginToggleBtn) {
                 if (isStealthMode) {
@@ -3347,9 +3053,7 @@
 	    }
 	    updateMarginProfit();
         }
-
 	let tempShareString = "";
-
         function shareSummary() {
             let text = "";
             let total = 0;
@@ -3390,7 +3094,6 @@
                 }
                 runningTotal = discountedTotal;
             }
-
             if(summaryState.tax) {
                 const tax = runningTotal * (taxConfig.rate/100);
                 if(shareOptions.tax) {
@@ -3398,11 +3101,9 @@
                 }
                 runningTotal += tax;
             }
-
             if(summaryState.roundOffEnabled && summaryState.roundOffMode > 0) {
                 const m = summaryState.roundOffMode;
-                const rounded = Math.round(runningTotal / m) * m;                
-             
+                const rounded = Math.round(runningTotal / m) * m;             
                 if (shareOptions.roundOff) {   // Only add the Round Off line if the user opted to share it
                     const diff = rounded - runningTotal;
                     const sign = diff >= 0 ? '+' : '-';
@@ -3410,20 +3111,16 @@
                 }                
                 runningTotal = rounded; // Always update the total to the rounded value
             }
-
             text += `Total Price : ₹ ${runningTotal.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}`;
-
 	    if (shareOptions.forex && globalExchangeRate > 0) {
                 const convertedAmt = runningTotal * globalExchangeRate;
                 text += `\nEst. in ${globalTargetCode} : ${Math.ceil(convertedAmt).toLocaleString('en-US', {style: 'currency', currency: globalTargetCode, minimumFractionDigits: 0, maximumFractionDigits: 0}).replace(/([^\d\s])(\d)/, '$1 $2')}`;
-            }
-	
+            }	
         tempShareString = text;
         openNamePopup(); // Store text and Open Name Modal
     	}
 
-	// Name Popup Functions
-    function openNamePopup() {
+    function openNamePopup() {	// Name Popup Functions
         const modal = document.getElementById('name-popup');
         const input = document.getElementById('popup-item-name');
         loadNameHistory(); // Load previous inputs
@@ -3431,14 +3128,11 @@
         modal.classList.add('active');
     }
 
-    function closeNamePopup() {
-        document.getElementById('name-popup').classList.remove('active');
-    }
+    function closeNamePopup() { document.getElementById('name-popup').classList.remove('active'); }
 
     function confirmName() {
         const input = document.getElementById('popup-item-name');
-        const name = input.value.trim();
-        
+        const name = input.value.trim();        
         if (name) {
             saveNameHistory(name);
             const finalText = `${name}\n\n${tempShareString}`;  // Add Name to the TOP of the text
@@ -3454,8 +3148,7 @@
         closeNamePopup();
     }
 
-    // History Management (Local Storage)
-    function saveNameHistory(val) {
+    function saveNameHistory(val) {    // History Management (Local Storage)
         let history = JSON.parse(localStorage.getItem('itemNameHistory') || "[]");     
         history = history.filter(h => h !== val);   // Remove if exists (to move to top)    
         history.unshift(val);    // Add to top 
@@ -3469,15 +3162,14 @@
         list.innerHTML = history.map(h => `<option value="${h}">`).join('');
     }
 
-    // Final Share Helper
-    async function finalizeShare(str) {
+    async function finalizeShare(str) {    // Final Share Helper
 	if (navigator.share) {
             try {
                 await navigator.share({
                     title: 'EJPC Sharing',
                     text: str
                 });
-                showToast("Shared Successfully!"); 
+                showToast("Sharing Summary"); 
             } catch (err) {
                 if (err.name !== 'AbortError') console.error('Share failed:', err);
             }
@@ -3491,17 +3183,14 @@
             const txt = document.getElementById('toast-msg');
             txt.innerText = msg;
             toast.style.opacity = '1';
-            toast.style.transform = 'translate(-50%, 0)';
-            
+            toast.style.transform = 'translate(-50%, 0)';            
             setTimeout(() => {
                 toast.style.opacity = '0';
                 toast.style.transform = 'translate(-50%, 20px)';
             }, 3000);
         }
 
-	// QUOTATION HISTORY LOGIC
-	let quotationHistory = JSON.parse(localStorage.getItem('ejpc_quotations') || "[]");
-
+	let quotationHistory = JSON.parse(localStorage.getItem('ejpc_quotations') || "[]");	// QUOTATION HISTORY LOGIC
 	function toggleHistory() {
 	    const modal = document.getElementById('history-modal');
 	    if(!modal) return; 
@@ -3516,12 +3205,10 @@
 	        showToast("Calculator is empty!");
 	        return;
 	    }
-
 	    const totalEl = document.getElementById('display-total-price');
 	    const totalVal = totalEl ? totalEl.innerText : "0.00";	  
 	    const count = quotationHistory.length + 1;
 	    const defaultName = `Quote #${count}`;  // Generate Default Name (e.g. Quote #1)
-
 	    const quote = {
 	        id: Date.now(),
 	        name: defaultName,
@@ -3531,10 +3218,8 @@
 		margin: profitMargins.metal,
 	        discountPercent: discountData.percentage || 0
 	    };
-
 	    quotationHistory.unshift(quote);
-	    if(quotationHistory.length > 50) quotationHistory.pop(); // Limit to 50 items
-    
+	    if(quotationHistory.length > 50) quotationHistory.pop(); // Limit to 50 items    
 	    localStorage.setItem('ejpc_quotations', JSON.stringify(quotationHistory));
 	    showToast("Quotation Saved!");
 	}
@@ -3542,19 +3227,16 @@
 	function filterHistory() {
 	    const input = document.getElementById('history-search-input');
 	    const term = input.value.toLowerCase().trim();
-
 	    if (term === '') {
 	        renderHistoryList(quotationHistory); // Show all if empty
 	        return;
 	    }
-
 	    const filtered = quotationHistory.filter(q => {
 	        if ((q.name && q.name.toLowerCase().includes(term)) ||	        // A. Search Top-Level Info (Name, Date, Total)
 	            (q.date && q.date.toLowerCase().includes(term)) ||
 	            (String(q.total).includes(term))) {
 	            return true;
 	        }
-
 	        if (q.items && q.items.length > 0) {	        // B. Search Inside Items (e.g. "Diamond", "Gold")
 	            return q.items.some(item => {	            
 	                const rate = rates.find(r => r.id === item.rateId);    // Resolve Rate Name from ID
@@ -3571,9 +3253,7 @@
 	    const searchContainer = document.getElementById('history-search-container');
 	    const searchInput = document.getElementById('history-search-input');
 	    const list = document.getElementById('history-list');
-
 	    if (searchInput) searchInput.value = '';	    // Clear search input on open
-
 	    if (quotationHistory.length === 0) {    // Hide search if no history	    
 	        if (searchContainer) searchContainer.classList.add('hidden');
 	        list.innerHTML = `<div class="text-gray-500 text-center mt-10 italic text-sm">No saved quotations</div>`;
@@ -3714,9 +3394,7 @@
 	        document.getElementById('quote-details-modal').classList.add('active');
 	    }
 
-    function closeQuoteDetails() {
-        document.getElementById('quote-details-modal').classList.remove('active');
-    }
+        function closeQuoteDetails() { document.getElementById('quote-details-modal').classList.remove('active'); }
 
 	function editQuotationName(e, id) {
 	    e.stopPropagation(); 
@@ -3761,6 +3439,7 @@
 	            calculateTotals();
 	            toggleHistory();
 	            showToast("Quotation Loaded");
+		    toggleSummary();
 	        }
 	    }
 	}
