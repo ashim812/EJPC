@@ -2939,7 +2939,7 @@
             `;
 	    if (summaryState.showMakingCharges) {
                 html += `
-                <div class="invoice-row text-indigo-500 p-1 -mx-1"><span>Wstg. + MC</span><span class="invoice-val">₹${makingCharge.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span></div>
+                <div class="invoice-row p-1 -mx-1"><span>Wstg. + MC</span><span class="invoice-val text-indigo-500">₹${makingCharge.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span></div>
                 `;
             }
             let runningTotal = total;
