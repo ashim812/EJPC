@@ -650,7 +650,7 @@
                 </button>
             </div>
 	    <div class="text-md text-yellow-500 font-mono font-bold text-center"><span id="margin-profit"></span> <span id="margin-profit-pct" class="text-xs"></span></div>
-            <div class="text-xs text-gray-400 font-mono text-center">(Wastage + Making) Charge %: <span id="making-charge-pct" class="font-bold"></span></div>
+            <div class="text-xs text-gray-400 font-mono text-center">(Wstg. + MC) % : <span id="making-charge-pct" class="font-bold"></span></div>
         </div>
 
         <div id="margin-edit-view" class="p-3 flex flex-col gap-0.5 hidden">          
@@ -2939,7 +2939,7 @@
             `;
 	    if (summaryState.showMakingCharges) {
                 html += `
-                <div class="invoice-row"><span>(Wastage + Making) Charges</span><span class="invoice-val">₹${makingCharge.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span></div>
+                <div class="invoice-row p-1 -mx-1"><span>Wstg. + MC</span><span class="invoice-val">₹${makingCharge.toLocaleString('en-IN', {minimumFractionDigits: 0, maximumFractionDigits: 0})}</span></div>
                 `;
             }
             let runningTotal = total;
